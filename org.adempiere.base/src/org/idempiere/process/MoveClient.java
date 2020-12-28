@@ -36,10 +36,12 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.exceptions.DBException;
 import org.compiere.db.CConnection;
 import org.compiere.model.MColumn;
 import org.compiere.model.MSequence;
 import org.compiere.model.MTable;
+import org.compiere.model.MUser;
 import org.compiere.model.Query;
 import org.compiere.model.X_AD_Package_UUID_Map;
 import org.compiere.process.ProcessInfoParameter;
@@ -231,6 +233,7 @@ public class MoveClient extends SvrProcess {
 
 			if (! p_IsValidateOnly) {
 				moveClient();
+				setPassword();
 			}
 		} finally {
 			if (externalConn != null)
@@ -240,6 +243,51 @@ public class MoveClient extends SvrProcess {
 		checkSequences();
 
 		return "@OK@";
+	}
+
+	private void setPassword() {
+		StringBuilder sql = new StringBuilder("SELECT target_id FROM T_MoveClient WHERE AD_PInstance_ID=? AND TableName=?");
+		int retValue = -1;
+    	PreparedStatement pstmt = null;
+    	ResultSet rs = null;
+    	try
+    	{
+    		pstmt = DB.prepareStatement(sql.toString(), get_TrxName());
+    		DB.setParameter(pstmt, 1, getAD_PInstance_ID());
+    		DB.setParameter(pstmt, 2, "AD_CLIENT");
+    		rs = pstmt.executeQuery();
+    		if (rs.next())
+    			retValue = rs.getInt(1);
+    		else
+    			if (log.isLoggable(Level.FINE)) log.fine("No Value " + sql);
+    	}
+    	catch (SQLException e)
+    	{
+    		throw new DBException(e, sql.toString());
+    	}
+    	finally
+    	{
+    		try {
+				pstmt.close();
+				rs.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		
+    		rs = null; pstmt = null;
+    	}
+		
+		StringBuilder whereClause = new StringBuilder("AD_Client_ID = ?");
+		List<MUser> users = new Query(getCtx(), MUser.Table_Name,
+				whereClause.toString(),
+				get_TrxName())
+				.setParameters(retValue)
+				.setOnlyActiveRecords(true).list();
+		for(MUser user : users) {
+			user.setPassword(user.getName());
+			user.saveEx(get_TrxName());
+		}
 	}
 
 	private void validate() {
