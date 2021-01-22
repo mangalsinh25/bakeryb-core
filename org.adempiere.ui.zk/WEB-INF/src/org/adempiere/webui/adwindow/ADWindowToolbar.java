@@ -54,7 +54,6 @@ import org.compiere.util.Msg;
 import org.compiere.util.Util;
 import org.compiere.util.ValueNamePair;
 import org.zkoss.image.AImage;
-import org.zkoss.zk.au.out.AuScript;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Page;
@@ -92,7 +91,7 @@ public class ADWindowToolbar extends FToolbar implements EventListener<Event>
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -8494819673584541046L;
+	private static final long serialVersionUID = -5151981978053022864L;
 
 	public static final String BTNPREFIX = "Btn";
 	
@@ -870,6 +869,12 @@ public class ADWindowToolbar extends FToolbar implements EventListener<Event>
 							break;
 						}					
 					}					
+				}
+				else if (p instanceof Combobox) {
+					if (restrictName.equals(((Combobox) p).getId())) {
+						this.removeChild(p);
+						break;
+					}
 				}
 			}
 
