@@ -4,9 +4,7 @@ Bundle-Name: iDempiere Plugin Utils
 Bundle-SymbolicName: org.adempiere.plugin.utils
 Bundle-Version: 8.1.0.qualifier
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version>=11))"
-Import-Package: org.adempiere.base,
- org.adempiere.util,
- org.apache.xerces.dom;version="2.9.0",
+Import-Package: org.apache.xerces.dom;version="2.9.0",
  org.apache.xerces.dom.events;version="2.9.0",
  org.apache.xerces.dom3.as;version="2.9.0",
  org.apache.xerces.impl;version="2.9.0",
