@@ -57,7 +57,7 @@ public class OrderLineCreateShipment extends SvrProcess
 		}
 		
 		if (p_MovementDate == null)
-			p_MovementDate = Env.getContextAsDate(getCtx(), Env.DATE);
+			p_MovementDate = Env.getContextAsDate(getCtx(), "#Date");
 		if ( p_MovementDate==null)
 			p_MovementDate = new Timestamp(System.currentTimeMillis());
 		

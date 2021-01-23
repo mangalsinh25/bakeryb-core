@@ -139,7 +139,7 @@ public class ImmediateBankTransfer extends SvrProcess
 
 		//	Login Date
 		if (p_StatementDate == null)
-			p_StatementDate = Env.getContextAsDate(getCtx(), Env.DATE);
+			p_StatementDate = Env.getContextAsDate(getCtx(), "#Date");
 		if (p_StatementDate == null)
 			p_StatementDate = new Timestamp(System.currentTimeMillis());			
 

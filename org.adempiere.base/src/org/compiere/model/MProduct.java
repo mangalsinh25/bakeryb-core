@@ -53,7 +53,7 @@ public class MProduct extends X_M_Product implements ImmutablePOSupport
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8710213660955199146L;
+	private static final long serialVersionUID = -6713953630334843853L;
 
 	/**
 	 * 	Get MProduct from Cache (immutable)
@@ -73,18 +73,6 @@ public class MProduct extends X_M_Product implements ImmutablePOSupport
 	 */
 	public static MProduct get (Properties ctx, int M_Product_ID)
 	{
-		return get(ctx, M_Product_ID, null);
-	}	//	get
-
-	/**
-	 * 	Get MProduct from Cache (immutable)
-	 *	@param ctx context
-	 *	@param M_Product_ID id
-	 *  @param trxName trx
-	 *	@return MProduct or null
-	 */
-	public static MProduct get (Properties ctx, int M_Product_ID, String trxName)
-	{
 		if (M_Product_ID <= 0)
 		{
 			return null;
@@ -94,7 +82,7 @@ public class MProduct extends X_M_Product implements ImmutablePOSupport
 		if (retValue != null)
 			return retValue;
 		
-		retValue = new MProduct (ctx, M_Product_ID, trxName);
+		retValue = new MProduct (ctx, M_Product_ID, (String)null);
 		if (retValue.get_ID () == M_Product_ID)
 		{
 			s_cache.put (key, retValue, e -> new MProduct(Env.getCtx(), e));

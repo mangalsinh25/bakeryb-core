@@ -89,7 +89,8 @@ public class MMailText extends X_R_MailText
 	 */
 	public String getMailText(boolean all)
 	{
-		translate();
+		if (m_MailText == null)
+			translate();
 		if (!all)
 			return parse(m_MailText);
 		//
@@ -111,7 +112,8 @@ public class MMailText extends X_R_MailText
 	 */
 	public String getMailText()
 	{
-		translate();
+		if (m_MailText == null)
+			translate();
 		return parse (m_MailText);
 	}	//	getMailText
 	
@@ -121,7 +123,8 @@ public class MMailText extends X_R_MailText
 	 */
 	public String getMailText2()
 	{
-		translate();
+		if (m_MailText == null)
+			translate();
 		return parse (m_MailText2);
 	}	//	getMailText2
 
@@ -131,7 +134,8 @@ public class MMailText extends X_R_MailText
 	 */
 	public String getMailText3()
 	{
-		translate();
+		if (m_MailText == null)
+			translate();
 		return parse (m_MailText3);
 	}	//	getMailText3
 
@@ -141,7 +145,8 @@ public class MMailText extends X_R_MailText
 	 */
 	public String getMailHeader()
 	{
-		translate();
+		if (m_MailHeader == null)
+			translate();
 		return parse(m_MailHeader);
 	}	//	getMailHeader
 	

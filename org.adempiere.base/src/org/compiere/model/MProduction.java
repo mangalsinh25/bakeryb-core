@@ -32,6 +32,7 @@ public class MProduction extends X_M_Production implements DocAction {
 	 * 
 	 */
 	/** Log								*/
+	@SuppressWarnings("unused")
 	protected static CLogger		m_log = CLogger.getCLogger (MProduction.class);
 	protected int lineno;
 	protected int count;
@@ -81,7 +82,7 @@ public class MProduction extends X_M_Production implements DocAction {
 		setC_Activity_ID(project.getC_Activity_ID());
 		setC_ProjectPhase_ID(line.getC_ProjectPhase_ID());
 		setC_ProjectTask_ID(line.getC_ProjectTask_ID());
-		setMovementDate( Env.getContextAsDate(p_ctx, Env.DATE));
+		setMovementDate( Env.getContextAsDate(p_ctx, "#Date"));
 	}
 
 	@Override
@@ -259,10 +260,14 @@ public class MProduction extends X_M_Production implements DocAction {
 		// products used in production
 		String sql = "SELECT M_ProductBom_ID, BOMQty" + " FROM M_Product_BOM"
 				+ " WHERE M_Product_ID=" + finishedProduct.getM_Product_ID() + " ORDER BY Line";
-		
-		try (PreparedStatement pstmt = DB.prepareStatement(sql, get_TrxName());) {			
 
-			ResultSet rs = pstmt.executeQuery();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			pstmt = DB.prepareStatement(sql, get_TrxName());
+
+			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				
 				lineno = lineno + 10;
@@ -426,6 +431,9 @@ public class MProduction extends X_M_Production implements DocAction {
 			} // for all bom products
 		} catch (Exception e) {
 			throw new AdempiereException("Failed to create production lines", e);
+		}
+		finally {
+			DB.close(rs, pstmt);
 		}
 
 		return count;
@@ -696,7 +704,7 @@ public class MProduction extends X_M_Production implements DocAction {
 	}
 
 	protected MProduction reverse(boolean accrual) {
-		Timestamp reversalDate = accrual ? Env.getContextAsDate(getCtx(), Env.DATE) : getMovementDate();
+		Timestamp reversalDate = accrual ? Env.getContextAsDate(getCtx(), "#Date") : getMovementDate();
 		if (reversalDate == null) {
 			reversalDate = new Timestamp(System.currentTimeMillis());
 		}

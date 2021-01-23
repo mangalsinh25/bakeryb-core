@@ -351,9 +351,12 @@ public class ImportInventory extends SvrProcess implements ImportProcess
 		sql = new StringBuilder ("SELECT * FROM I_Inventory ")
 			.append("WHERE I_IsImported='N'").append (clientCheck)
 			.append(" ORDER BY M_Warehouse_ID, TRUNC(MovementDate), I_Inventory_ID");
-		try (PreparedStatement pstmt = DB.prepareStatement (sql.toString (), get_TrxName());)
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
 		{
-			ResultSet rs = pstmt.executeQuery ();
+			pstmt = DB.prepareStatement (sql.toString (), get_TrxName());
+			rs = pstmt.executeQuery ();
 			//
 			int x_M_Warehouse_ID = -1;
 			int x_C_DocType_ID = -1;
@@ -483,6 +486,11 @@ public class ImportInventory extends SvrProcess implements ImportProcess
 		catch (Exception e)
 		{
 			throw new AdempiereException(e);
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
 		}
 
 		//	Set Error to indicator to not imported

@@ -52,7 +52,7 @@ public class InfoProductWindow extends InfoWindow {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -640644572459126094L;
+	private static final long serialVersionUID = -7892916038089331016L;
 
 	protected Tabbox tabbedPane;
 	protected WListbox warehouseTbl;
@@ -357,13 +357,11 @@ public class InfoProductWindow extends InfoWindow {
 						}
 					}
 					
-					m_PAttributeButton.setEnabled(false);
-					int colIdx = findColumnIndex("IsInstanceAttribute");
-
-					if (colIdx >= 0) {
-						Object value = contentPanel.getValueAt(row, colIdx);
-						if (value != null && value.toString().equals("true"))
-							m_PAttributeButton.setEnabled(true);
+					Object value = contentPanel.getValueAt(row, findColumnIndex("IsInstanceAttribute"));
+					if (value != null && value.toString().equals("true")) {
+						m_PAttributeButton.setEnabled(true);
+					} else {
+						m_PAttributeButton.setEnabled(false);
 					}
 				}
 			}
@@ -448,7 +446,7 @@ public class InfoProductWindow extends InfoWindow {
 		int M_PriceList_Version_ID = findPLV (M_PriceList_ID);
 		//	Set Warehouse
 		if (M_Warehouse_ID == 0)
-			M_Warehouse_ID = Env.getContextAsInt(Env.getCtx(), Env.M_WAREHOUSE_ID);
+			M_Warehouse_ID = Env.getContextAsInt(Env.getCtx(), "#M_Warehouse_ID");
 		if (M_Warehouse_ID != 0)
 			setWarehouse (M_Warehouse_ID);
 		// 	Set PriceList Version

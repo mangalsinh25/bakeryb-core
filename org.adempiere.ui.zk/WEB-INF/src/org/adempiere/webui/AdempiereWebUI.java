@@ -21,7 +21,6 @@ import java.lang.ref.WeakReference;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -196,7 +195,7 @@ public class AdempiereWebUI extends Window implements EventListener<Event>, IWeb
         }
 
         MSystem system = MSystem.get(Env.getCtx());
-        Env.setContext(ctx, Env.SYSTEM_NAME, system.getName());
+        Env.setContext(ctx, "#System_Name", system.getName());
         
         // Validate language
 		Language language = Language.getLanguage(langLogin);
@@ -242,8 +241,8 @@ public class AdempiereWebUI extends Window implements EventListener<Event>, IWeb
 		currSess.setAttribute("Check_AD_User_ID", Env.getAD_User_ID(ctx));
 
 		//enable full interface, relook into this when doing preference
-		Env.setContext(ctx, Env.SHOW_TRANSLATION, true);
-		Env.setContext(ctx, Env.SHOW_ACCOUNTING, MRole.getDefault().isShowAcct());
+		Env.setContext(ctx, "#ShowTrl", true);
+		Env.setContext(ctx, "#ShowAcct", MRole.getDefault().isShowAcct());
 
 		// to reload preferences when the user refresh the browser
 		userPreference = loadUserPreference(Env.getAD_User_ID(ctx));
@@ -277,15 +276,15 @@ public class AdempiereWebUI extends Window implements EventListener<Event>, IWeb
 		MUser user = MUser.get(ctx);
 		BrowserToken.save(mSession, user);
 		
-		Env.setContext(ctx, Env.UI_CLIENT, "zk");
-		Env.setContext(ctx, Env.DB_TYPE, DB.getDatabase().getName());
+		Env.setContext(ctx, "#UIClient", "zk");
+		Env.setContext(ctx, "#DBType", DB.getDatabase().getName());
 		StringBuilder localHttpAddr = new StringBuilder(Executions.getCurrent().getScheme());
 		localHttpAddr.append("://").append(Executions.getCurrent().getLocalAddr());
 		int port = Executions.getCurrent().getLocalPort();
 		if (port > 0 && port != 80) {
 			localHttpAddr.append(":").append(port);
 		}
-		Env.setContext(ctx, Env.LOCAL_HTTP_ADDRESS, localHttpAddr.toString());		
+		Env.setContext(ctx, "#LocalHttpAddr", localHttpAddr.toString());		
 		Clients.response(new AuScript("zAu.cmd0.clearBusy()"));
 		
 		//init favorite
@@ -460,7 +459,7 @@ public class AdempiereWebUI extends Window implements EventListener<Event>, IWeb
 			clientInfo.desktopXOffset = c.getDesktopXOffset();
 			clientInfo.desktopYOffset = c.getDesktopYOffset();
 			clientInfo.orientation = c.getOrientation();
-			clientInfo.timeZone = TimeZone.getTimeZone(c.getZoneId());			
+			clientInfo.timeZone = c.getTimeZone();			
 			String ua = Servlets.getUserAgent((ServletRequest) Executions.getCurrent().getNativeRequest());
 			clientInfo.userAgent = ua;
 			ua = ua.toLowerCase();

@@ -516,7 +516,7 @@ public class MStorageOnHand extends X_M_StorageOnHand
 			sql += "AND (s.M_AttributeSetInstance_ID=0 OR s.M_AttributeSetInstance_ID IS NULL) ";
 		}
 		
-		MProduct product = MProduct.get(Env.getCtx(), M_Product_ID, trxName);
+		MProduct product = MProduct.get(Env.getCtx(), M_Product_ID);
 		
 		if(product.isUseGuaranteeDateForMPolicy()){
 			sql += "ORDER BY l.PriorityNo DESC, " +

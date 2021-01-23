@@ -69,7 +69,7 @@ public class DocumentSearchController implements EventListener<Event>{
 
 	public void create(Component parent) {
 		layout = new Vlayout();
-		layout.setStyle("padding: 3px; overflow:auto;");
+		layout.setStyle("padding: 3px;");
 		ZKUpdateUtil.setWidth(layout, "100%");
 		ZKUpdateUtil.setVflex(layout, "true");
 		

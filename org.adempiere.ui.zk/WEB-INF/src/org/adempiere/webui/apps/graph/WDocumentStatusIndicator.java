@@ -162,7 +162,6 @@ public class WDocumentStatusIndicator extends Panel implements EventListener<Eve
 	}
 
 	public void refresh() {
-		m_documentStatus.load(m_documentStatus.get_TrxName());
 		statusCount = MDocumentStatus.evaluate(m_documentStatus);		
 	}
 

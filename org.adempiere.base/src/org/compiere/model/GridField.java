@@ -1243,34 +1243,23 @@ public class GridField
 	    	}
 	    	value = Env.getContext (ctx, m_vo.WindowNo, m_vo.TabNo, variableName, tabOnly, true);
 	    }
-		if (!Util.isEmpty(value) && !Util.isEmpty(foreignColumn) && variableName.endsWith("_ID")) {
+		if (!Util.isEmpty(value) && !Util.isEmpty(foreignColumn) && variableName.endsWith("_ID")
+			&& getGridTab() != null) {
+			String refValue = "";
 			int id = 0;
 			try {
 				id = Integer.parseInt(value);
 			} catch (Exception e){}
 			if (id > 0) {
-				String refValue = "";
-				if (getGridTab() != null) {
-					MColumn column = MColumn.get(ctx, getGridTab().getTableName(), variableName);
-					if (column != null) {
-						String foreignTable = column.getReferenceTableName();
-						refValue = DB.getSQLValueString(null,
-								"SELECT " + foreignColumn + " FROM " + foreignTable + " WHERE " 
-										+ foreignTable + "_ID = ?", id);
-					}
-					return refValue;
-				} else {
-					// no GridTab - maybe coming from process parameter, try tableName from columnName
-					String foreignTable = variableName.substring(0, variableName.length()-3);
-					MTable table = MTable.get(ctx, foreignTable);
-					if (table != null) {
-						refValue = DB.getSQLValueString(null,
-								"SELECT " + foreignColumn + " FROM " + foreignTable + " WHERE " 
-										+ foreignTable + "_ID = ?", id);
-						return refValue;
-					}
+				MColumn column = MColumn.get(ctx, getGridTab().getTableName(), variableName);
+				if (column != null) {
+					String foreignTable = column.getReferenceTableName();
+					refValue = DB.getSQLValueString(null,
+							"SELECT " + foreignColumn + " FROM " + foreignTable + " WHERE " 
+							+ foreignTable + "_ID = ?", id);
 				}
 			}
+			return refValue;
 		}
 		return value;
 	}	//	get_ValueAsString

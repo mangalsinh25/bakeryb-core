@@ -37,7 +37,6 @@ import org.compiere.model.GridField;
 import org.compiere.model.Lookup;
 import org.compiere.model.MColumn;
 import org.compiere.model.MLookup;
-import org.compiere.model.MSysConfig;
 import org.compiere.model.MTable;
 import org.compiere.model.X_AD_CtxHelp;
 import org.compiere.util.CLogger;
@@ -71,7 +70,7 @@ public class WChosenboxSearchEditor extends WEditor implements ContextMenuListen
 	private InfoListSubModel	subModel = null;
 
 	private static final CLogger log = CLogger.getCLogger(WChosenboxSearchEditor.class);
-	private static final int DEFAULT_MAX_AUTO_COMPLETE_ROWS = 500;
+	private static final int MAX_AUTO_COMPLETE_ROWS = 50;
 	private boolean onselecting;
 
 	/**
@@ -168,33 +167,21 @@ public class WChosenboxSearchEditor extends WEditor implements ContextMenuListen
 	private void init()
 	{
 		columnName = this.getColumnName();
-		if (ThemeManager.isUseFontIconForImage())
-			imageUrl = "z-icon-More";
-		else
-			imageUrl = ThemeManager.getThemeResource("images/PickOpen16.png");
+		imageUrl = ThemeManager.getThemeResource("images/PickOpen16.png");
 		if (lookup instanceof MLookup) 
 		{
 			MLookup mlookup = (MLookup) lookup;
 			if ("C_BPartner_ID".equals(mlookup.getLookupInfo().KeyColumn))
 			{
-				if (ThemeManager.isUseFontIconForImage())
-					imageUrl = "z-icon-BPartner";
-				else
-					imageUrl = ThemeManager.getThemeResource("images/BPartner16.png");
+				imageUrl = ThemeManager.getThemeResource("images/BPartner16.png");
 			}
 			else if ("M_Product_ID".equals(mlookup.getLookupInfo().KeyColumn))
 			{
-				if (ThemeManager.isUseFontIconForImage())
-					imageUrl = "z-icon-Product";
-				else
-					imageUrl = ThemeManager.getThemeResource("images/Product16.png");
+				imageUrl = ThemeManager.getThemeResource("images/Product16.png");
 			}
 		}
 		popupMenu = new WEditorPopupMenu(false, true, isShowPreference(), false, false, false, lookup);
-		if (ThemeManager.isUseFontIconForImage())
-			getComponent().getButton().setIconSclass(imageUrl);
-		else
-			getComponent().getButton().setImage(imageUrl);
+		getComponent().getButton().setImage(imageUrl);
 		
 		setTableAndKeyColumn();
 		subModel = new InfoListSubModel(lookup, gridField, m_tableName, m_keyColumnName);
@@ -594,8 +581,7 @@ public class WChosenboxSearchEditor extends WEditor implements ContextMenuListen
 		@Override
 		public ListModel<ValueNamePair> getSubModel(Object value, int nRows) {
 			subModel.setWhereClause(getWhereClause());
-			int maxRows = MSysConfig.getIntValue(MSysConfig.ZK_SEARCH_AUTO_COMPLETE_MAX_ROWS, DEFAULT_MAX_AUTO_COMPLETE_ROWS, Env.getAD_Client_ID(Env.getCtx()));
-			ListModel<ValueNamePair> model = subModel.getSubModel(value, maxRows);
+			ListModel<ValueNamePair> model = subModel.getSubModel(value, MAX_AUTO_COMPLETE_ROWS);
 			getComponent().getChosenbox().setSubListModel(model);
 			return model;
 		}

@@ -27,6 +27,7 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.MAllocationHdr;
 import org.compiere.model.MAllocationLine;
+import org.compiere.model.MBPartner;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MPayment;
@@ -78,7 +79,7 @@ public class Allocation
 
 	public void dynInit() throws Exception
 	{
-		m_C_Currency_ID = Env.getContextAsInt(Env.getCtx(), Env.C_CURRENCY_ID);   //  default
+		m_C_Currency_ID = Env.getContextAsInt(Env.getCtx(), "$C_Currency_ID");   //  default
 		//
 		if (log.isLoggable(Level.INFO)) log.info("Currency=" + m_C_Currency_ID);
 		
@@ -656,7 +657,7 @@ public class Allocation
 		
 		//	Create Allocation
 		MAllocationHdr alloc = new MAllocationHdr (Env.getCtx(), true,	//	manual
-			DateTrx, C_Currency_ID, Env.getContext(Env.getCtx(), Env.AD_USER_NAME), trxName);
+			DateTrx, C_Currency_ID, Env.getContext(Env.getCtx(), "#AD_User_Name"), trxName);
 		alloc.setAD_Org_ID(AD_Org_ID);
 		alloc.setC_DocType_ID(m_C_DocType_ID);
 		alloc.setDescription(alloc.getDescriptionForManualAllocation(m_C_BPartner_ID, trxName));
@@ -807,6 +808,9 @@ public class Allocation
 			if (log.isLoggable(Level.CONFIG)) log.config("Payment #" + i + (pay.isAllocated() ? " not" : " is") 
 					+ " fully allocated");
 		}
+		MBPartner bpartner = new MBPartner(Env.getCtx(), m_C_BPartner_ID, trxName);
+		bpartner.setTotalOpenBalance();
+		bpartner.saveEx();
 		paymentList.clear();
 		amountList.clear();
 		

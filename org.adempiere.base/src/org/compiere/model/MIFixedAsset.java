@@ -209,7 +209,7 @@ public class MIFixedAsset extends X_I_FixedAsset
 				Timestamp dateAcct = getDateAcct();
 				if (dateAcct == null)
 				{
-					dateAcct = Env.getContextAsDate(getCtx(), Env.DATE);
+					dateAcct = Env.getContextAsDate(getCtx(), "#Date");
 					setDateAcct(dateAcct);
 				}
 			}

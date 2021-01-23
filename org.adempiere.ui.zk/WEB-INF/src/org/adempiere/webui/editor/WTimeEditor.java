@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.logging.Level;
 
 import org.adempiere.webui.ValuePreference;
-import org.adempiere.webui.component.Timebox;
 import org.adempiere.webui.event.ContextMenuEvent;
 import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.event.ValueChangeEvent;
@@ -27,6 +26,7 @@ import org.compiere.model.GridField;
 import org.compiere.util.CLogger;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zul.Timebox;
 
 /**
  *
@@ -191,7 +191,6 @@ public class WTimeEditor extends WEditor implements ContextMenuListener
 	@Override
 	public void setReadWrite(boolean readWrite) {
 		getComponent().setReadonly(!readWrite);
-		getComponent().setButtonVisible(readWrite);
 	}
 
 	@Override

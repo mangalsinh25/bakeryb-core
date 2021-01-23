@@ -188,7 +188,7 @@ public class MLookupFactory
 		MLookupInfo info = null;
 		boolean needToAddSecurity = true;
 		//	List
-		if (DisplayType.isList(AD_Reference_ID))	//	17
+		if (AD_Reference_ID == DisplayType.List || AD_Reference_ID == DisplayType.ChosenMultipleSelectionList || AD_Reference_ID == DisplayType.RadiogroupList)	//	17
 		{
 			info = getLookup_List(language, AD_Reference_Value_ID);
 			needToAddSecurity = false;
@@ -459,7 +459,7 @@ public class MLookupFactory
 				displayColumnSQL = rs.getString(11);
 				if (displayColumnSQL != null && displayColumnSQL.length() > 0 && (displayColumnSQL.startsWith("@SQL=") || displayColumnSQL.startsWith("@SQLFIND=")))
 					displayColumnSQL = "NULL";
-				if (displayColumnSQL != null && displayColumnSQL.contains("@"))
+				if (displayColumnSQL != null && displayColumnSQL.contains("@") && displayColumnSQL.startsWith("@SQL="))
 					displayColumnSQL = Env.parseContext(Env.getCtx(), -1, displayColumnSQL, false, true);
 				overrideZoomWindow = rs.getInt(12);
 				infoWindowId = rs.getInt(13);
@@ -770,8 +770,7 @@ public class MLookupFactory
 	{
 		if (!ColumnName.endsWith("_ID"))
 		{
-			String error = "Key does not end with '_ID': " + ColumnName;
-			s_log.log(Level.SEVERE, error, new Exception(error));
+			s_log.log(Level.SEVERE, "Key does not end with '_ID': " + ColumnName);
 			return null;
 		}
 
@@ -926,7 +925,7 @@ public class MLookupFactory
 					displayColumn.append("(").append(embeddedSQL).append(")");
 			}
 			//  List
-			else if (DisplayType.isList(ldc.DisplayType))
+			else if (ldc.DisplayType == DisplayType.List)
 			{
 				String embeddedSQL = getLookup_ListEmbed(language, ldc.AD_Reference_ID, ldc.ColumnName);
 				if (embeddedSQL != null)
@@ -1028,8 +1027,6 @@ public class MLookupFactory
 	private static ArrayList<LookupDisplayColumn> getListIdentifiers(String TableName) {
 		ArrayList<LookupDisplayColumn> list = new ArrayList<LookupDisplayColumn>();
 		MTable table = MTable.get(Env.getCtx(), TableName);
-		if (table == null)
-			return null;
 		for (String idColumnName : table.getIdentifierColumns()) {
 			MColumn column = table.getColumn(idColumnName);
 			LookupDisplayColumn ldc = new LookupDisplayColumn(column.getColumnName(), column.getColumnSQL(true), column.isTranslated(), column.getAD_Reference_ID(), column.getAD_Reference_Value_ID());

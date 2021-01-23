@@ -236,18 +236,11 @@ public class AtmosphereServerPush implements ServerPush {
             return;
         }
 
-        AtmosphereResource currentResource = this.resource.getAndSet(null);
+        this.resource.set(null);
         synchronized (schedules) {
         	schedules.clear();
 		}
         
-        if (currentResource != null ) {
-        	try {
-				currentResource.close();
-			} catch (IOException e) {
-			}
-        }
-                
         if (Executions.getCurrent() != null) {
 	        if (log.isDebugEnabled())
 	        	log.debug("Stopping server push for " + desktop);
@@ -269,14 +262,7 @@ public class AtmosphereServerPush implements ServerPush {
 	  	if (!resource.isSuspended()) {
 	  		resource.suspend(); 
 	  	}
-	  	AtmosphereResource oldResource = this.resource.getAndSet(resource);
-	  	if (oldResource != null) {
-	  		try {
-	  			if (!oldResource.isCancelled())
-	  				oldResource.close();
-			} catch (Throwable e) {
-			}
-	  	}
+	  	this.resource.set(resource);
 
     }
 

@@ -255,7 +255,7 @@ public class PoExporter {
 					tableName = columnName.substring(0, columnName.length() - 3);
 				}
 				addTableReference(columnName, tableName, new AttributesImpl());
-			} else if (DisplayType.isList(displayType)) {
+			} else if (DisplayType.List == displayType) {
 				add(columnName, "", new AttributesImpl());
 			} else if (DisplayType.isLookup(displayType)) {
 				String tableName = null;

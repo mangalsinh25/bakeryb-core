@@ -609,7 +609,7 @@ public class CreateAdempiere
 					values.append("NULL");
 				}
 				else if (DisplayType.isText(dt) || dt == DisplayType.YesNo 
-					|| DisplayType.isList(dt)   || dt == DisplayType.Button
+					|| dt == DisplayType.List || dt == DisplayType.Button
 					|| columnName.equals("AD_Language"))
 				{
 					String s = rs.getString(columnName);

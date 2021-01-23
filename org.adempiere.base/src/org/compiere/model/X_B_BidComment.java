@@ -22,14 +22,14 @@ import java.util.Properties;
 
 /** Generated Model for B_BidComment
  *  @author iDempiere (generated) 
- *  @version Release 8.2 - $Id$ */
+ *  @version Release 8.1 - $Id$ */
 public class X_B_BidComment extends PO implements I_B_BidComment, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20201220L;
+	private static final long serialVersionUID = 20201103L;
 
     /** Standard Constructor */
     public X_B_BidComment (Properties ctx, int B_BidComment_ID, String trxName)

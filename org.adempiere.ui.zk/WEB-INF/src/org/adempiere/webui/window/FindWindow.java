@@ -37,7 +37,6 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
-import org.adempiere.exceptions.DBException;
 import org.adempiere.webui.AdempiereWebUI;
 import org.adempiere.webui.ClientInfo;
 import org.adempiere.webui.LayoutUtils;
@@ -80,7 +79,6 @@ import org.adempiere.webui.util.ZKUpdateUtil;
 import org.compiere.model.GridField;
 import org.compiere.model.GridFieldVO;
 import org.compiere.model.GridTab;
-import org.compiere.model.GridTable;
 import org.compiere.model.Lookup;
 import org.compiere.model.MColumn;
 import org.compiere.model.MLookup;
@@ -89,10 +87,8 @@ import org.compiere.model.MLookupInfo;
 import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
 import org.compiere.model.MRole;
-import org.compiere.model.MSysConfig;
 import org.compiere.model.MTable;
 import org.compiere.model.MUserQuery;
-import org.compiere.model.SystemIDs;
 import org.compiere.util.AdempiereSystemError;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -135,7 +131,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5087378621976257241L;
+	private static final long serialVersionUID = -3907408033854720147L;
 
 	private static final String FIND_ROW_EDITOR = "find.row.editor";
 
@@ -190,8 +186,6 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
     private static final CLogger log = CLogger.getCLogger(FindWindow.class);
     /** Number of records           */
     private int             m_total;
-    /** Initial slow query  */
-    private boolean         initialSlowQuery = false;
     private PreparedStatement   m_pstmt;
     //
     /** List of WEditors            */
@@ -248,8 +242,6 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
 	private int rowCount;
 	
 	private static final String ON_POST_VISIBLE_ATTR = "onPostVisible.Event.Posted";
-
-	private static final int COUNTING_RECORDS_TIMED_OUT = -255;
 
 	/** START DEVCOFFEE **/
 	private StatusBarPanel statusBar = new StatusBarPanel();
@@ -319,7 +311,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         initFind();
         initFindAdvanced();
 
-        if (m_total != COUNTING_RECORDS_TIMED_OUT && m_total < m_minRecords)
+        if (m_total < m_minRecords)
         {
             return false;
         }
@@ -354,7 +346,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
     	
     	m_minRecords = minRecords;
     	m_total = getNoOfRecords(null, false);
-    	if (m_total != COUNTING_RECORDS_TIMED_OUT && m_total < m_minRecords)
+    	if (m_total < m_minRecords)
         {
             return false;
         }
@@ -390,9 +382,6 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
 
         Panel pnlButtonRight = new Panel();
         pnlButtonRight.appendChild(btnOk);
-        Separator sep = new Separator("vertical");
-        sep.setWidth("2px");
-        pnlButtonRight.appendChild(sep);
         pnlButtonRight.appendChild(btnCancel);
         pnlButtonRight.setStyle("text-align:right");
         ZKUpdateUtil.setWidth(pnlButtonRight, "100%");
@@ -400,7 +389,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
 
         Panel pnlButtonLeft = new Panel();
         pnlButtonLeft.appendChild(btnNew);
-        sep = new Separator("vertical");
+        Separator sep = new Separator("vertical");
         sep.setWidth("2px");
         pnlButtonLeft.appendChild(sep);
         pnlButtonLeft.appendChild(btnClear);
@@ -409,10 +398,13 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         Hbox hboxButton = new Hbox();
         hboxButton.appendChild(pnlButtonLeft);
         hboxButton.appendChild(pnlButtonRight);
+        ZKUpdateUtil.setWidth(hboxButton, "100%");
 
         contentSimple = new Grid();
         contentSimple.setId("contentSimple");
+        contentSimple.setStyle("width: 100%; position: relative");
         contentSimple.makeNoStrip();
+        ZKUpdateUtil.setHflex(contentSimple, "1");
         
         Columns columns = new Columns();
         Column column = new Column();
@@ -444,6 +436,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         layout.appendChild(center);
         center.appendChild(contentSimple);
         ZKUpdateUtil.setVflex(contentSimple, "1");
+		ZKUpdateUtil.setHflex(contentSimple, "1");
 
         South south = new South();
         layout.appendChild(south);
@@ -487,20 +480,19 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
 
         Panel pnlButtonRight = new Panel();
         pnlButtonRight.appendChild(btnOk);
-        Separator sep = new Separator("vertical");
-        sep.setWidth("2px");
-        pnlButtonRight.appendChild(sep);
         pnlButtonRight.appendChild(btnCancel);
         pnlButtonRight.setStyle("text-align: right");
 
         advancedPanelToolBar = new ToolBar();
         advancedPanelToolBar.appendChild(btnNew);
         advancedPanelToolBar.appendChild(btnDelete);
+        ZKUpdateUtil.setWidth(advancedPanelToolBar, "100%");
 
         fQueryName.addEventListener(Events.ON_SELECT, this);
 
         Hbox confirmPanel = new Hbox();
         confirmPanel.appendChild(pnlButtonRight);
+        ZKUpdateUtil.setWidth(confirmPanel, "100%");
         confirmPanel.setPack("end");
 
         advancedPanel = new Listbox();
@@ -571,6 +563,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         layout.appendChild(center);
         center.appendChild(advancedPanel);
         ZKUpdateUtil.setVflex(advancedPanel, "1");
+        ZKUpdateUtil.setHflex(advancedPanel, "1");
 
         South south = new South();
         layout.appendChild(south);
@@ -780,37 +773,6 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
 					m_findFields[i] = postedfield;
 					mField = postedfield;
 				}
-			} else if  (   mField.getVO().displayType == DisplayType.Account
-				        || mField.getVO().displayType == DisplayType.Assignment
-					    || mField.getVO().displayType == DisplayType.Chart
-					    || mField.getVO().displayType == DisplayType.Image
-					    || mField.getVO().displayType == DisplayType.Location
-					    || mField.getVO().displayType == DisplayType.Locator
-					    || mField.getVO().displayType == DisplayType.PAttribute
-				       ) {
-				// Make special fields searchable as Search
-				GridFieldVO vo = mField.getVO();
-				GridFieldVO newvo = vo.clone(m_simpleCtx, vo.WindowNo, vo.TabNo, vo.AD_Window_ID, vo.AD_Tab_ID, vo.tabReadOnly);
-				newvo.IsDisplayed = true;
-				newvo.displayType = DisplayType.Search;
-				switch (mField.getVO().displayType) {
-				case DisplayType.Account:    newvo.AD_Reference_Value_ID = SystemIDs.REFERENCE_ACCOUNT;    break;
-				case DisplayType.Assignment: newvo.AD_Reference_Value_ID = SystemIDs.REFERENCE_ASSIGNMENT; break;
-				case DisplayType.Chart:      newvo.AD_Reference_Value_ID = SystemIDs.REFERENCE_CHART;      break;
-				case DisplayType.Image:      newvo.AD_Reference_Value_ID = SystemIDs.REFERENCE_IMAGE;      break;
-				case DisplayType.Location:   newvo.AD_Reference_Value_ID = SystemIDs.REFERENCE_LOCATION;   break;
-				case DisplayType.Locator:    newvo.AD_Reference_Value_ID = SystemIDs.REFERENCE_LOCATOR;    break;
-				case DisplayType.PAttribute: newvo.AD_Reference_Value_ID = SystemIDs.REFERENCE_PATTRIBUTE; break;
-				}
-				newvo.lookupInfo = MLookupFactory.getLookupInfo (newvo.ctx, newvo.WindowNo, newvo.AD_Column_ID, newvo.displayType,
-						Env.getLanguage(newvo.ctx), newvo.ColumnName, newvo.AD_Reference_Value_ID,
-						newvo.IsParent, null);
-				newvo.lookupInfo.tabNo = TABNO;
-
-				GridField newfield = new GridField(newvo);
-				// replace the original field by the the new Search field
-				m_findFields[i] = newfield;
-				mField = newfield;
 			} else {
 				// clone the field and clean gridtab - IDEMPIERE-1105
 		        GridField findField = (GridField) mField.clone(m_simpleCtx);
@@ -880,8 +842,6 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         for(GridField field:gridFieldList){
         	if (field.isVirtualUIColumn())
         		continue;
-        	if (! hasAccessSpecialFields(field))
-        		continue;
         	if (!addSelectionColumn (field))
         		excludes.add(field);
 		} 
@@ -897,8 +857,6 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         	for(GridField field:moreFieldList){
         		if (field.isVirtualUIColumn())
         			continue;
-            	if (! hasAccessSpecialFields(field))
-            		continue;
             	if (!addSelectionColumn (field, rowg))
             		excludes.add(field);
     		}
@@ -932,25 +890,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
 		/** END DEVCOFFEE **/
     }   //  initFind
 
-    private boolean hasAccessSpecialFields(GridField field) {
-    	int windowId = 0;
-		switch (field.getAD_Reference_Value_ID()) {
-		case SystemIDs.REFERENCE_ACCOUNT:    windowId = SystemIDs.WINDOW_ACCOUNTCOMBINATION;   break;
-		case SystemIDs.REFERENCE_ASSIGNMENT: windowId = SystemIDs.WINDOW_RESOURCE;             break;
-		case SystemIDs.REFERENCE_CHART:      windowId = SystemIDs.WINDOW_CHART;                break;
-		case SystemIDs.REFERENCE_IMAGE:      windowId = SystemIDs.WINDOW_IMAGE;                break;
-		case SystemIDs.REFERENCE_LOCATION:   windowId = SystemIDs.WINDOW_LOCATION;             break;
-		case SystemIDs.REFERENCE_LOCATOR:    windowId = SystemIDs.WINDOW_LOCATOR;              break;
-		case SystemIDs.REFERENCE_PATTRIBUTE: windowId = SystemIDs.WINDOW_ATTRIBUTESETINSTANCE; break;
-		}
-		if (windowId > 0) {
-			Boolean access = MRole.getDefault().getWindowAccess(windowId);
-			return access != null;
-		}
-		return true;
-	}
-
-	/**
+    /**
      *  initialise Advanced tab
     **/
     private void initFindAdvanced()
@@ -1179,8 +1119,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         for (int c = 0; c < m_findFields.length; c++)
         {
             GridField field = m_findFields[c];
-            if (field == null || field.isVirtualUIColumn()
-            	|| ! hasAccessSpecialFields(field))
+            if (field == null || field.isVirtualUIColumn())
             	continue;
 
 			boolean IsLookupOnlySelection = !MRole.get(Env.getCtx(), Env.getAD_Role_ID(Env.getCtx())).isAccessAdvanced()
@@ -1224,7 +1163,6 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
 
             boolean selected = false;
             listColumn.appendItem("","");
-            ListItem liCol = null;
             for (int i = 0; i < cols.length; i++)
             {
             	ValueNamePair item = cols[i];
@@ -1233,7 +1171,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
             	{
                 	listColumn.setSelectedItem(li);
             		selected = true;
-            		liCol = li;
+            		break;
             	}
             }
             if(!selected) listColumn.setSelectedIndex(0);
@@ -1247,12 +1185,10 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
             	{
             		listOperator.setSelectedItem(li);
             		selected = true;
+            		break;
             	}
             }
             if(!selected) listOperator.setSelectedIndex(0);
-
-            if (liCol != null)
-            	addOperators(liCol, listOperator);
         }
     }   // setValues
 
@@ -1282,7 +1218,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         WEditor editor = null;
         //false will use hflex which is render 1 pixel too width on firefox
         editor = WebEditorFactory.getEditor(mField, true);
-        if (editor == null || !editor.isSearchable()) {
+        if (!editor.isSearchable()) {
         	return false;
         }
         editor.setMandatory(false);
@@ -1486,10 +1422,15 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
                 {
                     fQueryName.setSelectedIndex(0);
                     cmd_ok_Simple();
+                    if (advancedPanel != null) {
+                    	advancedPanel.getItems().clear();
+                    }
+                    dispose();
                 }
                 else if ("btnOkAdv".equals(btn.getName()))
                 {
                     cmd_ok_Advanced();
+                    dispose();
                 }
                 else if("btnCancel".equals(btn.getName()))
                 {
@@ -1526,10 +1467,12 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
             if (winLookupRecord.equals(event.getTarget()))
             {
                 cmd_ok_Simple();
+                dispose();
             }
             else if (winAdvanced.equals(event.getTarget()))
             {
                 cmd_ok_Advanced();
+                dispose();
             }
             // Check simple panel fields
             for (int i = 0; i < m_sEditors.size(); i++)
@@ -1538,11 +1481,13 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
             	if (editor.getComponent() == event.getTarget())
             	{
                     cmd_ok_Simple();
+                    dispose();
             	}
                 WEditor editorTo = (WEditor)m_sEditorsTo.get(i);
             	if (editorTo != null && editor.getComponent() == event.getTarget())
             	{
                     cmd_ok_Simple();
+                    dispose();
             	}
             }
         }
@@ -2183,14 +2128,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
     	}
     	else if (DisplayType.isLookup(referenceType)
         		|| DisplayType.YesNo == referenceType
-        		|| DisplayType.Button == referenceType
-        		|| DisplayType.Account == referenceType
-        		|| DisplayType.Assignment == referenceType
-        		|| DisplayType.Chart == referenceType
-        		|| DisplayType.Image == referenceType
-        		|| DisplayType.Location == referenceType
-        		|| DisplayType.Locator == referenceType
-        		|| DisplayType.PAttribute == referenceType)
+        		|| DisplayType.Button == referenceType)
         {
         	addOperators(MQuery.OPERATORS_LOOKUP, listOperator);
         }
@@ -2352,16 +2290,8 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         cmd_saveSimple(false, false);
         
         //  Test for no records
-        if (getNoOfRecords(m_query, true) != 0) {
-        	if (m_total == COUNTING_RECORDS_TIMED_OUT) {
-        		FDialog.error(m_targetWindowNo, "InfoQueryTimeOutError");
-        	} else {
-                if (advancedPanel != null) {
-                	advancedPanel.getItems().clear();
-                }
-                dispose();
-        	}
-        }
+        if (getNoOfRecords(m_query, true) != 0)
+          dispose();
 
     }   //  cmd_ok_Simple
     
@@ -2434,13 +2364,8 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         	addHistoryRestriction(historyCombo.getSelectedItem());
         }
         
-        if (getNoOfRecords(m_query, true) != 0) {
-        	if (m_total == COUNTING_RECORDS_TIMED_OUT) {
-        		FDialog.error(m_targetWindowNo, "InfoQueryTimeOutError");
-        	} else {
-                dispose();
-        	}
-        }
+        if (getNoOfRecords(m_query, true) != 0)
+          dispose();
     }   //  cmd_ok_Advanced
     
     /**
@@ -2454,15 +2379,13 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
     /**
      *  Get the number of records of target tab
      *  @param query where clause for target tab
-     *  @param alertRecords show dialog if there are no records or there are more records than allowed for role/tab
+     *  @param alertZeroRecords show dialog if there are no records
      *  @return number of selected records;
      *          if the results are more then allowed this method will return 0
     **/
-    private int getNoOfRecords (MQuery query, boolean alertRecords)
+    private int getNoOfRecords (MQuery query, boolean alertZeroRecords)
     {
         if (log.isLoggable(Level.CONFIG)) log.config("" + query);
-        if (initialSlowQuery && (query == null || query.getRestrictionCount() == 0))
-        	return COUNTING_RECORDS_TIMED_OUT;
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ");
         sql.append(m_tableName);
         boolean hasWhere = false;
@@ -2486,34 +2409,20 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         if (log.isLoggable(Level.INFO))
         	Env.setContext(Env.getCtx(), m_targetWindowNo, TABNO, GridTab.CTX_FindSQL, finalSQL);
 
-        //  Execute Query
-        int timeout = MSysConfig.getIntValue(MSysConfig.GRIDTABLE_LOAD_TIMEOUT_IN_SECONDS, 
-        		GridTable.DEFAULT_GRIDTABLE_LOAD_TIMEOUT_IN_SECONDS, Env.getAD_Client_ID(Env.getCtx()));
+        //  Execute Qusery
         m_total = 999999;
         Statement stmt = null;
         ResultSet rs = null;
         try
         {
             stmt = DB.createStatement();
-            if (timeout > 0)
-            	stmt.setQueryTimeout(timeout);
             rs = stmt.executeQuery(finalSQL);
             if (rs.next())
                 m_total = rs.getInt(1);
         }
         catch (SQLException e)
         {
-        	if (DB.getDatabase().isQueryTimeout(e))
-        	{
-       			m_total = COUNTING_RECORDS_TIMED_OUT; // unknown
-       			if (query == null) {
-       				initialSlowQuery = true;
-       			}
-        	}
-        	else
-        	{
-        		throw new DBException(e);
-        	}
+            log.log(Level.SEVERE, finalSQL, e);
         }
         finally
         {
@@ -2522,10 +2431,10 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
         	stmt = null;
         }
         //  No Records
-        if (m_total == 0 && alertRecords)
-            FDialog.warn(m_targetWindowNo, this, "FindZeroRecords", null);
+      /*  if (m_total == 0 && alertZeroRecords)
+            FDialog.warn(m_targetWindowNo, this, "FindZeroRecords");*/
         //  More then allowed
-        if (m_gridTab != null && alertRecords && m_total != COUNTING_RECORDS_TIMED_OUT && m_gridTab.isQueryMax(m_total))
+        if (m_gridTab != null && query != null && m_gridTab.isQueryMax(m_total))
         {
             FDialog.error(m_targetWindowNo, this, "FindOverMax",
                 m_total + " > " + m_gridTab.getMaxQueryRecords());
@@ -2716,7 +2625,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
      */
     public MQuery getQuery()
     {
-        if (m_gridTab != null && m_total != COUNTING_RECORDS_TIMED_OUT && m_gridTab.isQueryMax(m_total) && !m_isCancel)
+        if (m_gridTab != null && m_gridTab.isQueryMax(getTotalRecords()) && !m_isCancel)
         {
             m_query = MQuery.getNoRecordQuery (m_tableName, false);
             m_total = 0;
@@ -2883,7 +2792,7 @@ public class FindWindow extends Window implements EventListener<Event>, ValueCha
 	 */
 	private void setStatusDB (int currentCount)
 	{
-		StringBuilder text = new StringBuilder(" ").append(Msg.getMsg(Env.getCtx(), "Records")).append(" = ").append(m_total == COUNTING_RECORDS_TIMED_OUT ? "?" : m_total).append(" ");
+		StringBuilder text = new StringBuilder(" ").append(Msg.getMsg(Env.getCtx(), "Records")).append(" = ").append(m_total).append(" ");
 		statusBar.setStatusDB(text.toString());
 	}	//	setDtatusDB
 	/** END DEVCOFFEE **/

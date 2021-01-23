@@ -40,8 +40,8 @@
       var me = this;
       this.ajaxOptions.error = function(jqxhr, textStatus, errorThrown) {
     	  if (me.trace)
-    		  console.log("error: " + textStatus + " dtid: " + me.desktop.id + " errorThrown: " + errorThrown);
-    	  if (textStatus != "timeout" && textStatus != "abort" && errorThrown != "SessionNotFound") {
+    		  console.log("error: " + textStatus + " dtid: " + me.desktop.id);
+    	  if (textStatus != "timeout" && textStatus != "abort") {
 	          if (typeof console == "object") {
 	        	  console.error(textStatus);
 	              console.error(errorThrown);
@@ -56,13 +56,10 @@
           me.failures = 0;
       };
       this.ajaxOptions.complete = function() {
-    	  if (me.trace) {
+    	  if (me.trace)
     		  console.log("complete"+ " dtid: " + me.desktop.id);
-    		  if (me._req)
-    		  	console.log(me._req.status + " " + me._req.statusText);
-    	  }
-    	  if (me._req && (me._req.statusText == "SessionNotFound" || me._req.statusText == "DesktopNotFound") && me._req.status == 400) {
-    		  ;
+    	  if (me._req && me._req.statusText == "SessionNotFound" && me._req.status == 400) {
+    		  ;//stop sent request:IDEMPIERE-4237
     	  } else {
     		  me._schedule();
     	  }
@@ -74,7 +71,6 @@
         setTimeout(this.proxy(this._send), this.delay);
       } else {
         this.stop();
-        jawwa.atmosphere.serverNotAvailable();
       }
     },
     _send: function() {
@@ -105,18 +101,4 @@
       }
     }
   });
-  jawwa.atmosphere.serverNotAvailable = function() {
-    	zk.confirmClose = false;    	
-    	adempiere.get("zkTimeoutText", function(ok, val) {
-			if (ok && !!val)
-			{
-				zk.errorDismiss();
-				alert(val);
-			}
-			window.location.href="index.zul";
-		});
-   };
-   jawwa.atmosphere.sessionTimeout = function() {
-   		jawwa.atmosphere.serverNotAvailable();
-   };
 })();

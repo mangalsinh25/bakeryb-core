@@ -18,7 +18,6 @@ import java.util.Properties;
 
 import org.compiere.model.I_AD_Preference;
 import org.compiere.model.MPreference;
-import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
@@ -120,14 +119,8 @@ public final class UserPreference implements Serializable {
 						preference = new MUserPreference(Env.getCtx(), preference.getAD_Preference_ID(), null);
 					}
 				}
-				
-				try {
-					PO.setCrossTenantSafe();
-					preference.setValue(value);
-					preference.saveEx();
-				} finally {
-					PO.clearCrossTenantSafe();
-				}
+				preference.setValue(value);
+				preference.saveEx();
 			}
 		}
 	}

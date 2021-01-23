@@ -39,11 +39,6 @@ public class FakeDisplayTypeFactory implements IDisplayTypeFactory {
 	public boolean isDate(int displayType) {
 		return false;
 	}
-	
-	@Override
-	public boolean isList(int displayType) {
-		return false;
-	}
 
 	@Override
 	public boolean isLookup(int displayType) {

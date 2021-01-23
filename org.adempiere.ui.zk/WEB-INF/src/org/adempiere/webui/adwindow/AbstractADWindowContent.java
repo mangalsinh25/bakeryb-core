@@ -21,7 +21,6 @@ import static org.compiere.model.MSysConfig.ZK_GRID_AFTER_FIND;
 import static org.compiere.model.SystemIDs.PROCESS_AD_CHANGELOG_REDO;
 import static org.compiere.model.SystemIDs.PROCESS_AD_CHANGELOG_UNDO;
 
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +32,6 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
-import org.adempiere.exceptions.DBException;
 import org.adempiere.util.Callback;
 import org.adempiere.webui.AdempiereIdGenerator;
 import org.adempiere.webui.AdempiereWebUI;
@@ -661,13 +659,7 @@ public abstract class AbstractADWindowContent extends AbstractUIPart implements 
 		    	fTabPanel.createUI();
 		    	if (!m_queryInitiating)
 				{
-		    		try {
-						initFirstTabpanel();
-		    		} catch (Exception e) {
-		        		if (DBException.isTimeout(e)) {
-		        			FDialog.error(curWindowNo, GridTable.LOAD_TIMEOUT_ERROR_MESSAGE);
-		        		}
-		    		}
+					initFirstTabpanel();
 				}
 		    }
 
@@ -1927,22 +1919,11 @@ public abstract class AbstractADWindowContent extends AbstractUIPart implements 
 	/**
 	 * @param fireEvent
 	 */
-	protected void doOnRefresh(final boolean fireEvent) {		
+	protected void doOnRefresh(final boolean fireEvent) {
 		IADTabpanel headerTab = adTabbox.getSelectedTabpanel();
 		IADTabpanel detailTab = adTabbox.getSelectedDetailADTabpanel();
-		try {
-			adTabbox.getSelectedGridTab().dataRefreshAll(fireEvent, true);			
-		} catch (Exception e) {
-			if (DBException.isTimeout(e)) {
-				FDialog.error(getWindowNo(), "GridTabLoadTimeoutError");
-			} else {
-				FDialog.error(getWindowNo(), "Error", e.getMessage());
-			}
-			adTabbox.getSelectedGridTab().reset();
-			return;
-		}
-		
-		adTabbox.getSelectedGridTab().refreshParentTabs();		
+		adTabbox.getSelectedGridTab().dataRefreshAll(fireEvent, true);
+		adTabbox.getSelectedGridTab().refreshParentTabs();
 		headerTab.dynamicDisplay(0);
 		if (detailTab != null)
 		{
@@ -3001,18 +2982,7 @@ public abstract class AbstractADWindowContent extends AbstractUIPart implements 
 		if (query != null) {
 			m_onlyCurrentRows = false;
 			adTabbox.getSelectedGridTab().setQuery(query);
-			try {
-				adTabbox.getSelectedTabpanel().query(m_onlyCurrentRows, m_onlyCurrentDays, MRole.getDefault().getMaxQueryRecords());   //  autoSize
-			} catch (Exception e) {
-				if (   e.getCause() != null 
-					&& e.getCause() instanceof SQLException
-					&& DB.getDatabase().isQueryTimeout((SQLException)e.getCause())) {
-					// ignore, is captured somewhere else
-	        		return;
-				} else {
-					throw new DBException(e);
-				}
-			}
+			adTabbox.getSelectedTabpanel().query(m_onlyCurrentRows, m_onlyCurrentDays, MRole.getDefault().getMaxQueryRecords());   //  autoSize
 		}
 
 		adTabbox.getSelectedGridTab().dataRefresh(false);

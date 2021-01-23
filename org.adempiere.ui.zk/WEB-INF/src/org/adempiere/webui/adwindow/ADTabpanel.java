@@ -29,7 +29,6 @@ import java.util.logging.Level;
 
 import org.adempiere.base.Core;
 import org.adempiere.exceptions.AdempiereException;
-import org.adempiere.exceptions.DBException;
 import org.adempiere.util.Callback;
 import org.adempiere.webui.AdempiereIdGenerator;
 import org.adempiere.webui.AdempiereWebUI;
@@ -1162,23 +1161,9 @@ DataStatusListener, IADTabpanel, IdSpace, IFieldEditorContainer
     public void query (boolean onlyCurrentRows, int onlyCurrentDays, int maxRows)
     {
     	boolean open = gridTab.isOpen();
-    	try 
-    	{
-	        gridTab.query(onlyCurrentRows, onlyCurrentDays, maxRows);
-	        if (listPanel.isVisible() && !open)
-	        	gridTab.getTableModel().fireTableDataChanged();
-    	}
-    	catch (Exception e)
-    	{
-    		if (DBException.isTimeout(e)) 
-    		{
-    			throw e;
-    		}
-    		else
-    		{
-    			FDialog.error(windowNo, e.getMessage());
-    		}
-    	}
+        gridTab.query(onlyCurrentRows, onlyCurrentDays, maxRows);
+        if (listPanel.isVisible() && !open)
+        	gridTab.getTableModel().fireTableDataChanged();
     }
 
     /**
@@ -1351,7 +1336,6 @@ DataStatusListener, IADTabpanel, IdSpace, IFieldEditorContainer
     			int userId = Env.getAD_User_ID(Env.getCtx());
     			MPreference preference = query.setOnlyActiveRecords(true)
     										  .setApplyAccessFilter(true)
-    										  .setClient_ID()
     										  .setParameters(windowId, adTabId+"|DetailPane.IsOpen", userId)
     										  .first();
     			if (preference == null || preference.getAD_Preference_ID() <= 0) {
@@ -2051,7 +2035,6 @@ DataStatusListener, IADTabpanel, IdSpace, IFieldEditorContainer
 			int userId = Env.getAD_User_ID(Env.getCtx());
 			MPreference preference = query.setOnlyActiveRecords(true)
 					.setApplyAccessFilter(true)
-					.setClient_ID()
 					.setParameters(windowId, adTabId+"|"+attribute, userId)
 					.first();
 			if (preference == null || preference.getAD_Preference_ID() <= 0) {

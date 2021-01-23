@@ -54,6 +54,7 @@ import org.compiere.util.Msg;
 import org.compiere.util.Util;
 import org.compiere.util.ValueNamePair;
 import org.zkoss.image.AImage;
+import org.zkoss.zk.au.out.AuScript;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Page;
@@ -91,7 +92,7 @@ public class ADWindowToolbar extends FToolbar implements EventListener<Event>
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5151981978053022864L;
+	private static final long serialVersionUID = -8494819673584541046L;
 
 	public static final String BTNPREFIX = "Btn";
 	
@@ -780,6 +781,10 @@ public class ADWindowToolbar extends FToolbar implements EventListener<Event>
 			keyEvent.stopPropagation();
 			if (!btn.isDisabled() && btn.isVisible()) {
 				Events.sendEvent(btn, new Event(Events.ON_CLICK, btn));
+				//client side script to close combobox popup
+				String script = "var w=zk.Widget.$('#" + btn.getUuid()+"'); " +
+						"zWatch.fire('onFloatUp', w);";
+				Clients.response(new AuScript(script));
 			}
 		}
 	}
@@ -870,12 +875,6 @@ public class ADWindowToolbar extends FToolbar implements EventListener<Event>
 						}					
 					}					
 				}
-				else if (p instanceof Combobox) {
-					if (restrictName.equals(((Combobox) p).getId())) {
-						this.removeChild(p);
-						break;
-					}
-				}
 			}
 
 		}	// All restrictions
@@ -931,8 +930,7 @@ public class ADWindowToolbar extends FToolbar implements EventListener<Event>
 	public void dynamicDisplay() {
 		List<Toolbarbutton> customButtons = new ArrayList<Toolbarbutton>();
 		for(ToolbarCustomButton toolbarCustomBtn : toolbarCustomButtons) {
-			if (overflows != null)
-				toolbarCustomBtn.dynamicDisplay(overflows.contains(toolbarCustomBtn.getToolbarbutton()));
+			toolbarCustomBtn.dynamicDisplay(overflows.contains(toolbarCustomBtn.getToolbarbutton()));
 			customButtons.add(toolbarCustomBtn.getToolbarbutton());
 		}
 		

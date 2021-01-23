@@ -251,7 +251,6 @@ public class MYear extends X_C_Year
 			}
 			else
 			{
-				period = MPeriod.getCopy(getCtx(), period.getC_Period_ID(), get_TrxName());
 				period.setC_Year_ID(this.getC_Year_ID());
 				period.setPeriodNo(month+1);
 				period.setName(name);

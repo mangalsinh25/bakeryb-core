@@ -73,7 +73,7 @@ public class InvoiceGenerateRMA extends SvrProcess
                 log.log(Level.SEVERE, "Unknown Parameter: " + name);
         }
         
-        m_dateinvoiced = Env.getContextAsDate(getCtx(), Env.DATE);
+        m_dateinvoiced = Env.getContextAsDate(getCtx(), "#Date");
         if (m_dateinvoiced == null)
         {
             m_dateinvoiced = new Timestamp(System.currentTimeMillis());

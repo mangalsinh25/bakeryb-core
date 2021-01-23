@@ -78,7 +78,7 @@ public class InOutGenerateRMA extends SvrProcess
                 log.log(Level.SEVERE, "Unknown Parameter: " + name);
         }
         
-        m_movementDate = Env.getContextAsDate(getCtx(), Env.DATE);
+        m_movementDate = Env.getContextAsDate(getCtx(), "#Date");
         if (m_movementDate == null)
         {
             m_movementDate = new Timestamp(System.currentTimeMillis());

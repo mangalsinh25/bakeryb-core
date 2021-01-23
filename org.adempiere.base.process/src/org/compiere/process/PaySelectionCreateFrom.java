@@ -223,9 +223,12 @@ public class PaySelectionCreateFrom extends SvrProcess
 		sql.append(sqlWhere.toString());
 		//
 		int lines = 0;
-		int C_CurrencyTo_ID = psel.getC_Currency_ID();		
-		try (PreparedStatement pstmt = DB.prepareStatement (sql.toString(), get_TrxName());)
-		{			
+		int C_CurrencyTo_ID = psel.getC_Currency_ID();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
+		{
+			pstmt = DB.prepareStatement (sql.toString(), get_TrxName());
 			int index = 1;
 			pstmt.setInt (index++, C_CurrencyTo_ID);
 			pstmt.setTimestamp(index++, psel.getPayDate());
@@ -264,7 +267,7 @@ public class PaySelectionCreateFrom extends SvrProcess
 					pstmt.setInt (index++, p_C_BP_Group_ID);
 			}
 			//
-			ResultSet rs = pstmt.executeQuery ();
+			rs = pstmt.executeQuery ();
 			while (rs.next ())
 			{
 				int C_Invoice_ID = rs.getInt(1);
@@ -297,6 +300,12 @@ public class PaySelectionCreateFrom extends SvrProcess
 		catch (Exception e)
 		{
 			throw new AdempiereException(e);
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null;
+			pstmt = null;
 		}
 		StringBuilder msgreturn = new StringBuilder("@C_PaySelectionLine_ID@  - #").append(lines);
 		return msgreturn.toString();

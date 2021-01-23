@@ -23,6 +23,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 
 import javax.activation.FileDataSource;
@@ -35,6 +37,7 @@ import org.adempiere.webui.ClientInfo;
 import org.adempiere.webui.LayoutUtils;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.apps.BusyDialog;
+import org.adempiere.webui.apps.DesktopRunnable;
 import org.adempiere.webui.apps.WReport;
 import org.adempiere.webui.apps.form.WReportCustomization;
 import org.adempiere.webui.component.Checkbox;
@@ -60,6 +63,7 @@ import org.adempiere.webui.theme.ThemeManager;
 import org.adempiere.webui.util.IServerPushCallback;
 import org.adempiere.webui.util.ServerPushTemplate;
 import org.adempiere.webui.util.ZKUpdateUtil;
+import org.compiere.Adempiere;
 import org.compiere.model.GridField;
 import org.compiere.model.MArchive;
 import org.compiere.model.MClient;
@@ -196,6 +200,8 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 	private BusyDialog progressWindow;
 	private Mask mask;
 
+	private Future<?> future;
+	
 	private final static String ON_RENDER_REPORT_EVENT = "onRenderReport";
 	
 	private Popup toolbarPopup;
@@ -226,9 +232,6 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 				m_reportEngine.getPrintFormat().get_Translation(MPrintFormat.COLUMNNAME_Name)));
 		
 		addEventListener(ON_RENDER_REPORT_EVENT, this);
-		addEventListener("onPostInit", e -> {
-			postRenderReportEvent();
-		});
 	}
 
 	@Override
@@ -576,6 +579,9 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		int AD_Process_ID = m_reportEngine.getPrintInfo() != null ? m_reportEngine.getPrintInfo().getAD_Process_ID() : 0;
 		updateToolbarAccess(AD_Window_ID, AD_Process_ID);
 		
+		postRenderReportEvent();
+		//iframe.setAutohide(true);
+
 		this.setBorder("normal");
 		
 		this.addEventListener("onZoom", new EventListener<Event>() {
@@ -628,8 +634,6 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		});
 		
 		init = true;
-		
-		Events.echoEvent("onPostInit", this, null);
 	}
 
 	/**
@@ -652,20 +656,29 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		media = null;
 		Listitem selected = previewType.getSelectedItem();
 		if (selected == null || "PDF".equals(selected.getValue())) {
-			new PDFRendererRunnable(this).run();
+			future = Adempiere.getThreadPoolExecutor().submit(new DesktopRunnable(new PDFRendererRunnable(this),getDesktop()));
 		} else if ("HTML".equals(previewType.getSelectedItem().getValue())) {
-			new HTMLRendererRunnable(this).run();
+			future = Adempiere.getThreadPoolExecutor().submit(new DesktopRunnable(new HTMLRendererRunnable(this),getDesktop()));
 		} else if ("XLS".equals(previewType.getSelectedItem().getValue())) {			
-			new XLSRendererRunnable(this).run();
+			future = Adempiere.getThreadPoolExecutor().submit(new DesktopRunnable(new XLSRendererRunnable(this),getDesktop()));
 		} else if ("CSV".equals(previewType.getSelectedItem().getValue())) {
-			new CSVRendererRunnable(this).run();
+			future = Adempiere.getThreadPoolExecutor().submit(new DesktopRunnable(new CSVRendererRunnable(this),getDesktop()));
 		} else if ("XLSX".equals(previewType.getSelectedItem().getValue())) {			
-			new XLSXRendererRunnable(this).run();
+			future = Adempiere.getThreadPoolExecutor().submit(new DesktopRunnable(new XLSXRendererRunnable(this),getDesktop()));
 		}		
 	}
 	
 	private void onPreviewReport() {
 		try {
+			if (future != null) {
+				try {
+					future.get();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				} catch (ExecutionException e) {
+					throw new RuntimeException(e.getCause());
+				}
+			}
 			mediaVersion++;
 			String url = Utils.getDynamicMediaURI(this, mediaVersion, media.getName(), media.getFormat());	
 			String pdfJsUrl = "pdf.js/web/viewer.html?file="+url;
@@ -702,6 +715,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 			revalidate();
 		} finally {
 			hideBusyDialog();
+			future = null;
 		}
 	}
 
@@ -926,6 +940,12 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 			m_ctx = null;
 			m_WindowNo = -1;
 		}
+		if (future != null && !future.isDone())
+		{
+			future.cancel(true);
+			future = null;
+		}
+			
 	}
 	
 	public void onEvent(Event event) throws Exception {

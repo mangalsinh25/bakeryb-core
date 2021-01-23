@@ -209,7 +209,7 @@ public class ChartBuilder {
 			hasWhere = true;
 		}
 		
-		Date currentDate = Env.getContextAsDate(Env.getCtx(), Env.DATE);
+		Date currentDate = Env.getContextAsDate(Env.getCtx(), "#Date");
 		Date startDate = null;
 		Date endDate = null;
 		

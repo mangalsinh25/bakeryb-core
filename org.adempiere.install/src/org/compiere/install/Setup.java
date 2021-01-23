@@ -22,6 +22,7 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 
 import javax.swing.BorderFactory;
@@ -34,6 +35,7 @@ import javax.swing.JPanel;
 
 import org.compiere.Adempiere;
 import org.compiere.install.util.AEnv;
+import org.compiere.util.CLogFile;
 import org.compiere.util.CLogMgt;
 import org.compiere.util.CLogger;
 
@@ -149,18 +151,17 @@ public class Setup extends JFrame implements ActionListener
 	 */
 	public static void main(String[] args)
 	{
-		CLogMgt.initialize(false);
-
+		CLogMgt.initialize(true);
+		Handler fileHandler = new CLogFile(System.getProperty("user.dir"), false, false);
+		CLogMgt.addHandler(fileHandler);
 		//	Log Level
-		Level logLevel = Level.INFO;
-		if (args.length > 0) {
-			try {
-				logLevel = Level.parse(args[0]);
-			} catch (IllegalArgumentException e) {
-				CLogger.get().warning("Unrecognized log level: " + args[0] + " defaulting to: " + logLevel);
-			}
-		}
-		CLogMgt.setLevel(logLevel);
+		if (args.length > 0)
+			CLogMgt.setLevel(args[0]);
+		else
+			CLogMgt.setLevel(Level.INFO);
+		//	File Logger at least FINE
+		if (fileHandler.getLevel().intValue() > Level.FINE.intValue())
+			fileHandler.setLevel(Level.FINE);
 
 		instance = new Setup();
 	}	//	main

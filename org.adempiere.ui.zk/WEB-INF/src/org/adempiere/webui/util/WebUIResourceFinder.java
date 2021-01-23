@@ -74,20 +74,12 @@ public class WebUIResourceFinder implements IResourceFinder {
 			}
 		} else if (url == null && name.startsWith("images/")) {
 			String t = ThemeManager.getThemeResource(name);
-			if (t.startsWith(ThemeManager.ZK_URL_PREFIX_FOR_CLASSPATH_RESOURCE)) {
-				url = ThemeManager.class.getResource(ThemeManager.toClassPathResourcePath(t));
-			} else {
-				e = find(t);
-				url = e != null && e.hasMoreElements() ? e.nextElement() : null;
-			}
+			e = find(t);
+			url = e != null && e.hasMoreElements() ? e.nextElement() : null;
 			if (url == null && t.endsWith(".gif")) {
 				t = t.replace(".gif", ".png");
-				if (t.startsWith(ThemeManager.ZK_URL_PREFIX_FOR_CLASSPATH_RESOURCE)) {
-					url = ThemeManager.class.getResource(ThemeManager.toClassPathResourcePath(t));
-				} else {
-					e = find(t);
-					url = e != null && e.hasMoreElements() ? e.nextElement() : null;
-				}
+				e = find(t);
+				url = e != null && e.hasMoreElements() ? e.nextElement() : null;
 			}
 		} else if (url == null && name.endsWith(".gif")) {
 			String t = name.replace(".gif", ".png");

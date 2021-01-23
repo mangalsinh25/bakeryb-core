@@ -67,7 +67,6 @@ import org.adempiere.webui.part.ITabOnSelectHandler;
 import org.adempiere.webui.part.WindowContainer;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
-import org.adempiere.webui.window.FDialog;
 import org.compiere.minigrid.ColumnInfo;
 import org.compiere.minigrid.IDColumn;
 import org.compiere.model.GridField;
@@ -123,7 +122,6 @@ import org.zkoss.zul.ext.Sortable;
  */
 public abstract class InfoPanel extends Window implements EventListener<Event>, WTableModelListener, Sortable<Object>, IHelpContext
 {
-	protected static final String INFO_QUERY_TIME_OUT_ERROR = "InfoQueryTimeOutError";
 	/**
 	 * 
 	 */
@@ -314,7 +312,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 					try {
 						int t = Integer.parseInt(pair[1]);
 						if (t > 0)
-							setFixedQueryTimeout(t);
+							this.queryTimeout = t;
 					} catch (Exception e) {}
 				} else if (pair[0].equalsIgnoreCase("pagesize")) {
 					try {
@@ -329,15 +327,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		}
 	}
 	
-	/**
-	 * set fixed query timeout value, overwrite the value from sysconfig
-	 * @param timeout
-	 */
-	public void setFixedQueryTimeout(int timeout) {
-		this.queryTimeout = timeout;
-		useQueryTimeoutFromSysConfig = false;
-	}
-
 	private void init()
 	{
 		if (isLookup())
@@ -476,7 +465,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	protected boolean isAutoComplete = false;
 	
 	protected int queryTimeout = 0;
-	protected boolean useQueryTimeoutFromSysConfig = true;
 	
 	protected String autoCompleteSearchColumn = null;
 	
@@ -910,9 +898,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
     }
     
     private List<Object> readLine(int start, int end) {
-    	if (useQueryTimeoutFromSysConfig)
-    		queryTimeout = MSysConfig.getIntValue(MSysConfig.ZK_INFO_QUERY_TIME_OUT, 0, Env.getAD_Client_ID(Env.getCtx()));
-    	
     	//cacheStart & cacheEnd - 1 based index, start & end - 0 based index
     	if (getCacheStart() >= 1 && cacheEnd > getCacheStart())
     	{
@@ -1011,17 +996,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
 		catch (SQLException e)
 		{
-			if (DB.getDatabase().isQueryTimeout(e))
-			{
-				if (log.isLoggable(Level.INFO))
-					log.log(Level.INFO, dataSql, e);
-				FDialog.error(p_WindowNo, INFO_QUERY_TIME_OUT_ERROR);
-			}
-			else
-			{
-				log.log(Level.SEVERE, dataSql, e);
-				FDialog.error(p_WindowNo, "DBExecuteError", e.getMessage());
-			}
+			log.log(Level.SEVERE, dataSql, e);
 		}
 
 		finally
@@ -1264,9 +1239,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	 */
 	protected boolean testCount()
 	{
-		if (useQueryTimeoutFromSysConfig)
-			queryTimeout = MSysConfig.getIntValue(MSysConfig.ZK_INFO_QUERY_TIME_OUT, 0, Env.getAD_Client_ID(Env.getCtx()));
-		
 		long start = System.currentTimeMillis();
 		String dynWhere = getSQLWhere();
 		StringBuilder sql = new StringBuilder (m_sqlCount);
@@ -1290,8 +1262,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		try
 		{
 			pstmt = DB.prepareStatement(countSql, null);
-			if (queryTimeout > 0)
-				pstmt.setQueryTimeout(queryTimeout);
 			setParameters (pstmt, true);
 			rs = pstmt.executeQuery();
 
@@ -1299,18 +1269,8 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 				m_count = rs.getInt(1);
 		}
 		catch (Exception e)
-		{		
-			if (e instanceof SQLException && DB.getDatabase().isQueryTimeout((SQLException) e))
-			{
-				if (log.isLoggable(Level.INFO))
-					log.log(Level.INFO, countSql, e);
-				FDialog.error(p_WindowNo, INFO_QUERY_TIME_OUT_ERROR);
-			}
-			else
-			{
-				log.log(Level.SEVERE, countSql, e);
-				FDialog.error(p_WindowNo, "DBExecuteError", e.getMessage());
-			}
+		{
+			log.log(Level.SEVERE, countSql, e);
 			m_count = -2;
 		}
 		finally
