@@ -21,11 +21,9 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.adempiere.webui.ValuePreference;
-import org.adempiere.webui.component.ChosenSearchBox;
 import org.adempiere.webui.event.ContextMenuEvent;
 import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.event.ValueChangeEvent;
-import org.adempiere.webui.theme.ThemeManager;
 import org.adempiere.webui.window.WFieldRecordInfo;
 import org.compiere.model.GridField;
 import org.compiere.model.Lookup;
@@ -61,7 +59,7 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
     
     static
     {
-        logger = CLogger.getCLogger(WChosenboxListEditor.class);
+        logger = CLogger.getCLogger(WTableDirEditor.class);
     }
     
     private Lookup  lookup;
@@ -90,7 +88,7 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
 	 */
     public WChosenboxListEditor(GridField gridField, boolean tableEditor, IEditorConfiguration editorConfiguration)
     {
-        this(new ChosenSearchBox(new ChosenboxEditor()), gridField, tableEditor, editorConfiguration);
+        this(new ChosenboxEditor(), gridField, tableEditor, editorConfiguration);
     }
     
     private WChosenboxListEditor(Component comp, GridField gridField, boolean tableEditor, IEditorConfiguration editorConfiguration)
@@ -115,19 +113,9 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
     	this(lookup, label, description, mandatory, readonly, updateable, false);
 	}
     
-    /**
-     * 
-     * @param lookup
-     * @param label
-     * @param description
-     * @param mandatory
-     * @param readonly
-     * @param updateable
-     * @param autocomplete
-     */
     public WChosenboxListEditor(Lookup lookup, String label, String description, boolean mandatory, boolean readonly, boolean updateable, boolean autocomplete)
     {
-    	this(new ChosenSearchBox(new ChosenboxEditor()), lookup, label, description, mandatory, readonly, updateable);
+    	this(new ChosenboxEditor(), lookup, label, description, mandatory, readonly, updateable);
     }
     
     private WChosenboxListEditor(Component comp, Lookup lookup, String label, String description, boolean mandatory, boolean readonly, boolean updateable)
@@ -157,18 +145,9 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
     	this(columnName, mandatory, isReadOnly, isUpdateable, lookup, false);
     }
     
-    /**
-     * 
-     * @param columnName
-     * @param mandatory
-     * @param isReadOnly
-     * @param isUpdateable
-     * @param lookup
-     * @param autocomplete
-     */
     public WChosenboxListEditor(String columnName, boolean mandatory, boolean isReadOnly, boolean isUpdateable, Lookup lookup, boolean autocomplete)
     {
-    	this(new ChosenSearchBox(new ChosenboxEditor()), columnName, mandatory, isReadOnly, isUpdateable, lookup);
+    	this(new ChosenboxEditor(), columnName, mandatory, isReadOnly, isUpdateable, lookup);
     }
     
     private WChosenboxListEditor(Component comp, String columnName, boolean mandatory, boolean isReadOnly, boolean isUpdateable, Lookup lookup)
@@ -185,27 +164,9 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
     private void init()
     {
         getComponent().setHflex("true"); 
-        ((ChosenboxEditor)getComponent().getChosenbox()).editor = this;
-        getComponent().getChosenbox().setModel(model);
-        String imageUrl;
-		if (ThemeManager.isUseFontIconForImage())
-			imageUrl = "z-icon-More";
-		else
-			imageUrl = ThemeManager.getThemeResource("images/ShowMore16.png");
-		if (ThemeManager.isUseFontIconForImage())
-			getComponent().getButton().setIconSclass(imageUrl);
-		else
-			getComponent().getButton().setImage(imageUrl);
+        getComponent().editor = this;
+        getComponent().setModel(model);
 
-		getComponent().getButton().addEventListener(Events.ON_CLICK, e -> {
-			if (getComponent().isEnabled()) {
-				if (!getComponent().getChosenbox().isOpen()) {
-					getComponent().getChosenbox().setOpen(true);
-					getComponent().getChosenbox().focus();
-				}
-			}
-		});
-		
         if (lookup != null)
         {
             lookup.setMandatory(true);
@@ -228,9 +189,6 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
         }        
     }
 
-    /**
-     * refresh lookup list
-     */
 	protected void refreshLookup() {
 		lookup.refresh();
 		updateModel();
@@ -240,7 +198,7 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
     public String getDisplay()
     {
         StringBuilder display = new StringBuilder();
-        LinkedHashSet<ValueNamePair> selected = getComponent().getChosenbox().getSelectedObjects();
+        LinkedHashSet<ValueNamePair> selected = getComponent().getSelectedObjects();
         if (selected != null && selected.size() > 0)
         {
         	for(ValueNamePair pair : selected)
@@ -262,7 +220,7 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
     private String getValueFromComponent()
 	{
 		StringBuilder retVal = new StringBuilder();
-        LinkedHashSet<ValueNamePair> selected = getComponent().getChosenbox().getSelectedObjects();
+        LinkedHashSet<ValueNamePair> selected = getComponent().getSelectedObjects();
         if (selected != null && selected.size() > 0)
         {
         	for(ValueNamePair pair : selected)
@@ -281,9 +239,6 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
         return retVal.length() > 0 ? retVal.toString() : null;
 	}
 
-    /**
-     * @param value
-     */
     public void setValue(Object value)
     {
     	if (onselecting) {
@@ -304,8 +259,8 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
 	            	selected.add(pair);
             	}
             }
-			getComponent().getChosenbox().setSelectedObjects(selected);            
-            if (getComponent().getChosenbox().getSelectedObjects().size() != selected.size())
+			getComponent().setSelectedObjects(selected);            
+            if (getComponent().getSelectedObjects().size() != selected.size())
             {
             	Object curValue = oldValue;
                 oldValue = value;
@@ -318,12 +273,12 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
             	{
                 	updateModel();
             	}
-            	getComponent().getChosenbox().setSelectedObjects(selected);
+            	getComponent().setSelectedObjects(selected);
                 
                 //still not in list, reset to zero
-            	if (getComponent().getChosenbox().getSelectedObjects().size() != selected.size())
+            	if (getComponent().getSelectedObjects().size() != selected.size())
                 {
-            		getComponent().getChosenbox().setSelectedObjects(new LinkedHashSet<ValueNamePair>());
+            		getComponent().setSelectedObjects(new LinkedHashSet<ValueNamePair>());
             		if (curValue == null)
             			curValue = value;
             		ValueChangeEvent changeEvent = new ValueChangeEvent(this, this.getColumnName(), curValue, null);
@@ -338,14 +293,14 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
         }
         else
         {
-        	getComponent().getChosenbox().setSelectedObjects(new LinkedHashSet<ValueNamePair>());
+        	getComponent().setSelectedObjects(new LinkedHashSet<ValueNamePair>());
             oldValue = value;            
         }
     }
     
     @Override
-	public ChosenSearchBox getComponent() {
-		return (ChosenSearchBox) component;
+	public ChosenboxEditor getComponent() {
+		return (ChosenboxEditor) component;
 	}
 
 	@Override
@@ -409,9 +364,6 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
     	model.addAll(list);
     }
     
-	/**
-	 * @param event
-	 */
     public void onEvent(Event event)
     {
     	if (Events.ON_SELECT.equalsIgnoreCase(event.getName()))
@@ -442,16 +394,12 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
 			|| ((oldValue != null && newValue != null) && !oldValue.equals(newValue));
 	}
     
-	@Override
     public String[] getEvents()
     {
         return LISTENER_EVENTS;
     }
 
-	/**
-	 * action for requery menu
-	 */
-    protected void actionRefresh()
+    public void actionRefresh()
     {    	
 		if (lookup != null)
         {
@@ -468,16 +416,11 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
         }
     }
     
-    /**
-     * 
-     * @return {@link Lookup}
-     */
     public Lookup getLookup()
     {
     	return lookup;
     }
     
-    @Override
 	public void onMenu(ContextMenuEvent evt) 
 	{
 		if (WEditorPopupMenu.REQUERY_EVENT.equals(evt.getContextEvent()))
@@ -496,7 +439,6 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
 		}
 	}
 	
-    @Override
 	public  void propertyChange(PropertyChangeEvent evt)
 	{
 		if ("FieldValue".equals(evt.getPropertyName()))
@@ -513,7 +455,7 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
 			((MLookup) lookup).getLookupInfo().ctx = ctx;
 		}
 		if ((lookup != null) && (!lookup.isValidated() || !lookup.isLoaded()
-			|| (isReadWrite() && lookup.getSize() != getComponent().getChosenbox().getModel().getSize())))
+			|| (isReadWrite() && lookup.getSize() != getComponent().getModel().getSize())))
 			this.actionRefresh();
 		
 		super.dynamicDisplay(ctx);
@@ -542,6 +484,14 @@ public class WChosenboxListEditor extends WEditor implements ContextMenuListener
 		protected ChosenboxEditor() {
 		}
 		
+		public void setEnabled(boolean readWrite) {
+			setDisabled(readWrite==false);
+		}
+
+		public boolean isEnabled() {
+			return isDisabled() == false;
+		}
+
 		@Override
 		public void setPage(Page page) {
 			super.setPage(page);			

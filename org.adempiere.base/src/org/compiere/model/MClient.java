@@ -31,6 +31,7 @@ import java.util.logging.Level;
 
 import javax.mail.internet.InternetAddress;
 
+import org.compiere.db.CConnection;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.EMail;
@@ -103,15 +104,9 @@ public class MClient extends X_AD_Client implements ImmutablePOSupport
 	 */
 	public static MClient[] getAll (Properties ctx, String orderBy)
 	{
-		List<MClient> list = null;
-		try {
-			PO.setCrossTenantSafe();
-			list = new Query(ctx,I_AD_Client.Table_Name,(String)null,(String)null)
-					.setOrderBy(orderBy)
-					.list();
-		} finally {
-			PO.clearCrossTenantSafe();
-		}
+		List<MClient> list = new Query(ctx,I_AD_Client.Table_Name,(String)null,(String)null)
+		.setOrderBy(orderBy)
+		.list();
 		for(MClient client:list ){
 			s_cache.put (Integer.valueOf(client.getAD_Client_ID()), client, e -> new MClient(Env.getCtx(), e));
 		}
@@ -158,6 +153,7 @@ public class MClient extends X_AD_Client implements ImmutablePOSupport
 				setIsMultiLingualDocument (false);
 				setIsSmtpAuthorization (false);
 				setIsUseBetaFunctions (true);
+				setIsServerEMail(false);
 				setAD_Language(Language.getBaseAD_Language());
 				setAutoArchive(AUTOARCHIVE_None);
 				setMMPolicy (MMPOLICY_FiFo);	// F
@@ -538,7 +534,15 @@ public class MClient extends X_AD_Client implements ImmutablePOSupport
 		}	
 		try
 		{
-			String msg = email.send();			
+			String msg = null;
+			if (isServerEMail())
+			{
+				msg = CConnection.get().getServer().sendEMail(Env.getRemoteCallCtx(Env.getCtx()), email);
+			}
+			else
+			{
+				msg = email.send();
+			}
 			if (EMail.SENT_OK.equals (msg))
 			{
 				if (log.isLoggable(Level.INFO)) log.info("Sent Test EMail to " + getRequestEMail());
@@ -708,7 +712,15 @@ public class MClient extends X_AD_Client implements ImmutablePOSupport
 			email.addAttachment(attachment);
 		try
 		{
-			String msg = email.send();
+			String msg = null;
+			if (isServerEMail())
+			{
+				msg = CConnection.get().getServer().sendEMail(Env.getRemoteCallCtx(Env.getCtx()), email);
+			}
+			else
+			{
+				msg = email.send();
+			}
 			if (EMail.SENT_OK.equals (msg))
 			{
 				if (log.isLoggable(Level.INFO)) log.info("Sent EMail " + subject + " to " + to);
@@ -786,7 +798,15 @@ public class MClient extends X_AD_Client implements ImmutablePOSupport
 	 */
 	public boolean sendEmailNow(MUser from, MUser to, EMail email)
 	{
-		String msg = email.send();
+		String msg = null;
+		if (isServerEMail())
+		{
+			msg = CConnection.get().getServer().sendEMail(Env.getRemoteCallCtx(Env.getCtx()), email);
+		}
+		else
+		{
+			msg = email.send();
+		}
 		//
 		X_AD_UserMail um = new X_AD_UserMail(getCtx(), 0, to.get_TrxName());
 		um.setClientOrg(this);

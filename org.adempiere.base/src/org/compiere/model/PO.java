@@ -112,7 +112,7 @@ public abstract class PO
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7231417421289556724L;
+	private static final long serialVersionUID = -1330388218446118451L;
 
 	public static final String LOCAL_TRX_PREFIX = "POSave";
 
@@ -208,8 +208,6 @@ public abstract class PO
 			load(rs);		//	will not have virtual columns
 		else
 			load(ID, trxName);
-
-		checkCrossTenant(false);
 	}   //  PO
 
 	/**
@@ -1943,7 +1941,6 @@ public abstract class PO
 
 	/**	Cache						*/
 	private static CCache<String,String> trl_cache	= new CCache<String,String>("PO_Trl", 5);
-	/** Cache for foreign keys */
 	private static CCache<Integer,List<ValueNamePair>> fks_cache	= new CCache<Integer,List<ValueNamePair>>("FKs", 5);
 
 	public String get_Translation (String columnName, String AD_Language)
@@ -2082,7 +2079,6 @@ public abstract class PO
 		checkImmutable();
 		
 		checkValidContext();
-		checkCrossTenant(true);
 		CLogger.resetLast();
 		boolean newRecord = is_new();	//	save locally as load resets
 		if (!newRecord && !is_Changed())
@@ -3270,7 +3266,6 @@ public abstract class PO
 		checkImmutable();
 		
 		checkValidContext();
-		checkCrossTenant(true);
 		CLogger.resetLast();
 		if (is_new())
 			return true;
@@ -4980,7 +4975,7 @@ public abstract class PO
 		if (getCtx().isEmpty() && getCtx().getProperty("#AD_Client_ID") == null)
 			throw new AdempiereException("Context lost");
 	}
-
+	
 	/*
 	 * To force a cross tenant safe read/write the client program must write code like this:
 		try {

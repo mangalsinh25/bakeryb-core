@@ -173,6 +173,7 @@ public class MProcess extends X_AD_Process implements ImmutablePOSupport
 		//	setValue (null);
 		//	setName (null);
 			setIsReport (false);
+			setIsServerProcess(false);
 			setAccessLevel (ACCESSLEVEL_All);
 			setEntityType (ENTITYTYPE_UserMaintained);
 			setIsBetaFunctionality(false);
@@ -586,6 +587,7 @@ public class MProcess extends X_AD_Process implements ImmutablePOSupport
 		setIsBetaFunctionality(source.isBetaFunctionality());
 		setIsDirectPrint(source.isDirectPrint());
 		setIsReport(source.isReport());
+		setIsServerProcess(source.isServerProcess());
 		setJasperReport(source.getJasperReport());
 		setProcedureName(source.getProcedureName());
 		setShowHelp(source.getShowHelp());

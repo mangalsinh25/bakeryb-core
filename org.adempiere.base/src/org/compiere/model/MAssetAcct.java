@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 import org.idempiere.cache.ImmutableIntPOCache;
@@ -131,10 +130,6 @@ public class MAssetAcct extends X_A_Asset_Acct implements ImmutablePOSupport
 								.setParameters(params)
 								.setOrderBy(COLUMNNAME_ValidFrom+" DESC NULLS LAST")
 								.first();
-		
-		if (acct == null)
-			throw new AdempiereException("@NoAccountOrgCurrency@");
-		
 		if (acct.get_ID() > 0)
 		{
 			s_cache.put(acct.get_ID(), acct, e -> new MAssetAcct(Env.getCtx(), e));

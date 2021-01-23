@@ -25,11 +25,7 @@ import org.compiere.util.DB;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.ValueNamePair;
 
-/* 
- * Deprecated with IDEMPIERE-4566
- * moved to org.idempiere.process.TranslationImpExp
- */
-@Deprecated
+
 public class TranslationController
 {
 	public TranslationController()

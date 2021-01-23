@@ -23,9 +23,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -127,43 +125,40 @@ public class MWorkflow extends X_AD_Workflow implements ImmutablePOSupport
 			, String trxName //Bug 1568766 Trx should be kept all along the road		
 	)
 	{
+		String key = "C" + AD_Client_ID + "T" + AD_Table_ID;
 		//	Reload
-		Map<Integer, MWorkflow[]> cachedMap = s_cacheDocValue.get(AD_Client_ID);
-		if (cachedMap == null)
+		if (s_cacheDocValue.isReset())
 		{
-			final String whereClause = "WorkflowType=? AND IsValid=? AND AD_Client_ID=?";
-			List<MWorkflow> workflows;
-			workflows = new Query(ctx, Table_Name, whereClause, trxName)
-					.setParameters(new Object[]{WORKFLOWTYPE_DocumentValue, true, Env.getAD_Client_ID(ctx)})
-					.setOnlyActiveRecords(true)
-					.setOrderBy("AD_Table_ID")
-					.list();
-			cachedMap = new HashMap<Integer, MWorkflow[]>();
-			s_cacheDocValue.put(AD_Client_ID, cachedMap);
+			final String whereClause = "WorkflowType=? AND IsValid=?";
+			List<MWorkflow> workflows = new Query(ctx, Table_Name, whereClause, trxName)
+				.setParameters(new Object[]{WORKFLOWTYPE_DocumentValue, true})
+				.setOnlyActiveRecords(true)
+				.setOrderBy("AD_Client_ID, AD_Table_ID")
+				.list();
 			ArrayList<MWorkflow> list = new ArrayList<MWorkflow>();
-			int previousTableId = -1;
-			int currentTableId = -1;
+			String oldKey = "";
+			String newKey = null;
 			for (MWorkflow wf : workflows)
 			{
-				currentTableId = wf.getAD_Table_ID();
-				if (currentTableId !=  previousTableId && list.size() > 0)
+				newKey = "C" + wf.getAD_Client_ID() + "T" + wf.getAD_Table_ID();
+				if (!newKey.equals(oldKey) && list.size() > 0)
 				{
-					cachedMap.put (previousTableId, list.stream().map(e -> {return new MWorkflow(Env.getCtx(), e);}).toArray(MWorkflow[]::new));
+					s_cacheDocValue.put (oldKey, list.stream().map(e -> {return new MWorkflow(Env.getCtx(), e);}).toArray(MWorkflow[]::new));
 					list = new ArrayList<MWorkflow>();
 				}
-				previousTableId = currentTableId;
+				oldKey = newKey;
 				list.add(wf);
 			}
 			
 			//	Last one
 			if (list.size() > 0)
 			{
-				cachedMap.put (previousTableId, list.stream().map(e -> {return new MWorkflow(Env.getCtx(), e);}).toArray(MWorkflow[]::new));
+				s_cacheDocValue.put (oldKey, list.stream().map(e -> {return new MWorkflow(Env.getCtx(), e);}).toArray(MWorkflow[]::new));
 			}
-			if (s_log.isLoggable(Level.CONFIG)) s_log.config("#" + cachedMap.size());
+			if (s_log.isLoggable(Level.CONFIG)) s_log.config("#" + s_cacheDocValue.size());
 		}
 		//	Look for Entry
-		MWorkflow[] retValue = (MWorkflow[])cachedMap.get(AD_Table_ID);
+		MWorkflow[] retValue = (MWorkflow[])s_cacheDocValue.get(key);
 		//hengsin: this is not threadsafe
 		/*
 		//set trxName to all workflow instance
@@ -179,19 +174,9 @@ public class MWorkflow extends X_AD_Workflow implements ImmutablePOSupport
 	
 	
 	/**	Single Cache					*/
-	private static ImmutablePOCache<String,MWorkflow>	s_cache = new ImmutablePOCache<String,MWorkflow>(Table_Name, Table_Name, 20);
+	private static ImmutablePOCache<String,MWorkflow>	s_cache = new ImmutablePOCache<String,MWorkflow>(Table_Name, Table_Name+"|Language_Workflow", 20);
 	/**	Document Value Cache			*/
-	private static final CCache<Integer,Map<Integer, MWorkflow[]>> s_cacheDocValue = new CCache<> (Table_Name, Table_Name+"|DocumentValue", 5) {
-		/**
-		 * generated serial id
-		 */
-		private static final long serialVersionUID = 2548097748351277269L;
-
-		@Override
-		public int reset(int recordId) {
-			return reset();
-		}		
-	};
+	private static CCache<String,MWorkflow[]>	s_cacheDocValue = new CCache<String,MWorkflow[]> (Table_Name, Table_Name+"|AD_Client_Table", 5);
 	/**	Static Logger	*/
 	private static CLogger	s_log	= CLogger.getCLogger (MWorkflow.class);
 	

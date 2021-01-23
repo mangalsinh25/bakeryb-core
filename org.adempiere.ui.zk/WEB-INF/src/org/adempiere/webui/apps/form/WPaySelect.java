@@ -269,12 +269,6 @@ public class WPaySelect extends PaySelect
 		}
 		row.appendChild(new Space());
 		row.appendChild(onlyPositiveBalance);
-		if (ClientInfo.maxWidth(ClientInfo.MEDIUM_WIDTH-1))
-		{
-			row.appendChild(new Space());
-			row = rows.newRow();
-			row.appendChild(new Space());
-		}
 		row.appendCellChild(chkOnePaymentPerInv);
 		row.appendChild(new Space());
 		
@@ -499,11 +493,6 @@ public class WPaySelect extends PaySelect
 		if (m_noSelected == 0)
 			return;
 
-		if(fieldPayDate.getComponent().getValue() == null)
-		{
-			throw new WrongValueException(fieldPayDate.getComponent(), Msg.getMsg(Env.getCtx(), "FillMandatory") + labelPayDate.getValue());
-		}
-		
 		String msg = generatePaySelect(miniTable, (ValueNamePair) fieldPaymentRule.getSelectedItem().getValue(), 
 				new Timestamp(fieldPayDate.getComponent().getValue().getTime()), 
 				(BankInfo)fieldBankAccount.getSelectedItem().getValue());

@@ -32,6 +32,7 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.OpenEvent;
 import org.zkoss.zk.ui.util.Clients;
+import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Cell;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Grid;
@@ -55,16 +56,14 @@ public final class LayoutUtils {
 	/**
 	 * @param layout
 	 */
-	@Deprecated
-	public static void sendDeferLayoutEvent(org.zkoss.zul.Borderlayout layout, int timeout) {
-		/* this is not required anymore */
-//		StringBuilder content = new StringBuilder();
-//		content.append("ad_deferRenderBorderLayout('")
-//			   .append(layout.getUuid())
-//			   .append("',").append(timeout).append(");");
-//
-//		AuScript as = new AuScript(null, content.toString());
-//		Clients.response("deferRenderBorderLayout", as);
+	public static void sendDeferLayoutEvent(Borderlayout layout, int timeout) {
+		StringBuilder content = new StringBuilder();		
+		content.append("ad_deferRenderBorderLayout('")
+			   .append(layout.getUuid())
+			   .append("',").append(timeout).append(");");
+		
+		AuScript as = new AuScript(null, content.toString());
+		Clients.response("deferRenderBorderLayout", as);		
 	}
 	
 	/**
@@ -135,7 +134,7 @@ public final class LayoutUtils {
 		if (delayMs > 0) {
 			script.append("setTimeout(function() { ");
 		}
-		script.append("idempiere.show_popup_window('#")
+		script.append("_idempiere_popup_window('#")
 			.append(ref.getUuid())
 			.append("','#")
 			.append(window.getUuid())
@@ -161,7 +160,7 @@ public final class LayoutUtils {
 		if (window.getPage() == null)
 			window.setPage(ref.getPage());
 		StringBuilder script = new StringBuilder();
-		script.append("idempiere.show_popup_window('#")
+		script.append("_idempiere_popup_window('#")
 			.append(ref.getUuid())
 			.append("','#")
 			.append(window.getUuid())
@@ -180,7 +179,7 @@ public final class LayoutUtils {
 	 */
 	public static void positionWindow(Component ref, Window window, String position) {
 		StringBuilder script = new StringBuilder();
-		script.append("idempiere.show_popup_window('#")
+		script.append("_idempiere_popup_window('#")
 			.append(ref.getUuid())
 			.append("','#")
 			.append(window.getUuid())
@@ -198,7 +197,7 @@ public final class LayoutUtils {
 	 */
 	public static void openEmbeddedWindow(Component ref, Window window, String position) {
 		StringBuilder script = new StringBuilder();
-		script.append("idempiere.show_popup_window('#")
+		script.append("_idempiere_popup_window('#")
 			.append(ref.getUuid())
 			.append("','#")
 			.append(window.getUuid())

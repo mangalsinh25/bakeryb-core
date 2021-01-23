@@ -37,7 +37,6 @@ import org.compiere.model.MPasswordHistory;
 import org.compiere.model.MPasswordRule;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUser;
-import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
@@ -357,12 +356,7 @@ public class ChangePasswordPanel extends Window implements EventListener<Event>
 	    		user.setIsExpired(false);
 	    		user.setSecurityQuestion(securityQuestion);
 	    		user.setAnswer(answer);    		
-	    		try {
-	    			PO.setCrossTenantSafe();
-	    			user.saveEx(trx.getTrxName());
-	    		} finally {
-	    			PO.clearCrossTenantSafe();
-	    		}
+	    		user.saveEx(trx.getTrxName());
 	    	}
 	    	
 	    	trx.commit();	    	

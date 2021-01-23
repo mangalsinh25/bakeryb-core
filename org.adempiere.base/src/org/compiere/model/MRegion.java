@@ -16,25 +16,27 @@
  *****************************************************************************/
 package org.compiere.model;
 
-import static org.compiere.model.SystemIDs.COUNTRY_JAPAN;
-
 import java.io.Serializable;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
 import org.compiere.Adempiere;
 import org.compiere.util.CLogger;
+import org.compiere.util.DB;
 import org.compiere.util.Env;
-import org.idempiere.cache.ImmutablePOCache;
 import org.idempiere.cache.ImmutablePOSupport;
+import org.idempiere.cache.ImmutablePOCache;
+
+import static org.compiere.model.SystemIDs.*;
 
 /**
- *	Location Region Model (Value Object)
+ *	Localtion Region Model (Value Object)
  *
  *  @author 	Jorg Janke
  *  @version 	$Id: MRegion.java,v 1.3 2006/07/30 00:58:36 jjanke Exp $
@@ -45,7 +47,7 @@ public class MRegion extends X_C_Region
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -752467671346696325L;
+	private static final long serialVersionUID = 5309795002353895615L;
 
 	/**
 	 * 	Load Regions (cached)
@@ -53,20 +55,31 @@ public class MRegion extends X_C_Region
 	private static void loadAllRegions ()
 	{
 		s_regions.clear();
-		List<MRegion> regions;
-		try {
-			PO.setCrossTenantSafe();
-			regions = new Query(Env.getCtx(), Table_Name, "", null)
-					.setOnlyActiveRecords(true)
-					.list();
-		} finally {
-			PO.clearCrossTenantSafe();
+		String sql = "SELECT * FROM C_Region WHERE IsActive='Y'";
+		Statement stmt = null;
+		ResultSet rs = null;
+		try
+		{
+			stmt = DB.createStatement();
+			rs = stmt.executeQuery(sql);
+			while(rs.next())
+			{
+				MRegion r = new MRegion (Env.getCtx(), rs, null);
+				r.markImmutable();
+				s_regions.put(String.valueOf(r.getC_Region_ID()), r);
+				if (r.isDefault())
+					s_default = r;
+			}
 		}
-		for (MRegion r : regions) {
-			r.markImmutable();
-			s_regions.put(r.getC_Region_ID(), r);
-			if (r.isDefault())
-				s_default = r;
+		catch (SQLException e)
+		{
+			s_log.log(Level.SEVERE, sql, e);
+		}
+		finally
+		{
+			DB.close(rs, stmt);
+			rs = null;
+			stmt = null;
 		}
 		if (s_log.isLoggable(Level.FINE)) s_log.fine(s_regions.size() + " - default=" + s_default);
 	}	//	loadAllRegions
@@ -90,13 +103,14 @@ public class MRegion extends X_C_Region
 	{
 		if (s_regions.size() == 0)
 			loadAllRegions();
-		MRegion r = s_regions.get(ctx, C_Region_ID, e -> new MRegion(ctx, e));
+		String key = String.valueOf(C_Region_ID);
+		MRegion r = s_regions.get(ctx, key, e -> new MRegion(ctx, e));
 		if (r != null)
 			return r;
 		r = new MRegion (ctx, C_Region_ID, null);
 		if (r.getC_Region_ID() == C_Region_ID)
 		{
-			s_regions.put(C_Region_ID, r, e -> new MRegion(Env.getCtx(), e));
+			s_regions.put(key, r, e -> new MRegion(Env.getCtx(), e));
 			return r;
 		}
 		return null;
@@ -176,7 +190,7 @@ public class MRegion extends X_C_Region
 	}	//	getRegions
 
 	/**	Region Cache				*/
-	private static ImmutablePOCache<Integer,MRegion> s_regions = new ImmutablePOCache<Integer,MRegion>(Table_Name, Table_Name, 100, 0, false, 0);
+	private static ImmutablePOCache<String,MRegion> s_regions = new ImmutablePOCache<String,MRegion>(Table_Name, Table_Name, 100, 0, false, 0);
 	/** Default Region				*/
 	private static MRegion		s_default = null;
 	/**	Static Logger				*/

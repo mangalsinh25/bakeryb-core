@@ -743,7 +743,6 @@ public class DetailPane extends Panel implements EventListener<Event>, IdSpace {
 			deleteRecord = adtab.getGridTab().isDeleteRecord();
         }
         boolean enableDelete = !changed && deleteRecord && !adtab.getGridTab().isSortTab();
-        boolean enableCustomize = !adtab.getGridTab().isSortTab();
         
         ADWindow adwindow = ADWindow.findADWindow(this);
         if (adwindow == null)
@@ -762,8 +761,6 @@ public class DetailPane extends Panel implements EventListener<Event>, IdSpace {
         			btn.setDisabled(false);
         		} else if (BTN_SAVE_ID.equals(btn.getId())) {
         			btn.setDisabled(!adtab.needSave(true, false));
-				} else if (BTN_CUSTOMIZE_ID.equals(btn.getId())) {
-        			btn.setDisabled(!enableCustomize);
 				}
 				else if (BTN_QUICK_FORM_ID.equals(btn.getId())) {
 					btn.setDisabled(!(adtab.isEnableQuickFormButton() && !adtab.getGridTab().isReadOnly()));
@@ -789,10 +786,11 @@ public class DetailPane extends Panel implements EventListener<Event>, IdSpace {
 		IADTabpanel adtab = getADTabpanel(index);
 		if (adtab == null) return;
 		
+		String processImage = ThemeManager.getThemeResource(PROCESS_IMAGE);
         for(Component c : toolbar.getChildren()) {
         	if (c instanceof ToolBarButton) {
         		ToolBarButton btn = (ToolBarButton) c;
-        		if (BTN_PROCESS_ID.equals(btn.getId())) {
+        		if (processImage.equals(btn.getImage())) {
         			if (adtab.getGridTab().isSortTab()) {
         				btn.setDisabled(true);
         			} else {

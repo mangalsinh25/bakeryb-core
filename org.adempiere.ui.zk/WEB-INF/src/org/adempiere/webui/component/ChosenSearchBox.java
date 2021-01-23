@@ -38,18 +38,6 @@ public class ChosenSearchBox extends Div {
 	protected Chosenbox<ValueNamePair> chosenbox;
 	protected Button btn;
 
-	/**
-	 * 
-	 * @param chosenbox custom implementation of Chosenbox
-	 */
-	public ChosenSearchBox(Chosenbox<ValueNamePair> chosenbox) {
-		this.chosenbox = chosenbox;
-		initComponents();
-	}
-	
-	/**
-	 * default constructor
-	 */
 	public ChosenSearchBox() {
 		initComponents();
 	}
@@ -62,8 +50,7 @@ public class ChosenSearchBox extends Div {
 	}
 
 	private void initComponents() {
-		if (chosenbox == null) 
-			chosenbox = new Chosenbox<>();
+		chosenbox = new Chosenbox<>();
 		chosenbox.setSclass("editor-input");
 		chosenbox.setWidth("100%");
 		appendChild(chosenbox);
