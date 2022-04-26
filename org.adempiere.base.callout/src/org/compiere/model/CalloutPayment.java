@@ -283,9 +283,9 @@ public class CalloutPayment extends CalloutEngine
 	} // docType
 
 	/**
-	 * Payment_Amounts. Change of: - IsOverUnderPayment -> set OverUnderAmt to 0 -
-	 * C_Currency_ID, C_ConvesionRate_ID -> convert all - PayAmt, DiscountAmt,
-	 * WriteOffAmt, OverUnderAmt -> PayAmt make sure that add up to
+	 * Payment_Amounts. Change of: - IsOverUnderPayment -&gt; set OverUnderAmt to 0 -
+	 * C_Currency_ID, C_ConvesionRate_ID -&gt; convert all - PayAmt, DiscountAmt,
+	 * WriteOffAmt, OverUnderAmt -&gt; PayAmt make sure that add up to
 	 * InvoiceOpenAmt
 	 * @param ctx context
 	 * @param WindowNo current Window No
@@ -333,6 +333,10 @@ public class CalloutPayment extends CalloutEngine
 		int AD_Client_ID = Env.getContextAsInt (ctx, WindowNo, "AD_Client_ID");
 		int AD_Org_ID = Env.getContextAsInt (ctx, WindowNo, "AD_Org_ID");
 
+		Boolean overrideCR = (Boolean)(colName.equals(I_C_Payment.COLUMNNAME_IsOverrideCurrencyRate) ? value : mTab.getValue(I_C_Payment.COLUMNNAME_IsOverrideCurrencyRate));
+		if (overrideCR == null)
+			overrideCR = Boolean.FALSE;
+
 		if (colName.equals(I_C_Payment.COLUMNNAME_CurrencyRate))
 		{
 			if (value != null)
@@ -364,7 +368,8 @@ public class CalloutPayment extends CalloutEngine
 			else
 			{
 				mTab.setValue(colName, oldValue);
-				mTab.fireDataStatusEEvent("Invalid", Msg.getElement(ctx, colName), true);
+				if (overrideCR)
+					mTab.fireDataStatusEEvent("Invalid", Msg.getElement(ctx, colName), true);
 				return "";
 			}			
 		}
@@ -390,7 +395,8 @@ public class CalloutPayment extends CalloutEngine
 			else
 			{
 				mTab.setValue(colName, oldValue);
-				mTab.fireDataStatusEEvent("Invalid", Msg.getElement(ctx, colName), true);
+				if (overrideCR)
+					mTab.fireDataStatusEEvent("Invalid", Msg.getElement(ctx, colName), true);
 				return "";
 			}
 		}
@@ -589,16 +595,13 @@ public class CalloutPayment extends CalloutEngine
 
 		if (colName.equals(I_C_Payment.COLUMNNAME_C_Currency_ID) || colName.equals(I_C_Payment.COLUMNNAME_PayAmt) 
 				|| colName.equals(I_C_Payment.COLUMNNAME_IsOverrideCurrencyRate) ) {
-			Boolean override = (Boolean)(colName.equals(I_C_Payment.COLUMNNAME_IsOverrideCurrencyRate) ? value : mTab.getValue(I_C_Payment.COLUMNNAME_IsOverrideCurrencyRate));
-			if (override == null)
-				override = Boolean.FALSE;
 			int baseCurrencyId = Env.getContextAsInt(ctx, Env.C_CURRENCY_ID);
 			if (baseCurrencyId == C_Currency_ID) {
 				mTab.setValue(I_C_Payment.COLUMNNAME_IsOverrideCurrencyRate, false);
 				mTab.setValue(I_C_Payment.COLUMNNAME_CurrencyRate, null);
 				mTab.setValue(I_C_Payment.COLUMNNAME_ConvertedAmt, null);
 			}
-			else if (!override) {
+			else if (!overrideCR) {
 				mTab.setValue(I_C_Payment.COLUMNNAME_CurrencyRate, null);
 				mTab.setValue(I_C_Payment.COLUMNNAME_ConvertedAmt, null);
 			} else {
