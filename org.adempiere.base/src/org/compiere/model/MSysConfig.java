@@ -44,7 +44,7 @@ public class MSysConfig extends X_AD_SysConfig
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4977677634921011590L;
+	private static final long serialVersionUID = 4367630918820342645L;
 
 	public static final String ADDRESS_VALIDATION = "ADDRESS_VALIDATION";
     public static final String ALERT_SEND_ATTACHMENT_AS_XLS = "ALERT_SEND_ATTACHMENT_AS_XLS";
@@ -164,6 +164,7 @@ public class MSysConfig extends X_AD_SysConfig
     public static final String TAX_LOOKUP_SERVICE="TAX_LOOKUP_SERVICE";
     public static final String TOP_MARGIN_PIXELS_FOR_HEADER = "TOP_MARGIN_PIXELS_FOR_HEADER";
     public static final String TRACE_ALL_TRX_CONNECTION_GET = "TRACE_ALL_TRX_CONNECTION_GET";
+	public static final String TRX_AUTOSET_DISPLAY_NAME = "TRX_AUTOSET_DISPLAY_NAME";
     public static final String TWOPACK_COMMIT_DDL = "2PACK_COMMIT_DDL";
     public static final String TWOPACK_HANDLE_TRANSLATIONS = "2PACK_HANDLE_TRANSLATIONS";
     public static final String USE_EMAIL_FOR_LOGIN = "USE_EMAIL_FOR_LOGIN";
@@ -192,6 +193,7 @@ public class MSysConfig extends X_AD_SysConfig
     public static final String ZK_DESKTOP_SHOW_TAB_LIST_BUTTON = "ZK_DESKTOP_SHOW_TAB_LIST_BUTTON";
     public static final String ZK_DESKTOP_TAB_AUTO_SHRINK_TO_FIT = "ZK_DESKTOP_TAB_AUTO_SHRINK_TO_FIT";
     public static final String ZK_DESKTOP_TAB_MAX_TITLE_LENGTH = "ZK_DESKTOP_TAB_MAX_TITLE_LENGTH";
+    public static final String ZK_ERROR_MSG_LIFETIME_MILLISECONDS = "ZK_ERROR_MSG_LIFETIME_MILLISECONDS";
     public static final String ZK_FLAT_VIEW_MENU_TREE = "ZK_FLAT_VIEW_MENU_TREE";
     public static final String ZK_FOOTER_SERVER_DATETIME_FORMAT = "ZK_FOOTER_SERVER_DATETIME_FORMAT";
     public static final String ZK_FOOTER_SERVER_MSG = "ZK_FOOTER_SERVER_MSG";
@@ -219,6 +221,7 @@ public class MSysConfig extends X_AD_SysConfig
     public static final String ZK_REPORT_FORM_OUTPUT_TYPE = "ZK_REPORT_FORM_OUTPUT_TYPE";
     public static final String ZK_REPORT_JASPER_OUTPUT_TYPE = "ZK_REPORT_JASPER_OUTPUT_TYPE";
     public static final String ZK_REPORT_ONLY_PRINTFORMAT_LINKEDTO_REPORTVIEW = "ZK_REPORT_ONLY_PRINTFORMAT_LINKEDTO_REPORTVIEW";
+    public static final String ZK_REPORT_TABLE_OPEN_IN_NEW_TAB = "ZK_REPORT_TABLE_OPEN_IN_NEW_TAB";
     public static final String ZK_REPORT_TABLE_OUTPUT_TYPE = "ZK_REPORT_TABLE_OUTPUT_TYPE";
     public static final String ZK_ROOT_FOLDER_BROWSER = "ZK_ROOT_FOLDER_BROWSER";
     public static final String ZK_SEARCH_AUTO_COMPLETE_MAX_ROWS = "ZK_SEARCH_AUTO_COMPLETE_MAX_ROWS";

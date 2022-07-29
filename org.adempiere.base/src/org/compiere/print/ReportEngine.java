@@ -39,9 +39,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -238,6 +236,8 @@ public class ReportEngine implements PrintServiceAttributeListener
 	
 	private String m_name = null;
 	
+	private boolean m_isReplaceTabContent = false;
+	
 	/**
 	 * store all column has same css rule into a list
 	 * for IDEMPIERE-2640
@@ -386,11 +386,7 @@ public class ReportEngine implements PrintServiceAttributeListener
 
 		if(Util.isEmpty(processFileNamePattern)) {
 
-	        Calendar cal = Calendar.getInstance();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-			String dt = sdf.format(cal.getTime());
-
-			m_name = m_printFormat.get_Translation("Name") + "_" + dt;
+			m_name = (m_name = m_printFormat.get_Translation(m_printFormat.getName())) != null ? m_name : m_printFormat.getName();
  
 
 		} else {
@@ -2390,6 +2386,22 @@ queued-job-count = 0  (class javax.print.attribute.standard.QueuedJobCount)
 		return reportType;
 	}
 	
+	/**
+	 * Determines, if current tab content should be replaced, or a new tab should be opened
+	 * @return
+	 */
+	public boolean isReplaceTabContent() {
+		return m_isReplaceTabContent;
+	}
+
+	/**
+	 * Sets, if current tab content should be replaced, or a new tab should be opened
+	 * @param m_isReplaceTabContent
+	 */
+	public void setIsReplaceTabContent(boolean m_isReplaceTabContent) {
+		this.m_isReplaceTabContent = m_isReplaceTabContent;
+	}
+
 	/**
 	 * build css for table from mapCssInfo
 	 * @param doc
