@@ -64,7 +64,7 @@ import org.adempiere.webui.panel.IFormController;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.theme.ThemeManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.adempiere.webui.window.WEMailDialog;
 import org.compiere.apps.form.Archive;
 import org.compiere.model.MArchive;
@@ -670,7 +670,7 @@ public class WArchiveViewer extends Archive implements IFormController, EventLis
 	}	//	updateQDisplay
 
 	public void cmd_deleteArchive(){
-	  FDialog.ask(m_WindowNo, this.form, "DeleteRecord?", new Callback<Boolean>() {
+	  Dialog.ask(m_WindowNo, "DeleteRecord?", new Callback<Boolean>() {
 			
 			@Override
 			public void onCallback(Boolean result) 
@@ -756,9 +756,10 @@ public class WArchiveViewer extends Archive implements IFormController, EventLis
 		descriptionField.setText(ar.getDescription());
 		helpField.setText(ar.getHelp());
 		
+		InputStream in = null;
 		try
 		{
-			InputStream in = ar.getInputStream();
+			in = ar.getInputStream();
 			//pdfViewer.setScale(reportField.isSelected() ? 50 : 75);
 			if (in != null)
 				reportViewer(ar.getName(), ar.getBinaryData());//pdfViewer.loadPDF(in);
@@ -769,6 +770,17 @@ public class WArchiveViewer extends Archive implements IFormController, EventLis
 		{
 			log.log(Level.SEVERE, "pdf", e);
 			iframe.getChildren().clear();//pdfViewer.clearDocument();
+		}
+		finally
+		{
+			if (in != null)
+			{
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}	//	updateVDisplay
 

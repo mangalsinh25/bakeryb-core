@@ -21,13 +21,11 @@ package org.adempiere.webui.apps.form;
 import static org.compiere.model.SystemIDs.FORM_PAYMENT_PRINT_EXPORT;
 import static org.compiere.model.SystemIDs.PROCESS_C_PAYSELECTION_CREATEPAYMENT;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.adempiere.util.Callback;
-import org.adempiere.util.IProcessUI;
 import org.adempiere.webui.ClientInfo;
 import org.adempiere.webui.LayoutUtils;
 import org.adempiere.webui.apps.AEnv;
@@ -57,7 +55,7 @@ import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.panel.IFormController;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.compiere.apps.form.PaySelect;
 import org.compiere.model.MPaySelection;
 import org.compiere.model.MSysConfig;
@@ -69,7 +67,6 @@ import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.ValueNamePair;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.SuspendNotAllowedException;
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.event.Event;
@@ -96,12 +93,9 @@ import org.zkoss.zul.Space;
  */
 @org.idempiere.ui.zk.annotation.Form(name = "org.compiere.apps.form.VPaySelect")
 public class WPaySelect extends PaySelect
-	implements IFormController, EventListener<Event>, WTableModelListener, IProcessUI, ValueChangeListener
+	implements IFormController, EventListener<Event>, WTableModelListener, ValueChangeListener
 {
-	/** @todo withholding */
-	
 	protected CustomForm form = new CustomForm();
-
 	//
 	private Panel mainPanel = new Panel();
 	private Borderlayout mainLayout = new Borderlayout();
@@ -130,7 +124,6 @@ public class WPaySelect extends PaySelect
 	private Listbox fieldDtype = ListboxFactory.newDropdownListbox();
 	private Panel southPanel;
 	private Checkbox chkOnePaymentPerInv = new Checkbox();
-	@SuppressWarnings("unused")
 	private ProcessInfo m_pi;
 	private boolean m_isLock;
 	private Hlayout statusBar = new Hlayout();
@@ -155,10 +148,10 @@ public class WPaySelect extends PaySelect
 		{
 			log.log(Level.SEVERE, "", e);
 		}
-	}	//	init
+	}
 
 	/**
-	 *  Static Init
+	 *  Init UI component and layout
 	 *  @throws Exception
 	 */
 	private void zkInit() throws Exception
@@ -327,7 +320,7 @@ public class WPaySelect extends PaySelect
 			fieldBankAccount.appendItem(bi.toString(), bi);
 
 		if (fieldBankAccount.getItemCount() == 0)
-			FDialog.error(m_WindowNo, form, "VPaySelectNoBank");
+			Dialog.error(m_WindowNo, "VPaySelectNoBank");
 		else
 			fieldBankAccount.setSelectedIndex(0);
 		
@@ -371,7 +364,7 @@ public class WPaySelect extends PaySelect
 	}   //  loadBankInfo
 
 	/**
-	 *  Query and create TableInfo
+	 *  Load open documents
 	 */
 	protected void loadTableInfo()
 	{
@@ -390,7 +383,7 @@ public class WPaySelect extends PaySelect
 		if (log.isLoggable(Level.CONFIG)) log.config("PayDate=" + payDate);
 		
 		if (fieldBankAccount.getItemCount() == 0) {
-			FDialog.error(m_WindowNo, form, "VPaySelectNoBank");
+			Dialog.error(m_WindowNo, "VPaySelectNoBank");
 			return;
 		}
 			
@@ -424,6 +417,7 @@ public class WPaySelect extends PaySelect
 	 *  ActionListener
 	 *  @param e event
 	 */
+	@Override
 	public void onEvent (Event e)
 	{
 		//  Update Bank Info
@@ -454,7 +448,7 @@ public class WPaySelect extends PaySelect
 				loadTableInfo();
 				
 				//  Ask to Open Print Form
-				FDialog.ask(m_WindowNo, form, "VPaySelectPrint?", new Callback<Boolean>() {
+				Dialog.ask(m_WindowNo, "VPaySelectPrint?", new Callback<Boolean>() {
 	
 					@Override
 					public void onCallback(Boolean result) 
@@ -497,7 +491,7 @@ public class WPaySelect extends PaySelect
 		{
 			m_isOnePaymentPerInvoice = chkOnePaymentPerInv.isChecked();
 		}
-	}   //  actionPerformed
+	}
 
 	@Override
 	public void valueChange(ValueChangeEvent e) {
@@ -513,7 +507,7 @@ public class WPaySelect extends PaySelect
 	{
 		if (e.getColumn() == 0)
 			calculateSelection();
-	}   //  valueChanged
+	}
 
 	/**
 	 *  Calculate selected rows.
@@ -548,14 +542,14 @@ public class WPaySelect extends PaySelect
 		
 		if(msg != null && msg.length() > 0)		
 		{
-			FDialog.error(m_WindowNo, form, "SaveError", msg);
+			Dialog.error(m_WindowNo, "SaveError", msg);
 			return;
 		}
 
 		
 		if (MSysConfig.getBooleanValue(MSysConfig.PAYMENT_SELECTION_MANUAL_ASK_INVOKE_GENERATE, true, m_ps.getAD_Client_ID(), m_ps.getAD_Org_ID())) {
 		  //  Ask to Post it
-		  FDialog.ask(m_WindowNo, form, "VPaySelectGenerate?", new Callback<Boolean>() {
+		  Dialog.ask(m_WindowNo, "VPaySelectGenerate?", new Callback<Boolean>() {
 
 			@Override
 			public void onCallback(Boolean result) 
@@ -572,7 +566,6 @@ public class WPaySelect extends PaySelect
 							AD_Proces_ID, X_C_PaySelection.Table_ID, m_ps.getC_PaySelection_ID(), false);
 					if (dialog.isValid()) {
 						try {
-							//dialog.setWidth("500px");
 							dialog.setVisible(true);
 							dialog.setPage(form.getPage());
 							dialog.doHighlighted();
@@ -587,7 +580,7 @@ public class WPaySelect extends PaySelect
 								public void onEvent(Event event) throws Exception {
 									if (!dialog.isCancel()) {
 										if (dialog.getProcessInfo().isError()) {
-											FDialog.error(m_WindowNo, form, Msg.parseTranslation(Env.getCtx(), dialog.getProcessInfo().getSummary()));
+											Dialog.error(m_WindowNo, Msg.parseTranslation(Env.getCtx(), dialog.getProcessInfo().getSummary()));
 											return;
 										}
 									}
@@ -634,44 +627,24 @@ public class WPaySelect extends PaySelect
 		this.dispose();
 	}
 
-	public void executeASync(ProcessInfo pi) {
-	}
-
+	/**
+	 * 
+	 * @return true if UI is lock
+	 */
 	public boolean isUILocked() {
 		return m_isLock;
 	}
 
+	@Override
 	public ADForm getForm() {
 		return form;
 	}
-
-	@Override
-	public void statusUpdate(String message) {
+	
+	/**
+	 * 
+	 * @return {@link ProcessInfo}
+	 */
+	public ProcessInfo getProcessInfo() {
+		return m_pi;
 	}
-
-	@Override
-	public void ask(final String message, final Callback<Boolean> callback) {
-		Executions.schedule(form.getDesktop(), new EventListener<Event>() {
-			@Override
-			public void onEvent(Event event) throws Exception {
-				FDialog.ask(m_WindowNo, null, message, callback);
-			}
-		}, new Event("onAsk"));		
-	}
-
-	@Override
-	public void download(File file) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void askForInput(final String message, final Callback<String> callback) {
-		Executions.schedule(form.getDesktop(), new EventListener<Event>() {
-			@Override
-			public void onEvent(Event event) throws Exception {
-				FDialog.askForInput(m_WindowNo, null, message, callback);
-			}
-		}, new Event("onAskForInput"));
-	}
-}   //  VPaySelect
+}

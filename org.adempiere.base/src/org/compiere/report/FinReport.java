@@ -16,8 +16,6 @@
  *****************************************************************************/
 package org.compiere.report;
 
-import static org.compiere.model.SystemIDs.TABLE_T_REPORT;
-
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,6 +25,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.compiere.model.I_C_ValidCombination;
+import org.compiere.model.I_T_Report;
 import org.compiere.model.MAcctSchemaElement;
 import org.compiere.model.MPeriod;
 import org.compiere.model.MReportCube;
@@ -1771,25 +1770,49 @@ public class FinReport extends SvrProcess
 
 	private void scaleResults() {
 
-		for (int column = 0; column < m_columns.length; column++)
-		{
-			String factor = m_columns[column].getFactor();
-			if ( factor != null )
-			{
-				int divisor = 1;
-				if ( factor.equals("k") )
-					divisor = 1000;
-				else if (factor.equals("M"))
-					divisor = 1000000;
-				else
-					break;
-				
-				String sql = "UPDATE T_Report SET Col_" + column 
-					+ "=Col_" + column + "/" + divisor
-					+  " WHERE AD_PInstance_ID=" + getAD_PInstance_ID();
-				int no = DB.executeUpdateEx(sql, get_TrxName());
+		for (int column = 0; column < m_columns.length; column++) {
+			BigDecimal multiplier = (BigDecimal) m_columns[column].get_Value(MReportColumn.COLUMNNAME_Multiplier);
+			if ( multiplier != null ) {
+				String sql = "UPDATE T_Report SET Col_" + column + "=Col_" + column + "*" + multiplier + " WHERE AD_PInstance_ID=?";
+				int no = DB.executeUpdateEx(sql, new Object[] {getAD_PInstance_ID()}, get_TrxName());
 				if (no > 0)
 					if (log.isLoggable(Level.FINE)) log.fine(m_columns[column].getName() + " - #" + no);
+			}
+			Integer roundFactor = (Integer) m_columns[column].get_Value(MReportColumn.COLUMNNAME_RoundFactor);
+			if ( roundFactor != null ) {
+				String sql = "UPDATE T_Report SET Col_" + column + "=ROUND(Col_" + column + "," + roundFactor + ")" + " WHERE AD_PInstance_ID=?";
+				int no = DB.executeUpdateEx(sql, new Object[] {getAD_PInstance_ID()}, get_TrxName());
+				if (no > 0)
+					if (log.isLoggable(Level.FINE)) log.fine(m_columns[column].getName() + " - #" + no);
+			}
+		}
+
+		for (int line = 0; line < m_lines.length; line++) {
+			BigDecimal multiplier = (BigDecimal) m_lines[line].get_Value(MReportColumn.COLUMNNAME_Multiplier);
+			if ( multiplier != null ) {
+				StringBuilder cols = new StringBuilder();
+				for (int column = 0; column < m_columns.length; column++) {
+					if (cols.length() > 0)
+						cols.append(",");
+					cols.append("Col_").append(column).append("=Col_").append(column).append("*").append(multiplier);
+				}
+				String sql = "UPDATE T_Report SET " + cols.toString() + " WHERE AD_PInstance_ID=? AND PA_ReportLine_ID=?";
+				int no = DB.executeUpdateEx(sql, new Object[] {getAD_PInstance_ID(), m_lines[line].getPA_ReportLine_ID()}, get_TrxName());
+				if (no > 0)
+					if (log.isLoggable(Level.FINE)) log.fine(m_lines[line].getName() + " - #" + no);
+			}
+			Integer roundFactor = (Integer) m_lines[line].get_Value(MReportColumn.COLUMNNAME_RoundFactor);
+			if ( roundFactor != null ) {
+				StringBuilder cols = new StringBuilder();
+				for (int column = 0; column < m_columns.length; column++) {
+					if (cols.length() > 0)
+						cols.append(",");
+					cols.append("Col_").append(column).append("=ROUND(Col_").append(column).append(",").append(roundFactor).append(")");
+				}
+				String sql = "UPDATE T_Report SET " + cols.toString() + " WHERE AD_PInstance_ID=? AND PA_ReportLine_ID=?";
+				int no = DB.executeUpdateEx(sql, new Object[] {getAD_PInstance_ID(), m_lines[line].getPA_ReportLine_ID()}, get_TrxName());
+				if (no > 0)
+					if (log.isLoggable(Level.FINE)) log.fine(m_lines[line].getName() + " - #" + no);
 			}
 		}
 		
@@ -1809,7 +1832,7 @@ public class FinReport extends SvrProcess
 		//	Create New
 		if (createNew)
 		{
-			int AD_Table_ID = TABLE_T_REPORT;		//	T_Report
+			int AD_Table_ID = I_T_Report.Table_ID;		//	T_Report
 			pf = MPrintFormat.createFromTable(Env.getCtx(), AD_Table_ID);
 			AD_PrintFormat_ID = pf.getAD_PrintFormat_ID();
 			m_report.setAD_PrintFormat_ID(AD_PrintFormat_ID);

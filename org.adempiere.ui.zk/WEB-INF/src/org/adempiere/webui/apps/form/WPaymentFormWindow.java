@@ -21,7 +21,7 @@ import org.adempiere.webui.component.Window;
 import org.adempiere.webui.event.DialogEvents;
 import org.adempiere.webui.theme.ThemeManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.compiere.grid.PaymentForm;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -44,7 +44,7 @@ public class WPaymentFormWindow extends Window implements EventListener<Event>, 
 	private static final long serialVersionUID = 2710316463655831868L;
 
 	private PaymentForm paymentForm;
-//	private int windowNo;
+	private int windowNo;
 	
 	private Panel mainPanel = new Panel();
 	private Panel centerPanel = new Panel();
@@ -60,13 +60,13 @@ public class WPaymentFormWindow extends Window implements EventListener<Event>, 
 		super();
 		
 		this.paymentForm = paymentForm;
-//		this.windowNo = windowNo;
+		this.windowNo = windowNo;
 
 		try {
 			zkInit();
 			initOK = dynInit(); // Null Pointer if order/invoice not saved yet
 		} catch (Exception ex) {
-			FDialog.error(windowNo, this, ex.getMessage() == null ? ex.toString() : ex.getMessage());
+			Dialog.error(windowNo, ex.getMessage() == null ? ex.toString() : ex.getMessage());
 			initOK = false;
 		}
 		
@@ -77,6 +77,10 @@ public class WPaymentFormWindow extends Window implements EventListener<Event>, 
 			ZKUpdateUtil.setWindowWidthX(this, 500);
 		this.setShadow(true);
 		this.setAttribute(Window.MODE_KEY, Window.MODE_HIGHLIGHTED);
+	}
+	
+	protected int getWindowNo() {
+		return this.windowNo;
 	}
 	
 	private void zkInit() throws Exception {

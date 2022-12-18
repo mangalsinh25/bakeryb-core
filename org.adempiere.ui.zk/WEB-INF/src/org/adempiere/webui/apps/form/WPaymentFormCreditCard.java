@@ -31,7 +31,7 @@ import org.adempiere.webui.component.Textbox;
 import org.adempiere.webui.editor.WNumberEditor;
 import org.adempiere.webui.factory.ButtonFactory;
 import org.adempiere.webui.util.ZKUpdateUtil;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.compiere.grid.PaymentFormCreditCard;
 import org.compiere.model.GridTab;
 import org.compiere.model.MBankAccountProcessor;
@@ -68,13 +68,18 @@ public class WPaymentFormCreditCard extends PaymentFormCreditCard implements Eve
 	private Button kOnline = ButtonFactory.createNamedButton("Online");
 	private Label kStatus = new Label();
 	
+	/**
+	 * 
+	 * @param windowNo
+	 * @param mTab
+	 */
 	public WPaymentFormCreditCard(int windowNo, GridTab mTab) {
 		super(windowNo, mTab);
 		window = new WPaymentFormWindow(this, windowNo);
 		init();
 	}
 	
-	public void init() {
+	protected void init() {
 		Grid kLayout = GridFactory.newGridLayout();
 		window.getPanel().appendChild(kLayout);		
 		kNumberField.setMaxlength(16);
@@ -226,6 +231,7 @@ public class WPaymentFormCreditCard extends PaymentFormCreditCard implements Eve
 		}
 	}
 	
+	@Override
 	public void onEvent(Event e)
 	{
 		if (e.getTarget() == kOnline) {
@@ -279,9 +285,9 @@ public class WPaymentFormCreditCard extends PaymentFormCreditCard implements Eve
 		
 		boolean ok = save(newCCType, kNumberField.getText(), kExpField.getText(), (BigDecimal) kAmountField.getValue(), trxName);		
 		if(!ok)
-			FDialog.error(getWindowNo(), window, "PaymentError", processMsg);
+			Dialog.error(getWindowNo(), "PaymentError", processMsg);
 		else if (processMsg != null)
-			FDialog.info(getWindowNo(), window, "PaymentCreated", processMsg);
+			Dialog.info(getWindowNo(), "PaymentCreated", processMsg);
 		
 		return ok;
 	}
@@ -296,14 +302,14 @@ public class WPaymentFormCreditCard extends PaymentFormCreditCard implements Eve
 		ValueNamePair vp = kTypeCombo.getSelectedItem().toValueNamePair();
 		String CCType = vp.getValue();
 		
-		boolean ok = processOnline(CCType, kNumberField.getText(), kApprovalField.getText(), kExpField.getText());
+		boolean ok = processOnline(CCType, kNumberField.getText(), kApprovalField.getValue(), kExpField.getText());
 		if (!ok)
-			FDialog.error(getWindowNo(), window, "PaymentNotProcessed", processMsg);
+			Dialog.error(getWindowNo(), "PaymentNotProcessed", processMsg);
 		else 
 		{
 			loadData();
 			if (processMsg != null)
-				FDialog.info(getWindowNo(), window, "PaymentProcessed", processMsg);
+				Dialog.info(getWindowNo(), "PaymentProcessed", processMsg);
 		}
 	}   //  online
 	

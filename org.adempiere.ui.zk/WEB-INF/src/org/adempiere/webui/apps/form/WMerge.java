@@ -33,7 +33,7 @@ import org.adempiere.webui.panel.ADForm;
 import org.adempiere.webui.panel.IFormController;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.compiere.apps.form.Merge;
 import org.compiere.model.Lookup;
 import org.compiere.model.MLookupFactory;
@@ -235,8 +235,9 @@ public class WMerge extends Merge implements IFormController, EventListener<Even
 					to_Info = m_to[i].getDisplay ();
 				}
 			}
-		}	//	get first merge pair
+		}
 
+		//process first merge pair, ignore the rest
 		if (from_ID == 0 || from_ID == to_ID)
 			return;
 
@@ -246,15 +247,13 @@ public class WMerge extends Merge implements IFormController, EventListener<Even
 		final String columnNameRef = columnName;
 		final int fromIdRef = from_ID;
 		final int toIdRef = to_ID;
-		FDialog.ask(m_WindowNo, form, "MergeQuestion", m_msg, new Callback<Boolean>() {
+		Dialog.ask(m_WindowNo, "MergeQuestion", m_msg, new Callback<Boolean>() {
 
 			@Override
 			public void onCallback(Boolean result) 
 			{
 				if (result)
 				{
-					updateDeleteTable(columnNameRef);
-
 					Clients.showBusy("");
 					runnable = new MergeRunnable(columnNameRef, fromIdRef, toIdRef);
 					Clients.response(new AuEcho(form, "runProcess", null));
@@ -264,7 +263,7 @@ public class WMerge extends Merge implements IFormController, EventListener<Even
 		});				
 	}   //  actionPerformed
 	
-	class MergeRunnable implements Runnable {
+	private class MergeRunnable implements Runnable {
 		private int to_ID;
 		private int from_ID;
 		private String columnName;
@@ -285,29 +284,36 @@ public class WMerge extends Merge implements IFormController, EventListener<Even
 		}		
 	}
 
+	/**
+	 * execute merge, call from echo event
+	 */
 	public void runProcess() 
 	{
 		runnable.run();
 	}
 	
+	/**
+	 * clean up, call form echo event
+	 */
 	public void onAfterProcess() 
 	{
 		if (m_success)
 		{
-			FDialog.info (m_WindowNo, form, "MergeSuccess", 
+			Dialog.info (m_WindowNo, "MergeSuccess", 
 				m_msg + " #" + m_totalCount);
 		}
 		else
 		{
-			FDialog.error(m_WindowNo, form, "MergeError", 
+			Dialog.error(m_WindowNo, "MergeError", 
 				m_errorLog.toString());
 			return;
 		}
 		dispose();
 	}
 
+	@Override
 	public ADForm getForm() 
 	{
 		return form;
 	}
-}	//	VMerge
+}

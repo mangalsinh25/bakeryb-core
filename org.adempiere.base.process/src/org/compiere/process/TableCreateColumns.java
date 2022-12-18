@@ -94,7 +94,7 @@ public class TableCreateColumns extends SvrProcess
 		Connection conn = null;
 		
 		try {
-			conn = DB.getConnectionRO();
+			conn = DB.getConnection();
 			AdempiereDatabase db = DB.getDatabase();
 			DatabaseMetaData md = conn.getMetaData();
 			String catalog = db.getCatalog();
@@ -115,8 +115,13 @@ public class TableCreateColumns extends SvrProcess
 				if (DB.isPostgreSQL())
 				    tableName = tableName.toLowerCase();
 				// end globalqss 2005-10-24
-				ResultSet rs = md.getColumns(catalog, schema, tableName, null);
-				addTableColumn(rs, table);
+				ResultSet rs = null;
+				try {
+					rs = md.getColumns(catalog, schema, tableName, null);
+					addTableColumn(rs, table);
+				} finally {
+					DB.close(rs);
+				}
 			}
 			StringBuilder msgreturn = new StringBuilder("#").append(m_count);
 			return msgreturn.toString();
@@ -191,8 +196,12 @@ public class TableCreateColumns extends SvrProcess
 				if (DB.isPostgreSQL())
 				    tableName = tableName.toLowerCase();
 				// end globalqss 2005-10-24
-				rsC = md.getColumns(catalog, schema, tableName, null);
-				addTableColumn(rsC, table);
+				try {
+					rsC = md.getColumns(catalog, schema, tableName, null);
+					addTableColumn(rsC, table);
+				} finally {
+					DB.close(rsC);
+				}
 			}
 		} catch (Exception e) {
 			throw e;
