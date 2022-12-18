@@ -72,6 +72,7 @@ import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUser;
+import org.compiere.tools.FileUtil;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
@@ -693,9 +694,7 @@ public class WArchiveViewer extends Archive implements IFormController, EventLis
 		MArchive ar = m_archives[m_index];
 
 		MUser from = MUser.get(Env.getCtx(), Env.getAD_User_ID(Env.getCtx()));
-		String fileName = System.getProperty("java.io.tmpdir") +
-				System.getProperty("file.separator") + ar.getName() + ".pdf";
-		File attachment = new File(fileName);
+		File attachment = new File(FileUtil.getTempMailName(ar.getName(), ".pdf"));
 		try {
 			Files.write(attachment.toPath(), ar.getBinaryData());
 		} catch (IOException e) {
@@ -757,9 +756,10 @@ public class WArchiveViewer extends Archive implements IFormController, EventLis
 		descriptionField.setText(ar.getDescription());
 		helpField.setText(ar.getHelp());
 		
+		InputStream in = null;
 		try
 		{
-			InputStream in = ar.getInputStream();
+			in = ar.getInputStream();
 			//pdfViewer.setScale(reportField.isSelected() ? 50 : 75);
 			if (in != null)
 				reportViewer(ar.getName(), ar.getBinaryData());//pdfViewer.loadPDF(in);
@@ -770,6 +770,17 @@ public class WArchiveViewer extends Archive implements IFormController, EventLis
 		{
 			log.log(Level.SEVERE, "pdf", e);
 			iframe.getChildren().clear();//pdfViewer.clearDocument();
+		}
+		finally
+		{
+			if (in != null)
+			{
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}	//	updateVDisplay
 

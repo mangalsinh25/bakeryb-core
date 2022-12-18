@@ -82,6 +82,8 @@ import org.compiere.model.MSysConfig;
 import org.compiere.model.MTable;
 import org.compiere.model.X_AD_CtxHelp;
 import org.compiere.process.ProcessInfo;
+import org.compiere.process.ProcessInfoLog;
+import org.compiere.process.ProcessInfoUtil;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
@@ -125,19 +127,22 @@ import org.zkoss.zul.ext.Sortable;
  */
 public abstract class InfoPanel extends Window implements EventListener<Event>, WTableModelListener, Sortable<Object>, IHelpContext
 {
-	protected static final String INFO_QUERY_TIME_OUT_ERROR = "InfoQueryTimeOutError";
-	protected static final String COLUMN_VISIBLE_ORIGINAL = "column.visible.original";
-	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 5502211337030815819L;
+	private static final long serialVersionUID = -6216075383041481835L;
+
+	protected static final String ON_USER_QUERY_ATTR = "ON_USER_QUERY";
+	protected static final String INFO_QUERY_TIME_OUT_ERROR = "InfoQueryTimeOutError";
+	protected static final String COLUMN_VISIBLE_ORIGINAL = "column.visible.original";
+	
 	private final static int DEFAULT_PAGE_SIZE = 100;
 	private final static int DEFAULT_PAGE_PRELOAD = 4;
 	protected List<Button> btProcessList = new ArrayList<Button>();
 	protected Map<String, WEditor> editorMap = new HashMap<String, WEditor>();
 	protected final static String PROCESS_ID_KEY = "processId";
 	protected final static String ON_RUN_PROCESS = "onRunProcess";
+	protected final static String ON_SELECT_ALL_RECORDS = "onSelectAllRecords";
 	// attribute key of info process
 	protected final static String ATT_INFO_PROCESS_KEY = "INFO_PROCESS";
 	protected int pageSize;
@@ -208,6 +213,10 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	static final int        INFO_WIDTH = 800;
 	protected boolean m_lookup;
 	protected int m_infoWindowID;
+	private boolean m_closeAfterExecutionOfProcess = false;
+
+	private Button btnSelectAll;
+	private Button btnDeSelectAll;
 	
 	/**************************************************
      *  Detail Constructor
@@ -266,8 +275,8 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		{
 			parseQueryValue();
 		}
-		
-        p_multipleSelection = multipleSelection;
+
+        setMultipleSelection(multipleSelection);
         m_lookup = lookup;
         loadInfoWindowData();
 		if (whereClause == null || whereClause.indexOf('@') == -1)
@@ -295,8 +304,9 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		
 		addEventListener(WindowContainer.ON_WINDOW_CONTAINER_SELECTION_CHANGED_EVENT, this);
 		addEventListener(ON_RUN_PROCESS, this);
+		addEventListener(ON_SELECT_ALL_RECORDS, this);
 		addEventListener(Events.ON_CLOSE, this);
-		
+		addEventListener(Events.ON_CANCEL, e -> onCancel());
 	}	//	InfoPanel
 
 	protected void parseQueryValue() {
@@ -375,6 +385,14 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
 		confirmPanel = new ConfirmPanel(true, true, true, true, true, true);  // Elaine 2008/12/16 
 		confirmPanel.addComponentsLeft(confirmPanel.createButton(ConfirmPanel.A_NEW));
+		btnSelectAll = confirmPanel.createButton("SelectAll");
+		confirmPanel.addComponentsLeft(btnSelectAll);
+		btnSelectAll.setEnabled(false);
+		btnSelectAll.setVisible(p_multipleSelection);
+		btnDeSelectAll = confirmPanel.createButton("DeSelectAll");
+		confirmPanel.addComponentsLeft(btnDeSelectAll);
+		btnDeSelectAll.setEnabled(false);
+		btnDeSelectAll.setVisible(p_multipleSelection);
         confirmPanel.addActionListener(Events.ON_CLICK, this);
         ZKUpdateUtil.setHflex(confirmPanel, "1");
         if (ClientInfo.isMobile())
@@ -608,6 +626,8 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		
 		String msg = Msg.getMsg(Env.getCtx(), "IWStatusSelected", new Object [] {String.valueOf(selectedCount)});
 		statusBar.setSelectedRowNumber(msg);
+		btnSelectAll.setEnabled(m_count > 0 && selectedCount != m_count);
+		btnDeSelectAll.setEnabled(selectedCount > 0);
 	}	//	setStatusDB
 	
 	protected void prepareTable (ColumnInfo[] layout,
@@ -2020,14 +2040,15 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         }
         else if (event.getTarget().equals(confirmPanel.getButton(ConfirmPanel.A_REFRESH)))
         {
+    		recordSelectedData.clear();
         	onUserQuery();
         }
         else if (event.getTarget().equals(confirmPanel.getButton(ConfirmPanel.A_CANCEL)))
         {
-        	m_cancel = true;
-            dispose(false);
+        	onCancel();
         }
         else if (event.getTarget().equals(confirmPanel.getButton(ConfirmPanel.A_RESET))) {
+    		recordSelectedData.clear();
         	resetParameters ();
         }
         // Elaine 2008/12/16
@@ -2058,6 +2079,19 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         else if (event.getTarget().equals(confirmPanel.getButton(ConfirmPanel.A_NEW)))
         {
         	newRecordAction ();
+        }
+        else if (event.getTarget().equals(btnSelectAll))
+        {
+    		Clients.showBusy(Msg.getMsg(Env.getCtx(), "Processing"));
+    		Events.echoEvent(ON_SELECT_ALL_RECORDS, this, null);
+        }
+        else if (ON_SELECT_ALL_RECORDS.equals(event.getName()))
+        {
+        	selectAllRecords();
+        }
+        else if (event.getTarget().equals(btnDeSelectAll))
+        {
+        	deSelectAllRecords();
         }
         // IDEMPIERE-1334 handle event click into process button start
         else if (ON_RUN_PROCESS.equals(event.getName())){
@@ -2146,8 +2180,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         		onUserQuery();
         	}
     	}else if (event.getName().equals(Events.ON_CANCEL) || (event.getTarget().equals(this) && event.getName().equals(Events.ON_CLOSE))){
-    		m_cancel = true;
-    		dispose(false);
+    		onCancel();
     	}
         //when user push enter keyboard at input parameter field
         else
@@ -2155,6 +2188,11 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         	// onUserQuery(); // captured now on control key
         }
     }  //  onEvent
+
+	protected void onCancel() {
+		m_cancel = true;
+		dispose(false);
+	}
 
     public static final int VK_ENTER          = '\r';
     public static final int VK_ESCAPE         = 0x1B;
@@ -2175,7 +2213,13 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
     /**
      * Call query when user click to query button enter in parameter field
      */
-    public void onUserQuery (){   	
+    public void onUserQuery (){
+		recordSelectedData.clear();
+
+    	if (Executions.getCurrent().getAttribute(ON_USER_QUERY_ATTR) != null)
+    		return;
+    	
+    	Executions.getCurrent().setAttribute(ON_USER_QUERY_ATTR, Boolean.TRUE);
     	if (validateParameters()){
             showBusyDialog();
             isQueryByUser = true;
@@ -2315,10 +2359,21 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 						ProcessInfoDialog.showProcessInfo(m_pi, p_WindowNo, InfoPanel.this, true);
 						// enable or disable control button rely selected record status 
 						enableButtons();
-					}else if (!m_pi.isError()){
-						ProcessInfoDialog.showProcessInfo(m_pi, p_WindowNo, InfoPanel.this, true);	
-						isRequeryByRunSuccessProcess = true;
-						Clients.response(new AuEcho(InfoPanel.this, "onQueryCallback", null));
+					}else if (!m_pi.isError()){						
+						if (isCloseAfterExecutionOfProcess()) {
+							ProcessInfoUtil.setLogFromDB(m_pi);
+							ProcessInfoLog[] logs = m_pi.getLogs();
+							if (logs != null && logs.length > 0) {
+								ProcessInfoDialog dialog = ProcessInfoDialog.showProcessInfo(m_pi, p_WindowNo, InfoPanel.this, false);
+								dialog.addEventListener(DialogEvents.ON_WINDOW_CLOSE, e -> InfoPanel.this.detach());
+							} else {
+								detach();
+							}
+						} else {
+							ProcessInfoDialog.showProcessInfo(m_pi, p_WindowNo, InfoPanel.this, true);
+							isRequeryByRunSuccessProcess = true;
+							Clients.response(new AuEcho(InfoPanel.this, "onQueryCallback", null));
+						}
 					}
 					recordSelectedData.clear();
 				}
@@ -2517,7 +2572,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
     {
     	try
     	{
-//    		m_sqlUserOrder="";
     		// event == null mean direct call from reset button
     		if (event == null)
     			m_count = 0;
@@ -2609,6 +2663,80 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
     			AEnv.zoom(AD_Table_ID, recordId);
     	}
     }
+
+	/**
+	 * Select all records from all pages
+	 */
+	private void selectAllRecords() {
+		// select all
+		try {
+			if (paging != null) {
+				int currentPage = paging.getActivePage();
+				int pgCnt = paging.getPageCount();
+				for (int pgNo = 0; pgNo <= pgCnt-1; pgNo++) {
+					if (pgNo == currentPage)
+						continue; // will be done at the end
+					setAndLoadActivePage(pgNo);
+				}
+				setAndLoadActivePage(currentPage);
+			} else {
+		        addAllCurrentContentPanelToSelected();
+			}
+			restoreSelectedInPage();
+			setStatusSelected();
+			btnSelectAll.setEnabled(false);
+			btnDeSelectAll.setEnabled(true);
+		} finally {
+			Clients.clearBusy();
+		}
+	}
+
+	/**
+	 * Set and load the active page
+	 * @param pgNo
+	 */
+	private void setAndLoadActivePage(int pgNo) {
+		paging.setActivePage(pgNo);
+		contentPanel.clearSelection();
+		pageNo = pgNo;
+		int start = pageNo * pageSize;
+		int end = getOverIntValue ((long)start + pageSize, extra_max_row);
+		if (end >= m_count)
+			end = m_count;
+		List<Object> subList = readLine(start, end);
+		model = new ListModelTable(subList);
+		model.setSorter(this);
+        model.addTableModelListener(this);
+        model.setMultiple(p_multipleSelection);
+        contentPanel.setData(model, null);
+        addAllCurrentContentPanelToSelected();
+	}
+
+	/**
+	 * Add all the records from current content panel to selected records
+	 */
+	private void addAllCurrentContentPanelToSelected() {
+		for (int rowIndex = 0; rowIndex < contentPanel.getModel().getRowCount(); rowIndex++){
+			Integer keyCandidate = getColumnValue(rowIndex);
+			@SuppressWarnings("unchecked")
+			List<Object> candidateRecord = (List<Object>)contentPanel.getModel().get(rowIndex);
+			if (!recordSelectedData.containsKey(keyCandidate)) {
+				recordSelectedData.put(keyCandidate, candidateRecord);
+			}
+		}
+	}
+
+	/**
+	 * De-Select all records from all pages
+	 */
+	private void deSelectAllRecords() {
+		// unselect all
+		recordSelectedData.clear();
+		restoreSelectedInPage();
+		setStatusSelected();
+		btnSelectAll.setEnabled(true);
+		btnDeSelectAll.setEnabled(false);
+	}
 
     /**
      * process action when user click to new button
@@ -2788,4 +2916,29 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	public int getPageSize() {
 		return pageSize;
 	}
+
+	/**
+	 * 
+	 * @return true if dialog should auto close after successful execution of process
+	 */
+	public boolean isCloseAfterExecutionOfProcess() {
+		return m_closeAfterExecutionOfProcess;
+	}
+
+	/**
+	 * Set whether dialog should auto close after successful execution of process
+	 * @param closeAfterExecutionOfProcess
+	 */
+	public void setCloseAfterExecutionOfProcess(boolean closeAfterExecutionOfProcess) {
+		this.m_closeAfterExecutionOfProcess = closeAfterExecutionOfProcess;
+	}
+
+	public void setMultipleSelection(boolean multipleSelection) {
+		p_multipleSelection = multipleSelection;
+		if (btnSelectAll != null)
+			btnSelectAll.setVisible(multipleSelection);
+		if (btnDeSelectAll != null)
+			btnDeSelectAll.setVisible(multipleSelection);
+	}
+
 }	//	Info

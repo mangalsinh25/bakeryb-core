@@ -84,6 +84,7 @@ import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Cell;
 import org.zkoss.zul.Center;
 import org.zkoss.zul.Div;
+import org.zkoss.zul.North;
 import org.zkoss.zul.South;
 
 /**
@@ -204,6 +205,8 @@ public class WEMailDialog extends Window implements EventListener<Event>, ValueC
 		setAttachment(attachment);
 		setAttribute(Window.MODE_KEY, Window.MODE_HIGHLIGHTED);
 		addEventListener(Events.ON_CANCEL, e -> onCancel());
+		addEventListener(Events.ON_SIZE, e -> onSize());
+		addEventListener(Events.ON_MAXIMIZE, e -> onSize());
 	}	//	commonInit
 
 
@@ -373,11 +376,8 @@ public class WEMailDialog extends Window implements EventListener<Event>, ValueC
 			attachmentBox.appendChild(item);
 		}
 		
-		row = new Row();
-		rows.appendChild(row);
-		row.appendCellChild(fMessage, 2);
-		fMessage.setHflex("2");
-		fMessage.setHeight("350px");
+		fMessage.setWidth("100%");
+		fMessage.setHeight("100%");
 		
 		confirmPanel.addActionListener(this);
 		
@@ -409,11 +409,16 @@ public class WEMailDialog extends Window implements EventListener<Event>, ValueC
 		this.appendChild(borderlayout);
 		ZKUpdateUtil.setWidth(borderlayout, "100%");
 		
+		North northPane = new North();
+		northPane.setSclass("dialog-content");
+		northPane.setAutoscroll(true);
+		borderlayout.appendChild(northPane);
+		northPane.appendChild(grid);
+		
 		Center centerPane = new Center();
 		centerPane.setSclass("dialog-content");
-		centerPane.setAutoscroll(true);
 		borderlayout.appendChild(centerPane);
-		centerPane.appendChild(grid);
+		centerPane.appendChild(fMessage);
 
 		South southPane = new South();
 		southPane.setSclass("dialog-footer");
@@ -622,6 +627,10 @@ public class WEMailDialog extends Window implements EventListener<Event>, ValueC
 	private void onCancel() {
 		onClose();
 	}
+	
+	private void onSize() {
+		fMessage.invalidate();
+	}
 
 	/**
 	 * @param dataSource
@@ -641,16 +650,21 @@ public class WEMailDialog extends Window implements EventListener<Event>, ValueC
 			if (media.inMemory()) {
 				bytes = media.isBinary() ? media.getByteData() : media.getStringData().getBytes(getCharset(media.getContentType()));
 			} else {
-				
-				InputStream is = media.getStreamData();
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				byte[] buf = new byte[ 1000 ];
-				int byteread = 0;
-				 
-				while (( byteread=is.read(buf) )!=-1)
-					baos.write(buf,0,byteread);
-				
-				bytes = baos.toByteArray();
+				InputStream is = null;
+				try {
+					is = media.getStreamData();
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					byte[] buf = new byte[ 1000 ];
+					int byteread = 0;
+					 
+					while (( byteread=is.read(buf) )!=-1)
+						baos.write(buf,0,byteread);
+					
+					bytes = baos.toByteArray();
+				} finally {
+					if (is != null)
+						is.close();
+				}
 			}
 		} catch (IOException e) {
 			log.log(Level.SEVERE, e.getLocalizedMessage(), e);

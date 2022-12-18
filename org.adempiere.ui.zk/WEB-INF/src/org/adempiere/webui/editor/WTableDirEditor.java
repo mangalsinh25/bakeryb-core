@@ -105,6 +105,8 @@ ContextMenuListener, IZoomableEditor
 
 	private boolean onselecting = false;
 
+	private boolean retainSelectedValueAfterRefresh = true;
+	
 	/**
 	 * 
 	 * @param gridField
@@ -453,7 +455,7 @@ ContextMenuListener, IZoomableEditor
 	                	}
 	            	}
 	        	}	        	        
-	            if (!found && oldValue != null)
+	            if (!found && oldValue != null && isRetainSelectedValueAfterRefresh())
 	            {
 	            	NamePair pair = lookup.getDirect(oldValue, false, true);
 	            	if (pair != null) {
@@ -926,7 +928,7 @@ ContextMenuListener, IZoomableEditor
 		/**
 		 * generated serial
 		 */
-		private static final long serialVersionUID = 3543247404379028327L;
+		private static final long serialVersionUID = 7813673017009600392L;
 		private WTableDirEditor editor;
 		
 		protected CCacheListener(String tableName, WTableDirEditor editor) {
@@ -936,13 +938,19 @@ ContextMenuListener, IZoomableEditor
 
 		@Override
 		public int reset() {			
-			if (editor.getComponent().getDesktop() != null && editor.isReadWrite()) {
-				refreshLookupList();
-			}
+			refreshLookupList();
 			return 0;					
 		}
 
+		@Override
+		public int reset(int recordId) {
+			refreshLookupList();
+			return 0;
+		}
+
 		private void refreshLookupList() {
+			if (editor.getComponent().getDesktop() == null || !editor.isReadWrite())
+				return;
 			Desktop desktop = editor.getComponent().getDesktop();
 			boolean alive = false;
 			if (desktop.isAlive() && desktop.getSession() != null) {
@@ -966,9 +974,23 @@ ContextMenuListener, IZoomableEditor
 				
 		@Override
 		public void newRecord(int record_ID) {
-			if (editor.getComponent().getDesktop() != null && editor.isReadWrite()) {
-				refreshLookupList();
-			}
+			refreshLookupList();
 		}
+	}
+
+	/**
+	 * 
+	 * @return true if current selected value is always retain after refresh of list
+	 */
+	public boolean isRetainSelectedValueAfterRefresh() {
+		return retainSelectedValueAfterRefresh;
+	}
+
+	/**
+	 * set whether current selected value is always retain after refresh of list
+	 * @param retainSelectedValueAfterRefresh
+	 */
+	public void setRetainSelectedValueAfterRefresh(boolean retainSelectedValueAfterRefresh) {
+		this.retainSelectedValueAfterRefresh = retainSelectedValueAfterRefresh;
 	}
 }

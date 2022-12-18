@@ -61,6 +61,8 @@ public class SystemIDs
 	public final static int FORM_SETUP_WIZARD = 200000;
 	public final static int FORM_ADD_AUTHORIZATION = 200016;
 	public final static int FORM_MFA_REGISTER = 200017;
+	public final static int FORM_SQL_PROCESS = 111;
+	public final static int FORM_SQL_QUERY = 200018;
 
 	public final static int MENU_NOTICE = 233;
 	
@@ -208,5 +210,7 @@ public class SystemIDs
 	public final static int SCHEDULE_15_MINUTES = 200003;
 
 	public final static int	TOOLBAR_BTN_ID_WINDOW_NEW = 200031;
+
+	public final static int OAUTH2_AUTHORIZATION_PROVIDER_MICROSOFT = 200001;
 
 }
