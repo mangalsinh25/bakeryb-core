@@ -467,6 +467,10 @@ public class RequisitionPOCreate extends SvrProcess
 		{
 			m_orderLine.setProduct(product);
 			m_orderLine.setM_AttributeSetInstance_ID(rLine.getM_AttributeSetInstance_ID());
+			m_orderLine.setPriceActual(rLine.getPriceActual());
+			m_orderLine.setPriceEntered(rLine.getPriceActual());
+			m_orderLine.setPriceLimit(rLine.getPriceActual());
+			m_orderLine.setPriceList(rLine.getPriceActual());
 		}
 		else
 		{

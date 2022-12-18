@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.19.1.final using JasperReports Library version 6.19.1-867c00bf88cd4d784d404379d6c05e1b419e8a4c  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="orderline" pageWidth="595" pageHeight="45" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="4e13b2c5-12e6-4d10-b85e-bbf0c8b2e8ad">
+	<property name="com.jaspersoft.studio.data.sql.tables">
+		<![CDATA[YWRlbXBpZXJlLmNfb3JkZXJfbGluZXRheF92ICwxNSwxNSwyZTA5ZjJjMi1hZmNlLTQxMTgtOTY0
+ZC1hZjkwNDA3YWRlODI7]]>
+	</property>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="BakeryB"/>
+	<parameter name="C_Order_ID" class="java.lang.Integer" isForPrompting="false" evaluationTime="Late"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString language="plsql">
+		<![CDATA[SELECT value,name,customstariffnumber,brand,uom,qtyentered,priceentered,Taxname,linenetamt FROM adempiere.bakeryb_c_order_linetax_v WHERE C_Order_ID=$P{C_Order_ID}]]>
+	</queryString>
+	<field name="value" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="value"/>
+		<property name="com.jaspersoft.studio.field.label" value="value"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="bakeryb_c_order_linetax_v"/>
+	</field>
+	<field name="name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="name"/>
+		<property name="com.jaspersoft.studio.field.label" value="name"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="bakeryb_c_order_linetax_v"/>
+	</field>
+	<field name="customstariffnumber" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="customstariffnumber"/>
+		<property name="com.jaspersoft.studio.field.label" value="customstariffnumber"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="bakeryb_c_order_linetax_v"/>
+	</field>
+	<field name="brand" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="brand"/>
+		<property name="com.jaspersoft.studio.field.label" value="brand"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="bakeryb_c_order_linetax_v"/>
+	</field>
+	<field name="uom" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="uom"/>
+		<property name="com.jaspersoft.studio.field.label" value="uom"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="bakeryb_c_order_linetax_v"/>
+	</field>
+	<field name="qtyentered" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="qtyentered"/>
+		<property name="com.jaspersoft.studio.field.label" value="qtyentered"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="bakeryb_c_order_linetax_v"/>
+	</field>
+	<field name="priceentered" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="priceentered"/>
+		<property name="com.jaspersoft.studio.field.label" value="priceentered"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="bakeryb_c_order_linetax_v"/>
+	</field>
+	<field name="taxname" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="taxname"/>
+		<property name="com.jaspersoft.studio.field.label" value="taxname"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="bakeryb_c_order_linetax_v"/>
+	</field>
+	<field name="linenetamt" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="linenetamt"/>
+		<property name="com.jaspersoft.studio.field.label" value="linenetamt"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="bakeryb_c_order_linetax_v"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="18">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<line>
+				<reportElement x="0" y="0" width="595" height="1" uuid="a487751f-e9e5-4836-9e3b-fc1095692535">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+			</line>
+			<rectangle>
+				<reportElement x="0" y="1" width="595" height="16" backcolor="#C43464" uuid="3472a092-fe6e-4ea2-b3f7-3f4b1b8d2c18">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+			</rectangle>
+			<line>
+				<reportElement x="0" y="17" width="595" height="1" uuid="3d0e6405-b587-4051-9f23-928dbd4d205f">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="62" y="1" width="1" height="16" uuid="ca5345ee-c228-45b9-a59a-15ef5920d217">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="130" y="1" width="1" height="16" uuid="3364a286-81cb-4fa7-84a1-488d88cd363a">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+			</line>
+			<staticText>
+				<reportElement x="3" y="2" width="62" height="14" forecolor="#FFFFFF" uuid="79d3fa2a-e2e8-4ae3-9016-517d3c110148">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="65" y="2" width="66" height="14" forecolor="#FFFFFF" uuid="1f04b9b1-1ff6-4b44-a258-fbbadaf95c32">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item HSN Code]]></text>
+			</staticText>
+			<line>
+				<reportElement x="219" y="1" width="1" height="16" uuid="e9272fbe-33b1-447e-b997-679ca7307f54">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<staticText>
+				<reportElement x="134" y="2" width="66" height="14" forecolor="#FFFFFF" uuid="e3bcb3cb-4ee6-42b2-8597-02409a68dd6b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Name]]></text>
+			</staticText>
+			<line>
+				<reportElement x="300" y="1" width="1" height="16" uuid="91629641-584a-4536-ac32-6d6f0a6382ca">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<staticText>
+				<reportElement x="226" y="3" width="66" height="14" forecolor="#FFFFFF" uuid="9c421357-5f54-405a-827e-89767f99e2ab">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Brand]]></text>
+			</staticText>
+			<line>
+				<reportElement x="360" y="0" width="1" height="16" uuid="33426d32-3e61-4bae-9e66-386956636911">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<staticText>
+				<reportElement x="303" y="3" width="57" height="13" forecolor="#FFFFFF" uuid="a96f187c-ba4b-4f4e-822b-ba0de4ec9bb3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unit]]></text>
+			</staticText>
+			<line>
+				<reportElement x="420" y="1" width="1" height="16" uuid="67255d7d-5728-4106-b583-694e1d4ea982">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+			</line>
+			<staticText>
+				<reportElement x="362" y="3" width="57" height="13" forecolor="#FFFFFF" uuid="4f53cb91-098e-4148-af44-c70287057d1c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Quantity]]></text>
+			</staticText>
+			<line>
+				<reportElement x="477" y="1" width="1" height="16" uuid="eaa599a4-58e9-4b2b-9728-ba51a158d042">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="540" y="1" width="1" height="16" uuid="3404d47c-33f6-4955-b1a7-9b2e08ac6075">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+			</line>
+			<staticText>
+				<reportElement x="421" y="4" width="57" height="13" forecolor="#FFFFFF" uuid="1b08ec7e-267a-4f21-9b81-9eae15c6e75b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unit Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="481" y="3" width="57" height="13" forecolor="#FFFFFF" uuid="63d05269-99ce-4cdc-b0c1-ccb35684b0fe">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tax Rate]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="540" y="3" width="54" height="13" forecolor="#FFFFFF" uuid="dae5ac74-5dc6-4763-a401-373855bcd3f7">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Price]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement x="3" y="0" width="59" height="20" uuid="81f4290b-d77f-432d-8922-27bae21cc0aa">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="134" y="0" width="83" height="20" uuid="38fa1186-b5df-4033-98c6-f505bce6bdcb"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="65" y="0" width="65" height="20" uuid="38309969-bd8d-4b37-b9f3-195e1e4c7f28"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{customstariffnumber}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="226" y="1" width="74" height="19" uuid="a9d136d7-6c49-46fa-9528-a8d55f92affa"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="303" y="0" width="57" height="20" uuid="1eb49513-07d4-432a-b26c-bd0a18487282">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uom}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="362" y="1" width="57" height="19" uuid="bbe25047-9610-4a13-b384-4a0a828078ac"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{qtyentered}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="423" y="1" width="54" height="19" uuid="e9239389-f536-4dc2-8856-1e0ad73836d3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{priceentered}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="481" y="0" width="60" height="20" uuid="71844d4f-3166-4d70-9ad8-a7ccc78579dc"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{taxname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="544" y="0" width="50" height="20" uuid="733fbb25-a8cc-45f7-ab07-0ed5ca49d75f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{linenetamt}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="20" width="595" height="1" uuid="ae01469a-c418-4411-81de-410eb78a0d1e">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="62" y="0" width="1" height="20" uuid="dd6562dc-8e0b-42b5-9509-fdadc9467266">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="130" y="0" width="1" height="20" uuid="12ebbbe3-c19f-4b84-84e3-34e9961b6db2">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="219" y="0" width="1" height="20" uuid="057e68c2-9b6d-4e29-96ab-7af4bdf8fe51">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="300" y="0" width="1" height="20" uuid="10339859-af84-44b6-80ce-3f961fd3b874">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="360" y="0" width="1" height="20" uuid="75b036c3-e011-4f11-a254-039c82276abe">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="420" y="0" width="1" height="20" uuid="7707292d-a316-47ff-99ce-bd011b65892b">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="477" y="0" width="1" height="20" uuid="fe292960-176c-4fbb-801c-490e2bb4dd66">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="540" y="0" width="1" height="20" uuid="e2192a5c-6291-4477-b4c5-1dbe2e3ddb9c">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+			</line>
+		</band>
+	</detail>
+</jasperReport>
