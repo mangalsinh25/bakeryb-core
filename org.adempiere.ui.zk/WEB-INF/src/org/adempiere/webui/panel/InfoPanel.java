@@ -51,6 +51,7 @@ import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Combobox;
 import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.ListModelTable;
+import org.adempiere.webui.component.Mask;
 import org.adempiere.webui.component.ProcessInfoDialog;
 import org.adempiere.webui.component.WListItemRenderer;
 import org.adempiere.webui.component.WListbox;
@@ -189,7 +190,16 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	*/
 	protected boolean isRequeryByRunSuccessProcess = false;
 	
-	
+	/**
+	 * 
+	 * @param WindowNo
+	 * @param tableName
+	 * @param keyColumn
+	 * @param value
+	 * @param multiSelection
+	 * @param whereClause
+	 * @return {@link InfoPanel}
+	 */
     public static InfoPanel create (int WindowNo,
             String tableName, String keyColumn, String value,
             boolean multiSelection, String whereClause)
@@ -217,6 +227,8 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
 	private Button btnSelectAll;
 	private Button btnDeSelectAll;
+
+	private boolean registerWindowNo = false;
 	
 	/**************************************************
      *  Detail Constructor
@@ -232,6 +244,15 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		this(WindowNo, tableName, keyColumn, multipleSelection, whereClause, true);
 	}
 
+	/**
+	 * 
+	 * @param WindowNo
+	 * @param tableName
+	 * @param keyColumn
+	 * @param multipleSelection
+	 * @param whereClause
+	 * @param lookup
+	 */
 	protected InfoPanel (int WindowNo,
 			String tableName, String keyColumn,boolean multipleSelection,
 			 String whereClause, boolean lookup){
@@ -239,6 +260,16 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 				lookup, 0);
 	}
 	
+	/**
+	 * 
+	 * @param WindowNo
+	 * @param tableName
+	 * @param keyColumn
+	 * @param multipleSelection
+	 * @param whereClause
+	 * @param lookup
+	 * @param ADInfoWindowID
+	 */
 	protected InfoPanel (int WindowNo,
 			String tableName, String keyColumn,boolean multipleSelection,
 			 String whereClause, boolean lookup, int ADInfoWindowID)
@@ -261,6 +292,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	{				
 		if (WindowNo <= 0) {
 			p_WindowNo = SessionManager.getAppDesktop().registerWindow(this);
+			registerWindowNo  = true;
 		} else {
 			p_WindowNo = WindowNo;
 		}
@@ -309,6 +341,9 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		addEventListener(Events.ON_CANCEL, e -> onCancel());
 	}	//	InfoPanel
 
+	/**
+	 * parse query value from calling input element
+	 */
 	protected void parseQueryValue() {
 		if (Util.isEmpty(queryValue, true))
 			return;
@@ -421,7 +456,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         if (isLookup())
         	addEventListener(Events.ON_CANCEL, this);
         contentPanel.setOddRowSclass(null);
-//        contentPanel.setSizedByContent(true);
         contentPanel.setWidgetAttribute(AdempiereWebUI.WIDGET_INSTANCE_NAME, "infoListbox");
         contentPanel.addEventListener("onAfterRender", this);
         contentPanel.setSclass("z-word-nowrap");
@@ -630,6 +664,13 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		btnDeSelectAll.setEnabled(selectedCount > 0);
 	}	//	setStatusDB
 	
+	/**
+	 * set up list box and construct sql clause
+	 * @param layout
+	 * @param from
+	 * @param where
+	 * @param orderBy
+	 */
 	protected void prepareTable (ColumnInfo[] layout,
             String from,
             String where,
@@ -647,7 +688,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		m_sqlCount = "SELECT COUNT(*) FROM " + from + " WHERE " + where;
 		//
 		m_sqlOrder = "";
-//		m_sqlUserOrder = "";
 		if (orderBy != null && orderBy.trim().length() > 0)
 			m_sqlOrder = " ORDER BY " + orderBy;
 	}   //  prepareTable
@@ -866,6 +906,9 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
 	}
 
+	/**
+	 * render list box items
+	 */
     protected void renderItems()
     {
         if (m_count > 0)
@@ -884,6 +927,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         		{
         			paging.setTotalSize(m_count);
         			paging.setActivePage(0);
+        			paging.setVisible(true);
         		}
     			List<Object> subList = readLine(0, pageSize);
     			model = new ListModelTable(subList);
@@ -932,6 +976,10 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         
         if (paging != null && paging.getParent() == null)
         	insertPagingComponent();
+
+        Mask mask = getMaskObj();
+        if (mask == null || mask.getParent() == null)
+        	this.invalidate();
     }
 
     /**
@@ -997,6 +1045,10 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		return MSysConfig.getBooleanValue(MSysConfig.ZK_INFO_AUTO_HIDE_EMPTY_COLUMNS, false, Env.getAD_Client_ID(Env.getCtx()));
 	}
 
+	/**
+	 * update info window status text
+	 * @param no
+	 */
 	protected void updateStatusBar (int no){
     	setStatusLine((no == Integer.MAX_VALUE?"?":Integer.toString(no)) + " " + Msg.getMsg(Env.getCtx(), "SearchRows_EnterQuery"), false);
         setStatusDB(no == Integer.MAX_VALUE?"?":Integer.toString(no));
@@ -1223,12 +1275,23 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
     	
     	return (int)overValue;
     }
+    
+    /**
+     * build sql clause with paging
+     * @param start
+     * @param end
+     * @return sql clause
+     */
 	protected String buildDataSQL(int start, int end) {
 		String dataSql;
-		String dynWhere = getSQLWhere();
+		String dynWhere = getSQLWhere();   //  includes first AND
         StringBuilder sql = new StringBuilder (m_sqlMain);
-        if (dynWhere.length() > 0)
-            sql.append(dynWhere);   //  includes first AND
+        if (dynWhere.length() > 0) {
+			if(sql.toString().trim().endsWith("WHERE")) {
+				dynWhere = dynWhere.replaceFirst("AND", " ");
+			}
+			sql.append(dynWhere);
+		}
         
         if (sql.toString().trim().endsWith("WHERE")) {
         	int index = sql.lastIndexOf(" WHERE");
@@ -1337,10 +1400,18 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		contentPanel.addEventListener(Events.ON_SELECT, this);
 	}
 
+    /**
+     * add paging component for list box
+     */
     protected void insertPagingComponent() {
 		contentPanel.getParent().insertBefore(paging, contentPanel.getNextSibling());
 	}
 
+    /**
+     * 
+     * @param p_layout
+     * @return column headers
+     */
     public Vector<String> getColumnHeader(ColumnInfo[] p_layout)
     {
         Vector<String> columnHeader = new Vector<String>();
@@ -1361,11 +1432,15 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 			queryTimeout = MSysConfig.getIntValue(MSysConfig.ZK_INFO_QUERY_TIME_OUT, 0, Env.getAD_Client_ID(Env.getCtx()));
 		
 		long start = System.currentTimeMillis();
-		String dynWhere = getSQLWhere();
+		String dynWhere = getSQLWhere();   //  includes first AND
 		StringBuilder sql = new StringBuilder (m_sqlCount);
 
-		if (dynWhere.length() > 0)
-			sql.append(dynWhere);   //  includes first AND
+		if (dynWhere.length() > 0) {
+			if(sql.toString().trim().endsWith("WHERE")) {
+				dynWhere = dynWhere.replaceFirst("AND", " ");
+			}
+			sql.append(dynWhere);
+		}
 
 		String countSql = Msg.parseTranslation(Env.getCtx(), sql.toString());	//	Variables
 		if (countSql.trim().endsWith("WHERE")) {
@@ -1436,7 +1511,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		if (!m_ok)      //  did not press OK
 		{
 			contentPanel = null;
-			this.detach();
             return;
 		}
 
@@ -1511,6 +1585,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
 	/**
 	 * Save selected id, viewID of all process to map viewIDMap to save into T_Selection
+	 * @param infoCulumnId
 	 */
 	public Collection<KeyNamePair> getSaveKeys (int infoCulumnId){
 		// clear result from prev time
@@ -1836,7 +1911,9 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		return p_keyColumn;
 	}   //  getKeyColumn
 
-
+	/**
+	 * @return list of events
+	 */
 	public String[] getEvents()
     {
         return InfoPanel.lISTENER_EVENTS;
@@ -1977,6 +2054,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		return m_SO_Window_ID;
 	}	//	getAD_Window_ID
 
+	@Override
     public void onEvent(Event event)
     {
         if  (event == null){
@@ -2189,6 +2267,9 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         }
     }  //  onEvent
 
+	/**
+	 * handle cancel event
+	 */
 	protected void onCancel() {
 		m_cancel = true;
 		dispose(false);
@@ -2264,7 +2345,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	protected void resetParameters() {
 	}
     
-    void preRunProcess (Integer processId){
+    protected void preRunProcess (Integer processId){
     	// disable all control button when run process
     	enableButtons(false);
     	// call run process in next request to disable all button control
@@ -2335,7 +2416,7 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		m_pi.setAD_PInstance_ID(pInstanceID);		
 		m_pi.setAD_InfoWindow_ID(infoWindow.getAD_InfoWindow_ID());
 		
-		//HengSin - to let process end with message and requery
+		//let process end with message and re-query
 		WProcessCtl.process(p_WindowNo, m_pi, (Trx)null, new EventListener<Event>() {
 
 			@Override
@@ -2350,6 +2431,8 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 					createT_Selection_InfoWindow(pInstanceID);
 					recordSelectedData.clear();
 				}else if (ProcessModalDialog.ON_WINDOW_CLOSE.equals(event.getName())){ 
+					if (getDesktop() == null) 
+						return;
 					if (processModalDialog.isCancel()){
 						//clear back 
 						m_results.clear();
@@ -2377,8 +2460,6 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 					}
 					recordSelectedData.clear();
 				}
-				
-		//HengSin -- end --
 			}
 		});   		
     }
@@ -2512,6 +2593,13 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 						parameters.add(knpData.getKey());
 						parameters.add(null);						
 					}
+					else if(data instanceof ValueNamePair)
+					{
+						ValueNamePair vnp = (ValueNamePair)data;
+						parameters.add(vnp.getValue());
+						parameters.add(null);
+						parameters.add(null);
+					}
 					else
 					{
 						parameters.add(data);
@@ -2568,6 +2656,11 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 			}
 		}
 	}
+	
+	/**
+	 * handle echo from query event
+	 * @param event null to indicate reset instead of echo from query event
+	 */
     public void onQueryCallback(Event event)
     {
     	try
@@ -2610,6 +2703,9 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
     */
     protected void bindInfoProcess (){}
     
+    /**
+     * handle ok event
+     */
     protected void onOk()
     {
 		if (!contentPanel.getChildren().isEmpty() && getSelectedRowInfo().size() > 0)
@@ -2618,6 +2714,9 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		}
 	}
 
+    /**
+     * handle double click on row event
+     */
     protected void onDoubleClick()
 	{
 		if (isLookup())
@@ -2631,11 +2730,15 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 
 	}
 
+    @Override
     public void tableChanged(WTableModelEvent event)
     {
     	enableButtons();
     }
 
+    /**
+     * zoom to record
+     */
     public void zoom()
     {    	
     	Integer recordId = contentPanel.getSelectedRowKey();
@@ -2743,6 +2846,10 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
      */
     protected void newRecordAction (){}
     
+    /**
+     * 
+     * @param listener
+     */
     public void addValueChangeListener(ValueChangeListener listener)
     {
         if (listener == null)
@@ -2753,6 +2860,10 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         listeners.add(listener);
     }
 
+    /**
+     * 
+     * @param event
+     */
     public void fireValueChange(ValueChangeEvent event)
     {
         for (ValueChangeListener listener : listeners)
@@ -2774,9 +2885,24 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         	saveSelection();
         }
         if (Window.MODE_EMBEDDED.equals(getAttribute(Window.MODE_KEY)))
+        {
         	SessionManager.getAppDesktop().closeActiveWindow();
+        }
         else
-	        this.detach();
+        {
+		//detach if attach to page
+		if (getDesktop() != null)
+		{
+			//Workaround for detached HTML input element leak
+			if (getChildren().size() > 0) {
+					Component[] childs = getChildren().toArray(new Component[0]);
+					for(Component c : childs) {
+						AEnv.detachInputElement(c);
+					}
+				}
+			Executions.schedule(getDesktop(), e -> this.detach(), new Event("onAsyncDetach"));
+		}
+        }
     }   //  dispose
 
     private void saveWlistBoxColumnWidth(Component comp){
@@ -2789,8 +2915,12 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
         for(Component child:list){
         	saveWlistBoxColumnWidth(child);
         }
-     } 
+    } 
     
+    /**
+     * @param cmpr {@link WListItemRenderer.ColumnComparator}
+     * @param ascending
+     */
 	public void sort(Comparator<Object> cmpr, boolean ascending) {
 		updateListSelected();
 		WListItemRenderer.ColumnComparator lsc = (WListItemRenderer.ColumnComparator) cmpr;
@@ -2813,11 +2943,18 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		renderItems();
 	}
 
+	/**
+	 * 
+	 * @return true if it is a lookup dialog
+	 */
     public boolean isLookup()
     {
     	return m_lookup;
     }
 
+    /**
+     * scroll selected row into view
+     */
     public void scrollToSelectedRow()
     {
     	if (contentPanel != null && contentPanel.getSelectedIndex() >= 0) {
@@ -2833,18 +2970,35 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		return "natural";
 	}
 
+	/**
+	 * 
+	 * @return window no
+	 */
 	public int getWindowNo() {
 		return p_WindowNo;
 	}
 	
+	/**
+	 * 
+	 * @return row count
+	 */
 	public int getRowCount() {
 		return contentPanel.getRowCount();
 	}
 	
+	/**
+	 * 
+	 * @return first row key/id
+	 */
 	public Integer getFirstRowKey() {
 		return contentPanel.getFirstRowKey();
 	}
 
+	/**
+	 * 
+	 * @param row
+	 * @return row key/id
+	 */
 	public Integer getRowKeyAt(int row) {
 		return contentPanel.getRowKeyAt(row);
 	}
@@ -2870,6 +3024,10 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		return cacheEnd;
 	}
 	
+	/**
+	 * 
+	 * @return true if using database paging feature
+	 */
 	protected boolean isUseDatabasePaging() {
 		return m_useDatabasePaging;
 	}
@@ -2895,6 +3053,8 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 				SessionManager.getSessionApplication().getKeylistener().removeEventListener(Events.ON_CTRL_KEY, this);
 			if (getFirstChild() != null)
 				saveWlistBoxColumnWidth(getFirstChild());
+			if (registerWindowNo && SessionManager.getAppDesktop() != null)
+				SessionManager.getAppDesktop().unregisterWindow(p_WindowNo);
 		} catch (Exception e){
 			log.log(Level.WARNING, e.getMessage(), e);
 		}
@@ -2903,16 +3063,24 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 	/**
 	 * field call this info panel as search editor
 	 * null in case info window open in stand-alone window (from menu, fav,...) 
-	 * @return
+	 * @return {@link GridField}
 	 */
 	public GridField getGridfield() {
 		return m_gridfield;
 	}
 
+	/**
+	 * 
+	 * @param m_gridfield
+	 */
 	public void setGridfield(GridField m_gridfield) {
 		this.m_gridfield = m_gridfield;
 	}
 
+	/**
+	 * 
+	 * @return page size (number of rows per page)
+	 */
 	public int getPageSize() {
 		return pageSize;
 	}
@@ -2933,6 +3101,10 @@ public abstract class InfoPanel extends Window implements EventListener<Event>, 
 		this.m_closeAfterExecutionOfProcess = closeAfterExecutionOfProcess;
 	}
 
+	/**
+	 * 
+	 * @param multipleSelection
+	 */
 	public void setMultipleSelection(boolean multipleSelection) {
 		p_multipleSelection = multipleSelection;
 		if (btnSelectAll != null)

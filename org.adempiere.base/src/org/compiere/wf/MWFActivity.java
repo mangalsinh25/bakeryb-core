@@ -85,7 +85,7 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8180781075902940080L;
+	private static final long serialVersionUID = -9119089506977887142L;
 
 	private static final String CURRENT_WORKFLOW_PROCESS_INFO_ATTR = "Workflow.ProcessInfo";
 	
@@ -204,7 +204,12 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
 			setEndWaitTime(new Timestamp(limitMS + System.currentTimeMillis()));
 		//	Responsible
 		setResponsible(process);
-		saveEx();
+		try {
+			PO.setCrossTenantSafe();
+			saveEx();
+		} finally {
+			PO.clearCrossTenantSafe();
+		}
 		//
 		m_audit = new MWFEventAudit(this);
 		m_audit.setAD_Org_ID(getAD_Org_ID());//Add by Hideaki Hagiwara
@@ -2151,6 +2156,14 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
 			+ " WHERE AD_WF_Activity.AD_WF_Activity_ID=r.AD_WF_Activity_ID AND r.AD_User_ID=? AND r.isActive = 'Y')" 
 			+ ") AND AD_WF_Activity.AD_Client_ID=?";	//	#5
 		return where;
+	}
+
+	public String getProcessMsg() {
+
+		if (m_process == null)
+			return null;
+
+		return m_process.getProcessMsg();
 	}
 
 }	//	MWFActivity

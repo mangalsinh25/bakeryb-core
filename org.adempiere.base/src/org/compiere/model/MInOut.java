@@ -52,6 +52,7 @@ import org.compiere.util.Trx;
 import org.compiere.util.TrxEventListener;
 import org.compiere.util.Util;
 import org.compiere.wf.MWFActivity;
+import org.compiere.wf.MWorkflow;
 
 /**
  *  Shipment Model
@@ -2001,13 +2002,11 @@ public class MInOut extends X_M_InOut implements DocAction, IDocsPostProcess
 
 		if (log.isLoggable(Level.FINE)) log.fine(dropShipment.toString());
 
-		dropShipment.setDocAction(DocAction.ACTION_Complete);
 		// do not post immediate dropshipment, should post after source shipment
 		dropShipment.set_Attribute(DocumentEngine.DOCUMENT_POST_IMMEDIATE_AFTER_COMPLETE, Boolean.FALSE);
-		// added AdempiereException by Zuhri
-		if (!dropShipment.processIt(DocAction.ACTION_Complete))
-			throw new AdempiereException(Msg.getMsg(getCtx(), "FailedProcessingDocument") + " - " + dropShipment.getProcessMsg());
-		// end added
+		ProcessInfo processInfo = MWorkflow.runDocumentActionWorkflow(dropShipment, DocAction.ACTION_Complete);
+		if (processInfo.isError())
+			throw new RuntimeException(Msg.getMsg(getCtx(), "FailedProcessingDocument") + ": " + dropShipment.toString() + " - " + dropShipment.getProcessMsg());
 		dropShipment.saveEx();
 
 		return dropShipment;
@@ -2941,6 +2940,7 @@ public class MInOut extends X_M_InOut implements DocAction, IDocsPostProcess
 			setC_Project_ID(order.getC_Project_ID());
 			setC_Campaign_ID(order.getC_Campaign_ID());
 			setC_Activity_ID(order.getC_Activity_ID());
+			setSalesRep_ID (order.getSalesRep_ID());
 			setUser1_ID(order.getUser1_ID());
 			setUser2_ID(order.getUser2_ID());
 

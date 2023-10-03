@@ -197,7 +197,7 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 
 		if (Util.isEmpty(m_tableName))
 			setTableAndKeyColumn();
-
+		
 		boolean enableDrill = false;
 		if(getGridField() != null && getGridField().getGridTab() != null && getGridField().getColumnName().endsWith("_ID")
 				&& MRole.getDefault().isCanReport(getGridField().getGridTab().getAD_Table_ID()))
@@ -261,7 +261,7 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 	{
 		Object curValue = this.value;
         this.value = value;
-		if (value != null && !"".equals(String.valueOf(value)))
+        if (value != null && !"".equals(String.valueOf(value)))
 		{		
 			NamePair namePair = lookup.get(value);
 			if (namePair != null)
@@ -890,7 +890,7 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 	@Override
 	public String getDisplayTextForGridView(Object value) {
 		String s = super.getDisplayTextForGridView(value);
-		if (ClientInfo.isMobile() && MSysConfig.getBooleanValue(MSysConfig.ZK_GRID_MOBILE_LINE_BREAK_AS_IDENTIFIER_SEPARATOR, true)) {
+		if (s != null && ClientInfo.isMobile() && MSysConfig.getBooleanValue(MSysConfig.ZK_GRID_MOBILE_LINE_BREAK_AS_IDENTIFIER_SEPARATOR, true)) {
 			String separator = MSysConfig.getValue(MSysConfig.IDENTIFIER_SEPARATOR, null, Env.getAD_Client_ID(Env.getCtx()));
 			if (!Util.isEmpty(separator, true) && s.indexOf(separator) >= 0) {
 				s = s.replace(separator, "\n");
@@ -921,6 +921,12 @@ public class WSearchEditor extends WEditor implements ContextMenuListener, Value
 						+ "btn.setDisabled(true, {adbs: false, skip: false});}catch(err){}");
 				}
 			}
+		}
+
+		@Override
+		public void onPageDetached(Page page) {
+			setWidgetListener("onChange", null);
+			super.onPageDetached(page);
 		}
 		
 	}	

@@ -46,6 +46,7 @@ import static org.compiere.model.SystemIDs.REFERENCE_DATATYPE_PRINTNAME;
 import static org.compiere.model.SystemIDs.REFERENCE_DATATYPE_PRODUCTATTRIBUTE;
 import static org.compiere.model.SystemIDs.REFERENCE_DATATYPE_QUANTITY;
 import static org.compiere.model.SystemIDs.REFERENCE_DATATYPE_RADIOGROUP_LIST;
+import static org.compiere.model.SystemIDs.REFERENCE_DATATYPE_RECORD_ID;
 import static org.compiere.model.SystemIDs.REFERENCE_DATATYPE_ROWID;
 import static org.compiere.model.SystemIDs.REFERENCE_DATATYPE_SEARCH;
 import static org.compiere.model.SystemIDs.REFERENCE_DATATYPE_SINGLE_SELECTION_GRID;
@@ -77,6 +78,7 @@ import org.adempiere.base.Service;
 import org.compiere.db.AdempiereDatabase;
 import org.compiere.db.Database;
 import org.compiere.model.MLanguage;
+import org.compiere.model.MTable;
 
 /**
  *	System Display Types.
@@ -174,11 +176,15 @@ public final class DisplayType
 	public static final int ChosenMultipleSelectionTable = REFERENCE_DATATYPE_CHOSEN_MULTIPLE_SELECTION_TABLE;
 	
 	public static final int ChosenMultipleSelectionSearch = REFERENCE_DATATYPE_CHOSEN_MULTIPLE_SELECTION_SEARCH;
+	
+	public static final int RecordID = REFERENCE_DATATYPE_RECORD_ID;
+	
+	
 
 	public static final int TimestampWithTimeZone = REFERENCE_DATATYPE_TIMESTAMP_WITH_TIMEZONE;
 	
 	public static final int TimeZoneId = REFERENCE_DATATYPE_TIMEZONE;
-	
+
 	/**
 	 *	- New Display Type
 		INSERT INTO AD_REFERENCE
@@ -223,24 +229,31 @@ public final class DisplayType
 		if (displayType == ID || displayType == Table || displayType == TableDir
 			|| displayType == Search || displayType == Location || displayType == Locator
 			|| displayType == Account || displayType == Assignment || displayType == PAttribute
-			|| displayType == Image || displayType == Chart)
+			|| displayType == Image || displayType == Chart	|| displayType == RecordID)
 			return true;
+		
+		//not custom type, don't have to check factory
+		if (displayType <= MTable.MAX_OFFICIAL_ID)
+			return false;
 		
 		IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 		if (cache != null) {
 			IDisplayTypeFactory service = cache.getService();
 			if (service != null)
 				return service.isID(displayType);
+			else
+				s_displayTypeFactoryCache.remove(displayType);
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		String customTypeKey = displayType+"|isID";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().isID(displayType))
 					.findFirst();
 			if (found.isPresent()) {
 				s_displayTypeFactoryCache.put(displayType, found.get());
-				return found.get().getService().isID(displayType);
+				return true;
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		
 		return false;
@@ -258,21 +271,28 @@ public final class DisplayType
 			|| displayType == Integer || displayType == Quantity)
 			return true;
 		
+		//not custom type, don't have to check factory
+		if (displayType <= MTable.MAX_OFFICIAL_ID)
+			return false;
+				
 		IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 		if (cache != null) {
 			IDisplayTypeFactory service = cache.getService();
 			if (service != null)
 				return service.isNumeric(displayType);
+			else
+				s_displayTypeFactoryCache.remove(displayType);
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		String customTypeKey = displayType + "|isNumeric";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().isNumeric(displayType))
 					.findFirst();
 			if (found.isPresent()) {
 				s_displayTypeFactoryCache.put(displayType, found.get());
-				return found.get().getService().isNumeric(displayType);
+				return true;
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		
 		return false;
@@ -294,15 +314,23 @@ public final class DisplayType
 			|| displayType == Quantity)
 			return 4;
 		
+		//not custom type, don't have to check factory
+		if (displayType <= MTable.MAX_OFFICIAL_ID)
+			return 0;
+				
 		IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 		if (cache != null) {
 			IDisplayTypeFactory service = cache.getService();
 			if (service != null) {
 				Integer v = service.getDefaultPrecision(displayType);
 				return v != null ? v.intValue() : 0;
+			} else {
+				s_displayTypeFactoryCache.remove(displayType);
 			}
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		
+		String customTypeKey = displayType + "|getDefaultPrecision";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().getDefaultPrecision(displayType) != null)
 					.findFirst();
@@ -311,7 +339,7 @@ public final class DisplayType
 				Integer v = found.get().getService().getDefaultPrecision(displayType);
 				return v != null ? v.intValue() : 0;
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		return 0;
 	}	//	getDefaultPrecision
@@ -337,21 +365,29 @@ public final class DisplayType
 			|| displayType == TimeZoneId)
 			return true;
 		
+		//not custom type, don't have to check factory
+		if (displayType <= MTable.MAX_OFFICIAL_ID)
+			return false;
+
 		IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 		if (cache != null) {
 			IDisplayTypeFactory service = cache.getService();
 			if (service != null)
 				return service.isText(displayType);
+			else
+				s_displayTypeFactoryCache.remove(displayType);
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		
+		String customTypeKey = displayType + "|isText";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().isText(displayType))
 					.findFirst();
 			if (found.isPresent()) {
 				s_displayTypeFactoryCache.put(displayType, found.get());
-				return found.get().getService().isText(displayType);
+				return true;
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		return false;
 	}	//	isText
@@ -370,21 +406,29 @@ public final class DisplayType
 		if (isTimestampWithTimeZone(displayType))
 			return true;
 		
+		//not custom type, don't have to check factory
+		if (displayType <= MTable.MAX_OFFICIAL_ID)
+			return false;
+		
 		IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 		if (cache != null) {
 			IDisplayTypeFactory service = cache.getService();
 			if (service != null)
 				return service.isDate(displayType);
+			else
+				s_displayTypeFactoryCache.remove(displayType);
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		
+		String customTypeKey = displayType + "|isDate";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().isDate(displayType))
 					.findFirst();
 			if (found.isPresent()) {
 				s_displayTypeFactoryCache.put(displayType, found.get());
-				return found.get().getService().isDate(displayType);
+				return true;
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		
 		return false;
@@ -403,21 +447,29 @@ public final class DisplayType
 				|| DisplayType.Payment == displayType)
 			return true;
 		
+		//not custom type, don't have to check factory
+		if (displayType <= MTable.MAX_OFFICIAL_ID)
+			return false;
+		
 		IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 		if (cache != null) {
 			IDisplayTypeFactory service = cache.getService();
 			if (service != null)
 				return service.isList(displayType);
+			else
+				s_displayTypeFactoryCache.remove(displayType);
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		
+		String customTypeKey = displayType + "|isList";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().isList(displayType))
 					.findFirst();
 			if (found.isPresent()) {
 				s_displayTypeFactoryCache.put(displayType, found.get());
-				return found.get().getService().isList(displayType);
+				return true;
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		
 		return false;
@@ -439,21 +491,29 @@ public final class DisplayType
 			|| displayType == ChosenMultipleSelectionList)
 			return true;
 		
+		//not custom type, don't have to check factory
+		if (displayType <= MTable.MAX_OFFICIAL_ID)
+			return false;
+
 		IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 		if (cache != null) {
 			IDisplayTypeFactory service = cache.getService();
 			if (service != null)
 				return service.isLookup(displayType);
+			else
+				s_displayTypeFactoryCache.remove(displayType);
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		
+		String customTypeKey = displayType + "|isLookup";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().isLookup(displayType))
 					.findFirst();
 			if (found.isPresent()) {
 				s_displayTypeFactoryCache.put(displayType, found.get());
-				return found.get().getService().isLookup(displayType);
+				return true;
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		
 		return false;
@@ -470,21 +530,29 @@ public final class DisplayType
 			|| displayType == TextLong)
 			return true;
 		
+		//not custom type, don't have to check factory
+		if (displayType <= MTable.MAX_OFFICIAL_ID)
+			return false;
+
 		IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 		if (cache != null) {
 			IDisplayTypeFactory service = cache.getService();
 			if (service != null)
 				return service.isLOB(displayType);
+			else
+				s_displayTypeFactoryCache.remove(displayType);
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		
+		String customTypeKey = displayType + "|isLOB";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().isLOB(displayType))
 					.findFirst();
 			if (found.isPresent()) {
 				s_displayTypeFactoryCache.put(displayType, found.get());
-				return found.get().getService().isLOB(displayType);
+				return true;
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		
 		return false;
@@ -571,6 +639,14 @@ public final class DisplayType
 		}
 		else
 		{
+			format.setMaximumIntegerDigits(MAX_DIGITS);
+			format.setMaximumFractionDigits(MAX_FRACTION);
+			format.setMinimumFractionDigits(1);
+
+			//not custom type, don't have to check factory
+			if (displayType <= MTable.MAX_OFFICIAL_ID)
+				return format;
+			
 			IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 			if (cache != null) {
 				IDisplayTypeFactory service = cache.getService();
@@ -578,9 +654,13 @@ public final class DisplayType
 					DecimalFormat f = service.getNumberFormat(displayType, language, pattern);
 					if (f != null)
 						return f;
+				} else {
+					s_displayTypeFactoryCache.remove(displayType);
 				}
 			}
-			if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+			
+			String customTypeKey = displayType + "|getNumberFormat";
+			if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 				Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 						.filter(e -> e.getService() != null && e.getService().getNumberFormat(displayType, language, pattern) != null)
 						.findFirst();
@@ -588,12 +668,9 @@ public final class DisplayType
 					s_displayTypeFactoryCache.put(displayType, found.get());
 					return found.get().getService().getNumberFormat(displayType, language, pattern);
 				}
-				s_displayTypeFactoryCache.put(displayType, null);
+				s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 			}
-			
-			format.setMaximumIntegerDigits(MAX_DIGITS);
-			format.setMaximumFractionDigits(MAX_FRACTION);
-			format.setMinimumFractionDigits(1);
+
 		}
 		return format;
 	}	//	getDecimalFormat
@@ -704,7 +781,7 @@ public final class DisplayType
 				format = myLanguage.getDateTimeFormat();
 			return setTimeZone(format);
 		}
-		else {
+		else if (displayType > MTable.MAX_OFFICIAL_ID) { //custom display type
 			IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 			if (cache != null) {
 				IDisplayTypeFactory service = cache.getService();
@@ -712,9 +789,13 @@ public final class DisplayType
 					SimpleDateFormat v = service.getDateFormat(displayType, language, pattern);
 					if (v != null)
 						return v;
+				} else {
+					s_displayTypeFactoryCache.remove(displayType);
 				}
 			}
-			if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+			
+			String customTypeKey = displayType + "|getDateFormat";
+			if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 				Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 						.filter(e -> e.getService() != null && e.getService().getDateFormat(displayType, language, pattern) != null)
 						.findFirst();
@@ -722,7 +803,7 @@ public final class DisplayType
 					s_displayTypeFactoryCache.put(displayType, found.get());
 					return found.get().getService().getDateFormat(displayType, language, pattern);
 				}
-				s_displayTypeFactoryCache.put(displayType, null);
+				s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 			}
 		}
 
@@ -793,7 +874,7 @@ public final class DisplayType
 			return String.class;
 		else if (isLOB(displayType))	//	CLOB is String
 			return byte[].class;
-		else
+		else if (displayType > MTable.MAX_OFFICIAL_ID) // custom display type
 		{
 			IServiceReferenceHolder<IDisplayTypeFactory> cache = s_displayTypeFactoryCache.get(displayType);
 			if (cache != null) {
@@ -802,9 +883,13 @@ public final class DisplayType
 					Class<?> v = service.getClass(displayType, yesNoAsBoolean);
 					if (v != null)
 						return v;
+				} else {
+					s_displayTypeFactoryCache.remove(displayType);
 				}
 			}
-			if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+			
+			String customTypeKey = displayType + "|getClass";
+			if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 				Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 						.filter(e -> e.getService() != null && e.getService().getClass(displayType, yesNoAsBoolean) != null)
 						.findFirst();
@@ -812,7 +897,7 @@ public final class DisplayType
 					s_displayTypeFactoryCache.put(displayType, found.get());
 					return found.get().getService().getClass(displayType, yesNoAsBoolean);
 				}
-				s_displayTypeFactoryCache.put(displayType, null);
+				s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 			}
 		}
 		//
@@ -896,9 +981,13 @@ public final class DisplayType
 				String v = service.getSQLDataType(displayType, columnName, fieldLength);
 				if (v != null)
 					return v;
+			} else {
+				s_displayTypeFactoryCache.remove(displayType);
 			}
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		
+		String customTypeKey = displayType + "|getSQLDataType";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().getSQLDataType(displayType, columnName, fieldLength) != null)
 					.findFirst();
@@ -906,7 +995,7 @@ public final class DisplayType
 				s_displayTypeFactoryCache.put(displayType, found.get());
 				return found.get().getService().getSQLDataType(displayType, columnName, fieldLength);
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		
 		if (!DisplayType.isText(displayType))
@@ -1003,9 +1092,13 @@ public final class DisplayType
 				String v = service.getDescription(displayType);
 				if (v != null)
 					return v;
+			} else {
+				s_displayTypeFactoryCache.remove(displayType);
 			}
 		}
-		if (! s_displayTypeFactoryCache.containsKey(displayType)) {
+		
+		String customTypeKey = displayType + "|getDescription";
+		if (! s_customDisplayTypeNegativeCache.containsKey(customTypeKey)) {
 			Optional<IServiceReferenceHolder<IDisplayTypeFactory>> found = getDisplayTypeFactories().stream()
 					.filter(e -> e.getService() != null && e.getService().getDescription(displayType) != null)
 					.findFirst();
@@ -1013,7 +1106,7 @@ public final class DisplayType
 				s_displayTypeFactoryCache.put(displayType, found.get());
 				return found.get().getService().getDescription(displayType);
 			}
-			s_displayTypeFactoryCache.put(displayType, null);
+			s_customDisplayTypeNegativeCache.put(customTypeKey, Boolean.TRUE);
 		}
 		
 		//
@@ -1035,7 +1128,11 @@ public final class DisplayType
 		return currencyFormatter;
 	}   //  getCurrencyFormat
 
-
+	/** 
+	 * Custom DisplayType|Method:Boolean.TRUE (for e.g 1000000|isID:Boolean.TRUE). <br/> 
+	 * Map to cache that a custom display type does not have display type factory register for a Method (isID, isNumeric, getDateFormat, etc). 
+	 */
+	private final static CCache<String, Boolean> s_customDisplayTypeNegativeCache = new CCache<>(null, "CustomDisplayTypeNegativeCache", 100, false);
 	private final static CCache<Integer, IServiceReferenceHolder<IDisplayTypeFactory>> s_displayTypeFactoryCache = new CCache<>(null, "IDisplayTypeFactory", 100, false);
 	
 	private static List<IServiceReferenceHolder<IDisplayTypeFactory>> getDisplayTypeFactories() {

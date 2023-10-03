@@ -46,6 +46,7 @@ import org.adempiere.webui.window.LoginWindow;
 import org.compiere.model.MRole;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUser;
+import org.compiere.model.SystemProperties;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Language;
@@ -58,12 +59,14 @@ import org.zkoss.zhtml.Td;
 import org.zkoss.zhtml.Tr;
 import org.zkoss.zk.au.out.AuFocus;
 import org.zkoss.zk.au.out.AuScript;
+import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.event.Deferrable;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.sys.ComponentCtrl;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Comboitem;
 import org.zkoss.zul.Div;
@@ -275,6 +278,7 @@ public class RolePanel extends Window implements EventListener<Event>, Deferrabl
         pnlButtons.addActionListener(this);
         Button okBtn = pnlButtons.getButton(ConfirmPanel.A_OK);
         okBtn.setWidgetListener("onClick", "zAu.cmd0.showBusy(null)");
+        okBtn.addCallback(ComponentCtrl.AFTER_PAGE_DETACHED, t -> ((AbstractComponent)t).setWidgetListener("onClick", null));
 
         Button helpButton = pnlButtons.createButton(ConfirmPanel.A_HELP);
 		helpButton.addEventListener(Events.ON_CLICK, this);
@@ -365,9 +369,11 @@ public class RolePanel extends Window implements EventListener<Event>, Deferrabl
             for(int i = 0; i < m_clientKNPairs.length; i++)
             {
             	ComboItem ci = new ComboItem(m_clientKNPairs[i].getName(), m_clientKNPairs[i].getID());
-            	String id = AdempiereIdGenerator.escapeId(ci.getLabel());
-            	if (lstClient.getFellowIfAny(id) == null)
-            		ci.setId(id);
+        		if (SystemProperties.isZkUnitTest()) {
+                	String id = AdempiereIdGenerator.escapeId(ci.getLabel());
+                	if (lstClient.getFellowIfAny(id) == null)
+                		ci.setId(id);
+        		}
             	lstClient.appendChild(ci);
                 if (m_clientKNPairs[i].getID().equals(initDefault))
                 	lstClient.setSelectedItem(ci);
@@ -422,9 +428,11 @@ public class RolePanel extends Window implements EventListener<Event>, Deferrabl
                 for (int i = 0; i < roleKNPairs.length; i++)
                 {
                 	ComboItem ci = new ComboItem(roleKNPairs[i].getName(), roleKNPairs[i].getID());
-                	String id = AdempiereIdGenerator.escapeId(ci.getLabel());
-                	if (lstRole.getFellowIfAny(id) == null)
-                		ci.setId(id);
+            		if (SystemProperties.isZkUnitTest()) {
+                    	String id = AdempiereIdGenerator.escapeId(ci.getLabel());
+                    	if (lstRole.getFellowIfAny(id) == null)
+                    		ci.setId(id);
+            		}
                 	lstRole.appendChild(ci);
                     if (roleKNPairs[i].getID().equals(initDefault))
                     	lstRole.setSelectedItem(ci);
@@ -470,9 +478,11 @@ public class RolePanel extends Window implements EventListener<Event>, Deferrabl
                 for(int i = 0; i < orgKNPairs.length; i++)
                 {
                 	ComboItem ci = new ComboItem(orgKNPairs[i].getName(), orgKNPairs[i].getID());
-                	String id = AdempiereIdGenerator.escapeId(ci.getLabel());
-                	if (lstOrganisation.getFellowIfAny(id) == null)
-                		ci.setId(id);
+            		if (SystemProperties.isZkUnitTest()) {
+                    	String id = AdempiereIdGenerator.escapeId(ci.getLabel());
+                    	if (lstOrganisation.getFellowIfAny(id) == null)
+                    		ci.setId(id);
+            		}
                 	lstOrganisation.appendChild(ci);
                     if(orgKNPairs[i].getID().equals(initDefault))
                     	lstOrganisation.setSelectedItem(ci);

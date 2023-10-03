@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_Process_Para
  *  @author iDempiere (generated) 
- *  @version Release 10 - $Id$ */
+ *  @version Release 11 - $Id$ */
 @org.adempiere.base.Model(table="AD_Process_Para")
 public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persistent 
 {
@@ -31,7 +31,7 @@ public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20221224L;
+	private static final long serialVersionUID = 20230302L;
 
     /** Standard Constructor */
     public X_AD_Process_Para (Properties ctx, int AD_Process_Para_ID, String trxName)
@@ -43,6 +43,8 @@ public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persis
 			setAD_Process_Para_ID (0);
 			setAD_Reference_ID (0);
 			setColumnName (null);
+			setDateRangeOption (null);
+// D
 			setEntityType (null);
 // @SQL=SELECT CASE WHEN '@P|AdempiereSys:N@'='Y' THEN 'D' ELSE get_sysconfig('DEFAULT_ENTITYTYPE','U',0,0) END FROM Dual
 			setFieldLength (0);
@@ -54,6 +56,8 @@ public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persis
 // N
 			setIsMandatory (false);
 			setIsRange (false);
+			setIsShowNegateButton (false);
+// N
 			setName (null);
 			setSeqNo (0);
 // @SQL=SELECT NVL(MAX(SeqNo),0)+10 AS DefaultValue FROM AD_Process_Para WHERE AD_Process_ID=@AD_Process_ID@
@@ -70,6 +74,8 @@ public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persis
 			setAD_Process_Para_ID (0);
 			setAD_Reference_ID (0);
 			setColumnName (null);
+			setDateRangeOption (null);
+// D
 			setEntityType (null);
 // @SQL=SELECT CASE WHEN '@P|AdempiereSys:N@'='Y' THEN 'D' ELSE get_sysconfig('DEFAULT_ENTITYTYPE','U',0,0) END FROM Dual
 			setFieldLength (0);
@@ -81,6 +87,8 @@ public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persis
 // N
 			setIsMandatory (false);
 			setIsRange (false);
+			setIsShowNegateButton (false);
+// N
 			setName (null);
 			setSeqNo (0);
 // @SQL=SELECT NVL(MAX(SeqNo),0)+10 AS DefaultValue FROM AD_Process_Para WHERE AD_Process_ID=@AD_Process_ID@
@@ -335,6 +343,29 @@ public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persis
 		return (String)get_Value(COLUMNNAME_ColumnName);
 	}
 
+	/** DateRangeOption AD_Reference_ID=200228 */
+	public static final int DATERANGEOPTION_AD_Reference_ID=200228;
+	/** Date Editor and Range Picker = D */
+	public static final String DATERANGEOPTION_DateEditorAndRangePicker = "D";
+	/** Text and Range Picker = T */
+	public static final String DATERANGEOPTION_TextAndRangePicker = "T";
+	/** Set Date Range Option.
+		@param DateRangeOption Options, how the date editor will be displayed.
+	*/
+	public void setDateRangeOption (String DateRangeOption)
+	{
+
+		set_Value (COLUMNNAME_DateRangeOption, DateRangeOption);
+	}
+
+	/** Get Date Range Option.
+		@return Options, how the date editor will be displayed.
+	  */
+	public String getDateRangeOption()
+	{
+		return (String)get_Value(COLUMNNAME_DateRangeOption);
+	}
+
 	/** Set Default Logic.
 		@param DefaultValue Default value hierarchy, separated by ;
 	*/
@@ -568,6 +599,29 @@ public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persis
 		return false;
 	}
 
+	/** Set Show Negate Button.
+		@param IsShowNegateButton Show Negate Button for Chosen Multiple editors
+	*/
+	public void setIsShowNegateButton (boolean IsShowNegateButton)
+	{
+		set_Value (COLUMNNAME_IsShowNegateButton, Boolean.valueOf(IsShowNegateButton));
+	}
+
+	/** Get Show Negate Button.
+		@return Show Negate Button for Chosen Multiple editors
+	  */
+	public boolean isShowNegateButton()
+	{
+		Object oo = get_Value(COLUMNNAME_IsShowNegateButton);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set Mandatory Logic.
 		@param MandatoryLogic Mandatory Logic
 	*/
@@ -688,6 +742,22 @@ public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persis
 		return ii.intValue();
 	}
 
+	/** Set Value Format.
+		@param VFormat Format of the value; Can contain fixed format elements, Variables: &quot;_lLoOaAcCa09&quot;
+	*/
+	public void setVFormat (String VFormat)
+	{
+		set_Value (COLUMNNAME_VFormat, VFormat);
+	}
+
+	/** Get Value Format.
+		@return Format of the value; Can contain fixed format elements, Variables: &quot;_lLoOaAcCa09&quot;
+	  */
+	public String getVFormat()
+	{
+		return (String)get_Value(COLUMNNAME_VFormat);
+	}
+
 	/** Set Max. Value.
 		@param ValueMax Maximum Value for a field
 	*/
@@ -718,21 +788,5 @@ public class X_AD_Process_Para extends PO implements I_AD_Process_Para, I_Persis
 	public String getValueMin()
 	{
 		return (String)get_Value(COLUMNNAME_ValueMin);
-	}
-
-	/** Set Value Format.
-		@param VFormat Format of the value; Can contain fixed format elements, Variables: &quot;_lLoOaAcCa09&quot;
-	*/
-	public void setVFormat (String VFormat)
-	{
-		set_Value (COLUMNNAME_VFormat, VFormat);
-	}
-
-	/** Get Value Format.
-		@return Format of the value; Can contain fixed format elements, Variables: &quot;_lLoOaAcCa09&quot;
-	  */
-	public String getVFormat()
-	{
-		return (String)get_Value(COLUMNNAME_VFormat);
 	}
 }

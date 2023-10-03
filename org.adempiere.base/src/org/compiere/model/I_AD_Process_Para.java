@@ -22,7 +22,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for AD_Process_Para
  *  @author iDempiere (generated) 
- *  @version Release 10
+ *  @version Release 11
  */
 public interface I_AD_Process_Para 
 {
@@ -199,6 +199,19 @@ public interface I_AD_Process_Para
 	  */
 	public int getCreatedBy();
 
+    /** Column name DateRangeOption */
+    public static final String COLUMNNAME_DateRangeOption = "DateRangeOption";
+
+	/** Set Date Range Option.
+	  * Options, how the date editor will be displayed.
+	  */
+	public void setDateRangeOption (String DateRangeOption);
+
+	/** Get Date Range Option.
+	  * Options, how the date editor will be displayed.
+	  */
+	public String getDateRangeOption();
+
     /** Column name DefaultValue */
     public static final String COLUMNNAME_DefaultValue = "DefaultValue";
 
@@ -374,6 +387,19 @@ public interface I_AD_Process_Para
 	  */
 	public boolean isRange();
 
+    /** Column name IsShowNegateButton */
+    public static final String COLUMNNAME_IsShowNegateButton = "IsShowNegateButton";
+
+	/** Set Show Negate Button.
+	  * Show Negate Button for Chosen Multiple editors
+	  */
+	public void setIsShowNegateButton (boolean IsShowNegateButton);
+
+	/** Get Show Negate Button.
+	  * Show Negate Button for Chosen Multiple editors
+	  */
+	public boolean isShowNegateButton();
+
     /** Column name MandatoryLogic */
     public static final String COLUMNNAME_MandatoryLogic = "MandatoryLogic";
 
@@ -471,6 +497,25 @@ public interface I_AD_Process_Para
 	  */
 	public int getUpdatedBy();
 
+    /** Column name VFormat */
+    public static final String COLUMNNAME_VFormat = "VFormat";
+
+	/** Set Value Format.
+	  * Format of the value;
+ Can contain fixed format elements, Variables: &quot;
+_lLoOaAcCa09&quot;
+
+	  */
+	public void setVFormat (String VFormat);
+
+	/** Get Value Format.
+	  * Format of the value;
+ Can contain fixed format elements, Variables: &quot;
+_lLoOaAcCa09&quot;
+
+	  */
+	public String getVFormat();
+
     /** Column name ValueMax */
     public static final String COLUMNNAME_ValueMax = "ValueMax";
 
@@ -496,23 +541,4 @@ public interface I_AD_Process_Para
 	  * Minimum Value for a field
 	  */
 	public String getValueMin();
-
-    /** Column name VFormat */
-    public static final String COLUMNNAME_VFormat = "VFormat";
-
-	/** Set Value Format.
-	  * Format of the value;
- Can contain fixed format elements, Variables: &quot;
-_lLoOaAcCa09&quot;
-
-	  */
-	public void setVFormat (String VFormat);
-
-	/** Get Value Format.
-	  * Format of the value;
- Can contain fixed format elements, Variables: &quot;
-_lLoOaAcCa09&quot;
-
-	  */
-	public String getVFormat();
 }

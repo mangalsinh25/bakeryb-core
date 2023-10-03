@@ -38,7 +38,6 @@ import org.adempiere.base.upload.IUploadService;
 import org.adempiere.exceptions.DBException;
 import org.adempiere.pdf.Document;
 import org.adempiere.util.Callback;
-import org.adempiere.util.ContextRunnable;
 import org.adempiere.webui.ClientInfo;
 import org.adempiere.webui.Extensions;
 import org.adempiere.webui.LayoutUtils;
@@ -63,7 +62,6 @@ import org.adempiere.webui.event.DrillEvent;
 import org.adempiere.webui.event.DrillEvent.DrillData;
 import org.adempiere.webui.event.ZoomEvent;
 import org.adempiere.webui.panel.ADForm;
-import org.adempiere.webui.panel.ITabOnCloseHandler;
 import org.adempiere.webui.panel.StatusBarPanel;
 import org.adempiere.webui.report.HTMLExtension;
 import org.adempiere.webui.session.SessionManager;
@@ -71,6 +69,7 @@ import org.adempiere.webui.theme.ThemeManager;
 import org.adempiere.webui.util.IServerPushCallback;
 import org.adempiere.webui.util.ServerPushTemplate;
 import org.adempiere.webui.util.ZKUpdateUtil;
+import org.adempiere.webui.util.ZkContextRunnable;
 import org.compiere.model.GridField;
 import org.compiere.model.MArchive;
 import org.compiere.model.MAttachment;
@@ -125,7 +124,6 @@ import org.zkoss.zul.North;
 import org.zkoss.zul.Popup;
 import org.zkoss.zul.Separator;
 import org.zkoss.zul.South;
-import org.zkoss.zul.Tab;
 import org.zkoss.zul.Toolbar;
 import org.zkoss.zul.Toolbarbutton;
 import org.zkoss.zul.Vlayout;
@@ -146,13 +144,13 @@ import org.zkoss.zul.impl.XulElement;
  * @author Teo Sarca, SC ARHIPAC SERVICE SRL
  * 				<li>FR [ 1762466 ] Add "Window" menu to report viewer.
  * 				<li>FR [ 1894640 ] Report Engine: Excel Export support
- * 
+ *
  * @author Low Heng Sin
  */
-public class ZkReportViewer extends Window implements EventListener<Event>, ITabOnCloseHandler, IReportViewerExportSource {
-	
+public class ZkReportViewer extends Window implements EventListener<Event>, IReportViewerExportSource {
+
 	/**
-	 * generated serial id 
+	 * generated serial id
 	 */
 	private static final long serialVersionUID = 6307014622485159910L;
 	
@@ -175,7 +173,9 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 	/** Table ID					*/
 	private int					m_AD_Table_ID = 0;
 	private boolean				m_isCanExport;
-	
+	/** Process ID					*/
+	private int 				m_AD_Process_ID = 0;
+
 	private MQuery 		m_ddQ = null;
 	private MQuery 		m_daQ = null;
 	private Menuitem 	m_ddM = null;
@@ -221,7 +221,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 	
 	private ToolBarButton bCloudUpload = new ToolBarButton();
 	protected Map<MAuthorizationAccount, IUploadService> uploadServicesMap = new HashMap<>();
-	
+
 	private final ExportFormat[] exportFormats = new ExportFormat[] {
 		new ExportFormat(POSTSCRIPT_FILE_EXT + " - " + Msg.getMsg(Env.getCtx(), "FilePS"), POSTSCRIPT_FILE_EXT, POSTSCRIPT_MIME_TYPE),
 		new ExportFormat(XML_FILE_EXT + " - " + Msg.getMsg(Env.getCtx(), "FileXML"), XML_FILE_EXT, XML_MIME_TYPE),
@@ -245,7 +245,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 	 */
 	public ZkReportViewer(ReportEngine re, String title) {		
 		super();
-		
+
 		init = false;
 		m_WindowNo = SessionManager.getAppDesktop().registerWindow(this);
 		setAttribute(IDesktop.WINDOWNO_ATTRIBUTE, m_WindowNo);
@@ -423,6 +423,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		try {
 			SessionManager.getSessionApplication().getKeylistener().removeEventListener(Events.ON_CTRL_KEY, this);
 		} catch (Exception e) {}
+		cleanUp();
 	}
 
 	private void init() {
@@ -787,11 +788,11 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		int AD_Window_ID = Env.getContextAsInt(Env.getCtx(), m_reportEngine.getWindowNo(), "_WinInfo_AD_Window_ID", true);
 		if (AD_Window_ID == 0)
 			AD_Window_ID = Env.getZoomWindowID(m_reportEngine.getQuery());
-		int AD_Process_ID = m_reportEngine.getPrintInfo() != null ? m_reportEngine.getPrintInfo().getAD_Process_ID() : 0;
-		updateToolbarAccess(AD_Window_ID, AD_Process_ID);
-		
+		m_AD_Process_ID = m_reportEngine.getPrintInfo() != null ? m_reportEngine.getPrintInfo().getAD_Process_ID() : 0;
+		updateToolbarAccess(AD_Window_ID, m_AD_Process_ID);
+
 		this.setBorder("normal");
-		
+
 		this.addEventListener("onZoom", new EventListener<Event>() {
 			
 			public void onEvent(Event event) throws Exception {
@@ -814,7 +815,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 					DrillEvent de = (DrillEvent) event;
 					if (de.getData() != null && de.getData() instanceof DrillData) {
 						DrillData data = (DrillData) de.getData();
-							AEnv.actionDrill(data, m_WindowNo);
+						AEnv.actionDrill(data, m_WindowNo, m_AD_Process_ID);
 					}
 				}
 				
@@ -837,8 +838,23 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		});
 		
 		init = true;
-		
+
 		Events.echoEvent("onPostInit", this, null);
+
+		setTabOnCloseHandler();
+	}
+
+	private void setTabOnCloseHandler() {
+		Component parent = this.getParent();
+		while (parent != null) {
+			if (parent instanceof Tabpanel) {
+				Tabpanel parentTabPanel = (Tabpanel) parent;
+				parentTabPanel.setOnCloseHandler(t -> {
+				});
+				break;
+			}
+			parent = parent.getParent();
+		}
 	}
 
 	/**
@@ -874,6 +890,8 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 	}
 	
 	private void onPreviewReport() {
+		if(media == null)
+			return;
 		try {
 			mediaVersion++;
 			String url = Utils.getDynamicMediaURI(this, mediaVersion, media.getName(), media.getFormat());	
@@ -1110,25 +1128,6 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		super.onClose();
 	}	//	dispose
 
-	@Override
-	public void onClose(Tabpanel tabPanel) {
-		Tab tab = tabPanel.getLinkedTab();
-		tab.close();
-		cleanUp();
-	}
-	
-	
-	@Override
-	public void setParent(Component parent) {
-		super.setParent(parent);
-		if (parent != null) {
-			if (parent instanceof Tabpanel) {
-				Tabpanel tabPanel = (Tabpanel) parent;
-				tabPanel.setOnCloseHandler(this);
-			}
-		}
-	}
-
 	private void cleanUp() {
 		if (m_reportEngine != null || m_WindowNo >= 0)
 		{
@@ -1171,8 +1170,16 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		}
         else if (event.getTarget() instanceof ProcessModalDialog)
         {
-        	if(DialogEvents.ON_WINDOW_CLOSE.equals(event.getName())) 
-        		hideBusyMask();
+		if(DialogEvents.ON_WINDOW_CLOSE.equals(event.getName()))
+		{
+			hideBusyMask();
+			ProcessModalDialog dialog = (ProcessModalDialog) event.getTarget();
+			if (dialog.isCancel())
+			{
+				if (getDesktop() != null)
+					clearTabOnCloseHandler();
+			}
+		}
         }
 	}
 
@@ -1388,6 +1395,8 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		Object pp = li.getValue();
 		if (pp == null)
 			return;
+		
+		setTabOnCloseHandler();
 		//
 		MPrintFormat pf = null;
 		int AD_PrintFormat_ID = Integer.valueOf(pp.toString());
@@ -1520,6 +1529,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 			return;
 		ProcessInfo pi = new ProcessInfo("RefreshWithParameters", AD_Process_ID);
 		pi.setReplaceTabContent();
+		setTabOnCloseHandler();
 		ProcessModalDialog processModalDialog = new ProcessModalDialog(this, m_WindowNo, pi);
 		ZKUpdateUtil.setWindowWidthX(processModalDialog, 850);
 		this.getParent().appendChild(processModalDialog);
@@ -1783,7 +1793,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		if (mask != null && mask.getParent() != null) {
 			mask.detach();
 			StringBuilder script = new StringBuilder("(function(){let w=zk.Widget.$('#");
-			script.append(getParent().getUuid()).append("');w.busy=false;");
+			script.append(getParent().getUuid()).append("');if(w){w.busy=false;}");
 			script.append("})()");
 			Clients.response(new AuScript(script.toString()));
 		}
@@ -1795,9 +1805,26 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 			progressWindow.dispose();
 			progressWindow = null;
 		}
+
+		if (getDesktop() != null)
+			clearTabOnCloseHandler();
 	}
-	
-	static class PDFRendererRunnable extends ContextRunnable implements IServerPushCallback {
+
+	private void clearTabOnCloseHandler() {
+		Executions.schedule(getDesktop(), e -> {
+			Component parent = this.getParent();
+			while (parent != null) {
+				if (parent instanceof Tabpanel) {
+					Tabpanel parentTabPanel = (Tabpanel) parent;
+					parentTabPanel.setOnCloseHandler(null);
+					break;
+				}
+				parent = parent.getParent();
+			}
+		}, new Event("onClearTabOnCloseHandler"));
+	}
+
+	static class PDFRendererRunnable extends ZkContextRunnable implements IServerPushCallback {
 
 		private ZkReportViewer viewer;
 
@@ -1833,7 +1860,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		
 	}
 	
-	static class HTMLRendererRunnable extends ContextRunnable implements IServerPushCallback {
+	static class HTMLRendererRunnable extends ZkContextRunnable implements IServerPushCallback {
 
 		private ZkReportViewer viewer;
 		public HTMLRendererRunnable(ZkReportViewer viewer) {
@@ -1868,7 +1895,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		}		
 	}
 	
-	static class XLSRendererRunnable extends ContextRunnable  implements IServerPushCallback {
+	static class XLSRendererRunnable extends ZkContextRunnable  implements IServerPushCallback {
 
 		private ZkReportViewer viewer;
 
@@ -1904,7 +1931,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		
 	}
 
-	static class CSVRendererRunnable extends ContextRunnable  implements IServerPushCallback {
+	static class CSVRendererRunnable extends ZkContextRunnable  implements IServerPushCallback {
 
 		private ZkReportViewer viewer;
 
@@ -1938,7 +1965,7 @@ public class ZkReportViewer extends Window implements EventListener<Event>, ITab
 		
 	}
 	
-	protected static class XLSXRendererRunnable extends ContextRunnable implements IServerPushCallback
+	protected static class XLSXRendererRunnable extends ZkContextRunnable implements IServerPushCallback
 	{
 
 		private ZkReportViewer viewer;

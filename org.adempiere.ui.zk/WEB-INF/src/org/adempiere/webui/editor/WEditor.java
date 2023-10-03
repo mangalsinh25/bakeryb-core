@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.adempiere.util.GridRowCtx;
 import org.adempiere.webui.AdempiereWebUI;
 import org.adempiere.webui.ClientInfo;
 import org.adempiere.webui.LayoutUtils;
@@ -565,6 +566,10 @@ public abstract class WEditor implements EventListener<Event>, PropertyChangeLis
     abstract public String getDisplay();
     
     public String getDisplayTextForGridView(Object value) {
+    	return getDisplayTextForGridView(null, value);
+    }
+    
+    public String getDisplayTextForGridView(GridRowCtx gridRowCtx, Object value) {
     	this.setValue(value);
     	String s = getDisplay();
     	if ("<0>".equals(s)) {
@@ -832,7 +837,8 @@ public abstract class WEditor implements EventListener<Event>, PropertyChangeLis
 	 * @return boolean
 	 */
 	protected boolean isShowPreference() {
-		return MRole.getDefault().isShowPreference() && gridField != null && !gridField.isEncrypted() && !gridField.isEncryptedColumn() && !gridField.isVirtualColumn();
+		return MRole.getDefault() != null && MRole.getDefault().isShowPreference() && gridField != null && !gridField.isEncrypted() 
+				&& !gridField.isEncryptedColumn() && !gridField.isVirtualColumn();
 	}
 
 	/**
