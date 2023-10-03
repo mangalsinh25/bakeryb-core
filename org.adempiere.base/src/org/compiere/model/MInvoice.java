@@ -32,6 +32,8 @@ import java.util.Vector;
 import java.util.logging.Level;
 
 import org.adempiere.base.Core;
+import org.adempiere.base.CreditStatus;
+import org.adempiere.base.ICreditManager;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.BPartnerNoAddressException;
 import org.adempiere.exceptions.DBException;
@@ -50,6 +52,7 @@ import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.TimeUtil;
+import org.compiere.util.Util;
 import org.eevolution.model.MPPProductBOM;
 import org.eevolution.model.MPPProductBOMLine;
 
@@ -72,10 +75,130 @@ import org.eevolution.model.MPPProductBOMLine;
 public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 {
 	/**
-	 * 
+	 * generated serial id
 	 */
 	private static final long serialVersionUID = 9166700544471146864L;
 
+	public static final String MATCH_TO_RECEIPT_SQL =
+			"""
+				SELECT hdr.C_Invoice_ID, hdr.DocumentNo, hdr.DateInvoiced, bp.Name, hdr.C_BPartner_ID,
+				lin.Line, lin.C_InvoiceLine_ID, p.Name, lin.M_Product_ID,
+				CASE WHEN dt.DocBaseType='APC' THEN lin.QtyInvoiced * -1 ELSE lin.QtyInvoiced END,SUM(NVL(mi.Qty,0)), org.Name, hdr.AD_Org_ID
+				 FROM C_Invoice hdr 
+				 INNER JOIN AD_Org org ON (hdr.AD_Org_ID=org.AD_Org_ID)
+				 INNER JOIN C_BPartner bp ON (hdr.C_BPartner_ID=bp.C_BPartner_ID)
+				 INNER JOIN C_InvoiceLine lin ON (hdr.C_Invoice_ID=lin.C_Invoice_ID)
+				 INNER JOIN M_Product p ON (lin.M_Product_ID=p.M_Product_ID)
+				 INNER JOIN C_DocType dt ON (hdr.C_DocType_ID=dt.C_DocType_ID AND dt.DocBaseType IN ('API','APC'))
+				 FULL JOIN M_MatchInv mi ON (lin.C_InvoiceLine_ID=mi.C_InvoiceLine_ID)
+				 WHERE hdr.DocStatus IN ('CO','CL')
+			""";
+	
+	private static final String BASE_MATCHING_GROUP_BY_SQL =
+			"""
+				GROUP BY hdr.C_Invoice_ID,hdr.DocumentNo,hdr.DateInvoiced,bp.Name,hdr.C_BPartner_ID,
+				lin.Line,lin.C_InvoiceLine_ID,p.Name,lin.M_Product_ID,dt.DocBaseType,lin.QtyInvoiced, org.Name, hdr.AD_Org_ID, dt.DocBaseType 
+				HAVING %s <> SUM(NVL(mi.Qty,0))
+			""";
+	public static final String NOT_FULLY_MATCHED_TO_RECEIPT_GROUP_BY = BASE_MATCHING_GROUP_BY_SQL
+				.formatted("CASE WHEN dt.DocBaseType='APC' THEN lin.QtyInvoiced * -1 ELSE lin.QtyInvoiced END");
+	
+	public static final String FULL_OR_PARTIALLY_MATCHED_TO_RECEIPT_GROUP_BY = BASE_MATCHING_GROUP_BY_SQL.formatted("0");
+	
+	/**
+	 * @param C_BPartner_ID
+	 * @param M_Product_ID
+	 * @param M_InOutLine_ID
+	 * @param from
+	 * @param to
+	 * @param trxName
+	 * @return list of invoices not fully matched to receipt
+	 */
+	public static List<MatchingRecord> getNotFullyMatchedToReceipt(int C_BPartner_ID, int M_Product_ID, int M_InOutLine_ID, Timestamp from, Timestamp to, String trxName) {
+		StringBuilder builder = new StringBuilder(MATCH_TO_RECEIPT_SQL);
+		if (M_InOutLine_ID > 0) {
+			builder.append(" AND mi.M_InOutLine_ID = ").append(M_InOutLine_ID);
+		}
+		if (M_Product_ID > 0) {
+			builder.append(" AND lin.M_Product_ID=").append(M_Product_ID);
+		}
+		if (C_BPartner_ID > 0) {
+			builder.append(" AND hdr.C_BPartner_ID=").append(C_BPartner_ID);
+		}
+		if (from != null) {
+			builder.append(" AND ").append("hdr.DateInvoiced").append(" >= ").append(DB.TO_DATE(from));
+		}
+		if (to != null) {
+			builder.append(" AND ").append("hdr.DateInvoiced").append(" <= ").append(DB.TO_DATE(to));
+		}
+		String sql = MRole.getDefault().addAccessSQL(
+				builder.toString(), "hdr", MRole.SQL_FULLYQUALIFIED, MRole.SQL_RO)
+				+ NOT_FULLY_MATCHED_TO_RECEIPT_GROUP_BY;
+		
+		List<MatchingRecord> records = new ArrayList<>();
+		try (PreparedStatement stmt = DB.prepareStatement(sql, trxName)) {
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				MatchingRecord matchingRecord = new MatchingRecord(rs.getInt(1), rs.getString(2), rs.getTimestamp(3), rs.getString(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), 
+						rs.getString(8), rs.getInt(9), rs.getBigDecimal(10), rs.getBigDecimal(11), rs.getString(12), rs.getInt(13));
+				records.add(matchingRecord);
+			}
+		} catch (SQLException e) {
+			throw new DBException(e.getMessage(), e);
+		}
+		return records;
+	}
+	
+	/**
+	 * @param C_BPartner_ID
+	 * @param M_Product_ID
+	 * @param M_InOutLine_ID
+	 * @param from
+	 * @param to
+	 * @param trxName
+	 * @return list of invoices full or partially match to receipt 
+	 */
+	public static List<MatchingRecord> getFullOrPartiallyMatchedToReceipt(int C_BPartner_ID, int M_Product_ID, int M_InOutLine_ID, Timestamp from, Timestamp to, String trxName) {
+		StringBuilder builder = new StringBuilder(MATCH_TO_RECEIPT_SQL);
+		if (M_InOutLine_ID > 0) {
+			builder.append(" AND mi.M_InOutLine_ID = ").append(M_InOutLine_ID);
+		}
+		if (M_Product_ID > 0) {
+			builder.append(" AND lin.M_Product_ID=").append(M_Product_ID);
+		}
+		if (C_BPartner_ID > 0) {
+			builder.append(" AND hdr.C_BPartner_ID=").append(C_BPartner_ID);
+		}
+		if (from != null) {
+			builder.append(" AND ").append("hdr.DateInvoiced").append(" >= ").append(DB.TO_DATE(from));
+		}
+		if (to != null) {
+			builder.append(" AND ").append("hdr.DateInvoiced").append(" <= ").append(DB.TO_DATE(to));
+		}
+		String sql = MRole.getDefault().addAccessSQL(
+				builder.toString(), "hdr", MRole.SQL_FULLYQUALIFIED, MRole.SQL_RO)
+				+ FULL_OR_PARTIALLY_MATCHED_TO_RECEIPT_GROUP_BY;
+		
+		List<MatchingRecord> records = new ArrayList<>();
+		try (PreparedStatement stmt = DB.prepareStatement(sql, trxName)) {
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				MatchingRecord matchingRecord = new MatchingRecord(rs.getInt(1), rs.getString(2), rs.getTimestamp(3), rs.getString(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), 
+						rs.getString(8), rs.getInt(9), rs.getBigDecimal(10), rs.getBigDecimal(11), rs.getString(12), rs.getInt(13));
+				records.add(matchingRecord);
+			}
+		} catch (SQLException e) {
+			throw new DBException(e.getMessage(), e);
+		}
+		return records;
+	}
+	
+	/**
+	 * record for matchings
+	 */
+	public static record MatchingRecord(int C_Invoice_ID, String documentNo, Timestamp documentDate, String businessPartnerName, int C_BPartner_ID, int line, int C_InvoiceLine_ID,
+			String productName, int M_Product_ID, BigDecimal qtyInvoiced, BigDecimal matchedQty, String organizationName, int AD_Org_ID) {}
+	
 	/**
 	 * 	Get Payments Of BPartner
 	 *	@param ctx context
@@ -269,6 +392,18 @@ public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 		return null;
 	} //	get
 
+    /**
+    * UUID based Constructor
+    * @param ctx  Context
+    * @param C_Invoice_UU  UUID key
+    * @param trxName Transaction
+    */
+    public MInvoice(Properties ctx, String C_Invoice_UU, String trxName) {
+        super(ctx, C_Invoice_UU, trxName);
+		if (Util.isEmpty(C_Invoice_UU))
+			setInitialDefaults();
+    }
+
 	/**************************************************************************
 	 * 	Invoice Constructor
 	 * 	@param ctx context
@@ -283,34 +418,39 @@ public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 	public MInvoice(Properties ctx, int C_Invoice_ID, String trxName, String... virtualColumns) {
 		super(ctx, C_Invoice_ID, trxName, virtualColumns);
 		if (C_Invoice_ID == 0)
-		{
-			setDocStatus (DOCSTATUS_Drafted);		//	Draft
-			setDocAction (DOCACTION_Complete);
-			//
-			setPaymentRule(PAYMENTRULE_OnCredit);	//	Payment Terms
+			setInitialDefaults();
+	}
 
-			setDateInvoiced (new Timestamp (System.currentTimeMillis ()));
-			setDateAcct (new Timestamp (System.currentTimeMillis ()));
-			//
-			setChargeAmt (Env.ZERO);
-			setTotalLines (Env.ZERO);
-			setGrandTotal (Env.ZERO);
-			//
-			setIsSOTrx (true);
-			setIsTaxIncluded (false);
-			setIsApproved (false);
-			setIsDiscountPrinted (false);
-			setIsPaid (false);
-			setSendEMail (false);
-			setIsPrinted (false);
-			setIsTransferred (false);
-			setIsSelfService(false);
-			setIsPayScheduleValid(false);
-			setIsInDispute(false);
-			setPosted(false);
-			super.setProcessed (false);
-			setProcessing(false);
-		}
+	/**
+	 * Set the initial defaults for a new record
+	 */
+	private void setInitialDefaults() {
+		setDocStatus (DOCSTATUS_Drafted);		//	Draft
+		setDocAction (DOCACTION_Complete);
+		//
+		setPaymentRule(PAYMENTRULE_OnCredit);	//	Payment Terms
+
+		setDateInvoiced (new Timestamp (System.currentTimeMillis ()));
+		setDateAcct (new Timestamp (System.currentTimeMillis ()));
+		//
+		setChargeAmt (Env.ZERO);
+		setTotalLines (Env.ZERO);
+		setGrandTotal (Env.ZERO);
+		//
+		setIsSOTrx (true);
+		setIsTaxIncluded (false);
+		setIsApproved (false);
+		setIsDiscountPrinted (false);
+		setIsPaid (false);
+		setSendEMail (false);
+		setIsPrinted (false);
+		setIsTransferred (false);
+		setIsSelfService(false);
+		setIsPayScheduleValid(false);
+		setIsInDispute(false);
+		setPosted(false);
+		super.setProcessed (false);
+		setProcessing(false);
 	}
 
 	/**
@@ -374,7 +514,8 @@ public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 			setDateInvoiced(invoiceDate);
 		setDateAcct(getDateInvoiced());
 		//
-		setSalesRep_ID(ship.getSalesRep_ID());
+		if (getSalesRep_ID() == 0)
+			setSalesRep_ID(ship.getSalesRep_ID());
 	}	//	MInvoice
 
 	/**
@@ -607,6 +748,7 @@ public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 			setC_BPartner_Location_ID(order.getBill_Location_ID());
 			// Overwrite Contact
 			setAD_User_ID(order.getBill_User_ID());
+			setSalesRep_ID(order.getSalesRep_ID());
 			//
 		}
         // Check if Shipment/Receipt is based on RMA
@@ -1597,23 +1739,15 @@ public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 		}
 
 		//	Credit Status
-		if (isSOTrx())
+		ICreditManager creditManager = Core.getCreditManager(this);
+		if (creditManager != null)
 		{
-			MDocType doc = (MDocType) getC_DocTypeTarget();
-			// IDEMPIERE-365 - just check credit if is going to increase the debt
-			if ( (doc.getDocBaseType().equals(MDocType.DOCBASETYPE_ARCreditMemo) && getGrandTotal().signum() < 0 ) ||
-				(doc.getDocBaseType().equals(MDocType.DOCBASETYPE_ARInvoice) && getGrandTotal().signum() > 0 )
-			   )
-			{	
-				MBPartner bp = new MBPartner (getCtx(), getC_BPartner_ID(), null);
-				if ( MBPartner.SOCREDITSTATUS_CreditStop.equals(bp.getSOCreditStatus()) )
-				{
-					m_processMsg = "@BPartnerCreditStop@ - @TotalOpenBalance@="
-							+ bp.getTotalOpenBalance()
-							+ ", @SO_CreditLimit@=" + bp.getSO_CreditLimit();
-					return DocAction.STATUS_Invalid;
-				}
-			}  
+			CreditStatus status = creditManager.checkCreditStatus(DOCACTION_Prepare);
+			if (status.isError())
+			{
+				m_processMsg = status.getErrorMsg();
+				return DocAction.STATUS_Invalid;
+			}
 		}
 
 		//	Landed Costs
@@ -2004,76 +2138,15 @@ public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 		if (matchPO > 0)
 			info.append(" @M_MatchPO_ID@#").append(matchPO).append(" ");
 
-
-
-		//	Update BP Statistics
-		MBPartner bp = new MBPartner (getCtx(), getC_BPartner_ID(), get_TrxName());
-		DB.getDatabase().forUpdate(bp, 0);
-		//	Update total revenue and balance / credit limit (reversed on AllocationLine.processIt)
-		BigDecimal invAmt = null;
-		int baseCurrencyId = Env.getContextAsInt(getCtx(), Env.C_CURRENCY_ID);
-		if (getC_Currency_ID() != baseCurrencyId && isOverrideCurrencyRate())
+		ICreditManager creditManager = Core.getCreditManager(this);
+		if (creditManager != null)
 		{
-			invAmt = getGrandTotal(true).multiply(getCurrencyRate());
-			int stdPrecision = MCurrency.getStdPrecision(getCtx(), baseCurrencyId);
-			if (invAmt.scale() > stdPrecision)
-				invAmt = invAmt.setScale(stdPrecision, RoundingMode.HALF_UP);
-		}
-		else
-		{
-			invAmt = MConversionRate.convertBase(getCtx(), getGrandTotal(true),	//	CM adjusted
-				getC_Currency_ID(), getDateAcct(), getC_ConversionType_ID(), getAD_Client_ID(), getAD_Org_ID());
-		}
-		if (invAmt == null)
-		{
-			m_processMsg = MConversionRateUtil.getErrorMessage(getCtx(), "ErrorConvertingCurrencyToBaseCurrency",
-					getC_Currency_ID(), MClient.get(getCtx()).getC_Currency_ID(), getC_ConversionType_ID(), getDateAcct(), get_TrxName());
-			return DocAction.STATUS_Invalid;
-		}
-		//	Total Balance
-		BigDecimal newBalance = bp.getTotalOpenBalance();
-		if (newBalance == null)
-			newBalance = Env.ZERO;
-		if (isSOTrx())
-		{
-			newBalance = newBalance.add(invAmt);
-			//
-			if (bp.getFirstSale() == null)
-				bp.setFirstSale(getDateInvoiced());
-			BigDecimal newLifeAmt = bp.getActualLifeTimeValue();
-			if (newLifeAmt == null)
-				newLifeAmt = invAmt;
-			else
-				newLifeAmt = newLifeAmt.add(invAmt);
-			BigDecimal newCreditAmt = bp.getSO_CreditUsed();
-			if (newCreditAmt == null)
-				newCreditAmt = invAmt;
-			else
-				newCreditAmt = newCreditAmt.add(invAmt);
-			//
-			if (log.isLoggable(Level.FINE)) log.fine("GrandTotal=" + getGrandTotal(true) + "(" + invAmt
-				+ ") BP Life=" + bp.getActualLifeTimeValue() + "->" + newLifeAmt
-				+ ", Credit=" + bp.getSO_CreditUsed() + "->" + newCreditAmt
-				+ ", Balance=" + bp.getTotalOpenBalance() + " -> " + newBalance);
-			bp.setActualLifeTimeValue(newLifeAmt);
-			bp.setSO_CreditUsed(newCreditAmt);
-		}	//	SO
-		else
-		{
-			newBalance = newBalance.subtract(invAmt);
-			if (log.isLoggable(Level.FINE)) log.fine("GrandTotal=" + getGrandTotal(true) + "(" + invAmt
-				+ ") Balance=" + bp.getTotalOpenBalance() + " -> " + newBalance);
-		}
-		// the payment just created already updated the open balance
-		if ( ! (PAYMENTRULE_Cash.equals(getPaymentRule()) && !fromPOS ) )
-		{
-			bp.setTotalOpenBalance(newBalance);
-		}
-		bp.setSOCreditStatus();
-		if (!bp.save(get_TrxName()))
-		{
-			m_processMsg = "Could not update Business Partner";
-			return DocAction.STATUS_Invalid;
+			CreditStatus status = creditManager.checkCreditStatus(DOCACTION_Complete);
+			if (status.isError())
+			{
+				m_processMsg = status.getErrorMsg();
+				return DocAction.STATUS_Invalid;
+			}
 		}
 
 		//	User - Last Result/Contact
@@ -2877,6 +2950,8 @@ public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 		MInvoiceLine[] lines = getLines();
 		for (MInvoiceLine line : lines)
 		{
+			if (line.isDescription())
+				continue;
             MTax tax = new MTax(line.getCtx(), line.getC_Tax_ID(), line.get_TrxName());
             MTaxProvider provider = providers.get(tax.getC_TaxProvider_ID());
             if (provider == null)
@@ -3145,7 +3220,7 @@ public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 			if(invoiceLine.getC_UOM_ID()!=inoutLine.getC_UOM_ID()) {
 				invoiceLine.setC_UOM_ID(inoutLine.getC_UOM_ID());						
 				BigDecimal PriceEntered = MUOMConversion.convertProductFrom (Env.getCtx(), M_Product_ID, 
-						inoutLine.getC_UOM_ID(), invoiceLine.getPriceEntered());
+						inoutLine.getC_UOM_ID(), invoiceLine.getPriceEntered(), 12);
 					if (PriceEntered == null)
 						throw new AdempiereException("No Conversion For Price=" + invoiceLine.getPriceEntered());
 				invoiceLine.setPriceEntered(PriceEntered);						
@@ -3188,6 +3263,7 @@ public class MInvoice extends X_C_Invoice implements DocAction, IDocsPostProcess
 		{
 			setPaymentRule(order.getPaymentRule());
 			setC_PaymentTerm_ID(order.getC_PaymentTerm_ID());
+			setSalesRep_ID(order.getSalesRep_ID());
 			saveEx();
 			load(get_TrxName()); // refresh from DB
 			// copy payment schedule from order if invoice doesn't have a current payment schedule

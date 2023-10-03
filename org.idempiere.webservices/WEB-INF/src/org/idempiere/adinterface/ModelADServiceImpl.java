@@ -355,7 +355,7 @@ public class ModelADServiceImpl extends AbstractService implements ModelADServic
 			return -1;
 		if (string.equals(io.toString()))
 			return i;
-		if (parameterName.endsWith("_ID") && ADLookup.isUUID(string)) {
+		if (parameterName.endsWith("_ID") && Util.isUUID(string)) {
 			String tableName = parameterName.substring(0, parameterName.length()-3);
 			StringBuilder sql = new StringBuilder("SELECT ");
 			sql.append(parameterName).append(" FROM ").append(tableName)
@@ -454,7 +454,7 @@ public class ModelADServiceImpl extends AbstractService implements ModelADServic
 		if (xmlInt != null) {
 			// String xml <...> blocks
 		    String content = xmlInt.toString().replaceAll("<[^>]*>", "");
-		    if (! Util.isEmpty(content, true) && ADLookup.isUUID(content))
+		    if (! Util.isEmpty(content, true) && Util.isUUID(content))
 		    	return content;
 		}
 
@@ -1022,7 +1022,7 @@ public class ModelADServiceImpl extends AbstractService implements ModelADServic
 				}
 			}
 	
-			retResp = invokeWSValidator(m_webservicetype, IWSValidator.TIMING_BEFORE_SAVE, holderPo, fields, trx, requestCtx, resp, ret);
+			retResp = invokeWSValidator(m_webservicetype, IWSValidator.TIMING_BEFORE_SAVE, po, fields, trx, requestCtx, resp, ret);
 			if (retResp != null)
 				return retResp;
 	
@@ -1033,7 +1033,7 @@ public class ModelADServiceImpl extends AbstractService implements ModelADServic
 				return rollbackAndSetError(trx, resp, ret, true,
 						"Cannot save record in " + tableName + ": " + CLogger.retrieveErrorString("no log message"));
 	
-			retResp = invokeWSValidator(m_webservicetype, IWSValidator.TIMING_AFTER_SAVE, holderPo, fields, trx, requestCtx, resp, ret);
+			retResp = invokeWSValidator(m_webservicetype, IWSValidator.TIMING_AFTER_SAVE, po, fields, trx, requestCtx, resp, ret);
 			if (retResp != null)
 				return retResp;
 	

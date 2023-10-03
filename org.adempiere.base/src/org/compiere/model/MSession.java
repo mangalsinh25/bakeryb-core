@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import org.compiere.Adempiere;
 import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
+import org.compiere.util.Util;
 import org.compiere.util.WebUtil;
 import org.idempiere.cache.ImmutableIntPOCache;
 import org.idempiere.cache.ImmutablePOSupport;
@@ -45,8 +46,7 @@ public class MSession extends X_AD_Session implements ImmutablePOSupport
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 480745219310430126L;
-
+	private static final long serialVersionUID = -5836154187760734691L;
 
 	/**
 	 * 	Get existing or create local session
@@ -130,9 +130,29 @@ public class MSession extends X_AD_Session implements ImmutablePOSupport
 	}	//	get
 
 	/**	Session Cache				*/
-	private static ImmutableIntPOCache<Integer,MSession>	s_sessions = new ImmutableIntPOCache<Integer,MSession>(Table_Name, 20);
+	private static ImmutableIntPOCache<Integer,MSession>	s_sessions = new ImmutableIntPOCache<Integer,MSession>(Table_Name, Table_Name, 100, 0, false, 0) {
+		private static final long serialVersionUID = 8421415709907257867L;
+		public int reset() {
+			return 0; // do not remove on cache reset
+		};
+		public int reset(int recordId) {
+			return 0; // do not remove the session on update
+		};
+	};
 	
 	
+    /**
+    * UUID based Constructor
+    * @param ctx  Context
+    * @param AD_Session_UU  UUID key
+    * @param trxName Transaction
+    */
+    public MSession(Properties ctx, String AD_Session_UU, String trxName) {
+        super(ctx, AD_Session_UU, trxName);
+		if (Util.isEmpty(AD_Session_UU))
+			setInitialDefaults();
+    }
+
 	/**************************************************************************
 	 * 	Standard Constructor
 	 *	@param ctx context
@@ -143,10 +163,15 @@ public class MSession extends X_AD_Session implements ImmutablePOSupport
 	{
 		super(ctx, AD_Session_ID, trxName);
 		if (AD_Session_ID == 0)
-		{
-			setProcessed (false);
-		}
+			setInitialDefaults();
 	}	//	MSession
+
+	/**
+	 * Set the initial defaults for a new record
+	 */
+	private void setInitialDefaults() {
+		setProcessed (false);
+	}
 
 	/**
 	 * 	Load Costructor
@@ -305,7 +330,7 @@ public class MSession extends X_AD_Session implements ImmutablePOSupport
 		Object OldValue, Object NewValue)
 	{
 		return changeLog(TrxName, AD_ChangeLog_ID, AD_Table_ID, AD_Column_ID,
-				Record_ID, AD_Client_ID, AD_Org_ID, OldValue, NewValue,
+				Record_ID, null, AD_Client_ID, AD_Org_ID, OldValue, NewValue,
 				(String) null);
 	}	// changeLog
 
@@ -328,6 +353,34 @@ public class MSession extends X_AD_Session implements ImmutablePOSupport
 		int AD_Client_ID, int AD_Org_ID,
 		Object OldValue, Object NewValue, String event)
 	{
+		return changeLog(TrxName, AD_ChangeLog_ID, AD_Table_ID, AD_Column_ID,
+				Record_ID, null, AD_Client_ID, AD_Org_ID, OldValue, NewValue,
+				(String) null);
+	}
+
+	/**
+	 * 	Create Change Log only if table is logged
+	 * 	@param TrxName transaction name
+	 *	@param AD_ChangeLog_ID 0 for new change log
+	 *	@param AD_Table_ID table
+	 *	@param AD_Column_ID column
+	 *	@param Record_ID record
+	 *	@param Record_UU record UUID
+	 *	@param AD_Client_ID client
+	 *	@param AD_Org_ID org
+	 *	@param OldValue old
+	 *	@param NewValue new
+	 *	@return saved change log or null
+	 */
+	public MChangeLog changeLog (
+		String TrxName, int AD_ChangeLog_ID,
+		int AD_Table_ID, int AD_Column_ID, int Record_ID, String Record_UU,
+		int AD_Client_ID, int AD_Org_ID,
+		Object OldValue, Object NewValue, String event)
+	{
+		// never log change log itself (recursive error)
+		if (AD_Table_ID == MChangeLog.Table_ID)
+			return null;
 		//	Null handling
 		if (OldValue == null && NewValue == null)
 			return null;
@@ -351,9 +404,10 @@ public class MSession extends X_AD_Session implements ImmutablePOSupport
 				+ ": " + OldValue + " -> " + NewValue);
 		try
 		{
+			PO.setCrossTenantSafe();
 			MChangeLog cl = new MChangeLog(getCtx(), 
 				AD_ChangeLog_ID, TrxName, getAD_Session_ID(),
-				AD_Table_ID, AD_Column_ID, Record_ID, AD_Client_ID, AD_Org_ID,
+				AD_Table_ID, AD_Column_ID, Record_ID, Record_UU, AD_Client_ID, AD_Org_ID,
 				OldValue, NewValue, event);
 			if (cl.save())
 				return cl;
@@ -364,6 +418,10 @@ public class MSession extends X_AD_Session implements ImmutablePOSupport
 				+ ", AD_Session_ID=" + getAD_Session_ID()
 				+ ", AD_Table_ID=" + AD_Table_ID + ", AD_Column_ID=" + AD_Column_ID, e);
 			return null;
+		}
+		finally
+		{
+			PO.clearCrossTenantSafe();
 		}
 		log.log(Level.SEVERE, "AD_ChangeLog_ID=" + AD_ChangeLog_ID
 			+ ", AD_Session_ID=" + getAD_Session_ID()

@@ -29,6 +29,7 @@ import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
+import org.compiere.util.Util;
 
 /**
  * 	Request Model
@@ -41,8 +42,8 @@ public class MRequest extends X_R_Request
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -6049674214655497548L;
-	
+	private static final long serialVersionUID = -3807801381988066060L;
+
 	/**
 	 * 	Get Request ID from mail text
 	 *	@param mailText mail text
@@ -82,6 +83,18 @@ public class MRequest extends X_R_Request
 
 	
 	
+    /**
+    * UUID based Constructor
+    * @param ctx  Context
+    * @param R_Request_UU  UUID key
+    * @param trxName Transaction
+    */
+    public MRequest(Properties ctx, String R_Request_UU, String trxName) {
+        super(ctx, R_Request_UU, trxName);
+		if (Util.isEmpty(R_Request_UU))
+			setInitialDefaults();
+    }
+
 	/**************************************************************************
 	 * 	Constructor
 	 * 	@param ctx context
@@ -96,17 +109,22 @@ public class MRequest extends X_R_Request
 	public MRequest(Properties ctx, int R_Request_ID, String trxName, String... virtualColumns) {
 		super(ctx, R_Request_ID, trxName, virtualColumns);
 		if (R_Request_ID == 0)
-		{
-			setDueType (DUETYPE_Due);
-			setConfidentialType (CONFIDENTIALTYPE_PublicInformation);	// A
-			setConfidentialTypeEntry (CONFIDENTIALTYPEENTRY_PublicInformation);	// A
-			setProcessed (false);
-			setRequestAmt (Env.ZERO);
-			setPriorityUser (PRIORITY_Low);
-			setIsEscalated (false);
-			setIsSelfService (false);
-			setIsInvoiced (false);
-		}
+			setInitialDefaults();
+	}
+
+	/**
+	 * Set the initial defaults for a new record
+	 */
+	private void setInitialDefaults() {
+		setDueType (DUETYPE_Due);
+		setConfidentialType (CONFIDENTIALTYPE_PublicInformation);	// A
+		setConfidentialTypeEntry (CONFIDENTIALTYPEENTRY_PublicInformation);	// A
+		setProcessed (false);
+		setRequestAmt (Env.ZERO);
+		setPriorityUser (PRIORITY_Low);
+		setIsEscalated (false);
+		setIsSelfService (false);
+		setIsInvoiced (false);
 	}
 
 	/**
@@ -771,7 +789,14 @@ public class MRequest extends X_R_Request
 
 		//	Importance / Priority
 		setPriority();
-				
+
+		if (getRecord_ID() > 0 && getAD_Table_ID() > 0 && Util.isEmpty(getRecord_UU())) {
+			MTable table = MTable.get(getAD_Table_ID());
+			PO po = table.getPO(getRecord_ID(), get_TrxName());
+			if (po != null)
+				setRecord_UU(po.get_UUID());
+		}
+
 		return true;
 	}	//	beforeSave
 
@@ -924,13 +949,31 @@ public class MRequest extends X_R_Request
 	 * @param whereClause
 	 * @param trxName
 	 * @return int[], [0] = inactive request count and [1] = active request count
+	 * @deprecated - use {@link #getRequestCount(int, int, String, StringBuilder, String)} instead
 	 */
 	public static int[] getRequestCount(int AD_Table_ID, int Record_ID, StringBuilder whereClause, String trxName) {
+		return getRequestCount(AD_Table_ID, Record_ID, null, whereClause, trxName);
+	}
+
+	/**
+	 * Get number of active and inactive request
+	 * @param AD_Table_ID
+	 * @param Record_ID Record ID - used when Record_UU is null, and also to compare with User, BPartner, Order, Invoice, Payment, Project, Campaign and Asset
+	 * @param Record_UU Record UUID
+	 * @param whereClause
+	 * @param trxName
+	 * @return int[], [0] = inactive request count and [1] = active request count
+	 */
+	public static int[] getRequestCount(int AD_Table_ID, int Record_ID, String Record_UU, StringBuilder whereClause, String trxName) {
 		int[] counts = new int[] {0, 0};
-		
-		whereClause.append("(AD_Table_ID=").append(AD_Table_ID)
-			.append(" AND Record_ID=").append(Record_ID)
-			.append(")");
+
+		whereClause.append("(AD_Table_ID=").append(AD_Table_ID);
+		if (Util.isEmpty(Record_UU)) {
+			whereClause.append(" AND Record_ID=").append(Record_ID);
+		} else {
+			whereClause.append(" AND Record_UU=").append(DB.TO_STRING(Record_UU));
+		}
+		whereClause.append(")");
 		//
 		if (AD_Table_ID == MUser.Table_ID)
 			whereClause.append(" OR AD_User_ID=").append(Record_ID)
@@ -988,11 +1031,26 @@ public class MRequest extends X_R_Request
 	 * @param AD_Table_ID
 	 * @param Record_ID
 	 * @param C_BPartner_ID
+	 * @deprecated - use {@link #newRequest(GridTab, int, int, String, int)} instead
 	 */
 	public static void newRequest(GridTab tab, int AD_Table_ID, int Record_ID, int C_BPartner_ID) {
+		newRequest(tab, AD_Table_ID, Record_ID, null, C_BPartner_ID);
+	}
+
+	/**
+	 * Create new request
+	 * @param tab Grid Tab for request
+	 * @param AD_Table_ID
+	 * @param Record_ID Record ID - to fill Record_ID and also to fill with BPartner, User, Project, Asset,
+	 *   Order (also from OrderLine), Invoice, Product, Payment, InOut, RMA, RequestRelated (when from Request)
+	 * @param Record_UU Record UUID
+	 * @param C_BPartner_ID
+	 */
+	public static void newRequest(GridTab tab, int AD_Table_ID, int Record_ID, String Record_UU, int C_BPartner_ID) {
 		tab.dataNew (false);
 		tab.setValue("AD_Table_ID", Integer.valueOf(AD_Table_ID));
 		tab.setValue("Record_ID", Integer.valueOf(Record_ID));
+		tab.setValue("Record_UU", Record_UU);
 		//
 		if (C_BPartner_ID != 0)
 			tab.setValue("C_BPartner_ID", Integer.valueOf(C_BPartner_ID));
@@ -1035,4 +1093,5 @@ public class MRequest extends X_R_Request
 			}
 		}
 	}
+
 }	//	MRequest

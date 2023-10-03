@@ -28,6 +28,7 @@ import org.adempiere.exceptions.FillMandatoryException;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.idempiere.cache.ImmutableIntPOCache;
 import org.idempiere.cache.ImmutablePOSupport;
 
@@ -70,6 +71,18 @@ public class MTab extends X_AD_Tab implements ImmutablePOSupport
 		return null;
 	}
 	
+    /**
+    * UUID based Constructor
+    * @param ctx  Context
+    * @param AD_Tab_UU  UUID key
+    * @param trxName Transaction
+    */
+    public MTab(Properties ctx, String AD_Tab_UU, String trxName) {
+        super(ctx, AD_Tab_UU, trxName);
+		if (Util.isEmpty(AD_Tab_UU))
+			setInitialDefaults();
+    }
+
 	/**
 	 * 	Standard Constructor
 	 *	@param ctx context
@@ -80,19 +93,24 @@ public class MTab extends X_AD_Tab implements ImmutablePOSupport
 	{
 		super (ctx, AD_Tab_ID, trxName);
 		if (AD_Tab_ID == 0)
-		{
-			setEntityType (ENTITYTYPE_UserMaintained);	// U
-			setHasTree (false);
-			setIsReadOnly (false);
-			setIsSingleRow (false);
-			setIsSortTab (false);	// N
-			setIsTranslationTab (false);
-			setSeqNo (0);
-			setTabLevel (0);
-			setIsInsertRecord(true);
-			setIsAdvancedTab(false);
-		}
+			setInitialDefaults();
 	}	//	M_Tab
+
+	/**
+	 * Set the initial defaults for a new record
+	 */
+	private void setInitialDefaults() {
+		setEntityType (ENTITYTYPE_UserMaintained);	// U
+		setHasTree (false);
+		setIsReadOnly (false);
+		setIsSingleRow (false);
+		setIsSortTab (false);	// N
+		setIsTranslationTab (false);
+		setSeqNo (0);
+		setTabLevel (0);
+		setIsInsertRecord(true);
+		setIsAdvancedTab(false);
+	}
 
 	/**
 	 * 	Load Constructor
@@ -214,6 +232,11 @@ public class MTab extends X_AD_Tab implements ImmutablePOSupport
 	 */
 	protected boolean beforeSave (boolean newRecord)
 	{
+		if (! newRecord && is_ValueChanged(COLUMNNAME_AD_Table_ID) && getFields(false, get_TrxName()).length > 0) {
+			log.saveError("Error", "Cannot change table if there are related fields");
+			return false;
+		}
+
 		if (isReadOnly() && isInsertRecord())
 			setIsInsertRecord(false);
 		if (is_new() || is_ValueChanged(COLUMNNAME_AD_TabType))

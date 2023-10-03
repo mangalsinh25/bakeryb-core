@@ -159,6 +159,18 @@ public class MProcess extends X_AD_Process implements ImmutablePOSupport
 	private static ImmutablePOCache<String,MProcess>	s_cacheUU	= new ImmutablePOCache<String,MProcess>(Table_Name, Table_Name+"|AD_Process_UU", 20);
 	
 	
+    /**
+    * UUID based Constructor
+    * @param ctx  Context
+    * @param AD_Process_UU  UUID key
+    * @param trxName Transaction
+    */
+    public MProcess(Properties ctx, String AD_Process_UU, String trxName) {
+        super(ctx, AD_Process_UU, trxName);
+		if (Util.isEmpty(AD_Process_UU))
+			setInitialDefaults();
+    }
+
 	/**************************************************************************
 	 * 	Standard Constructor
 	 *	@param ctx context
@@ -169,13 +181,18 @@ public class MProcess extends X_AD_Process implements ImmutablePOSupport
 	{
 		super (ctx, AD_Process_ID, trxName);
 		if (AD_Process_ID == 0)
-		{
-			setIsReport (false);
-			setAccessLevel (ACCESSLEVEL_All);
-			setEntityType (ENTITYTYPE_UserMaintained);
-			setIsBetaFunctionality(false);
-		}
+			setInitialDefaults();
 	}	//	MProcess
+
+	/**
+	 * Set the initial defaults for a new record
+	 */
+	private void setInitialDefaults() {
+		setIsReport (false);
+		setAccessLevel (ACCESSLEVEL_All);
+		setEntityType (ENTITYTYPE_UserMaintained);
+		setIsBetaFunctionality(false);
+	}
 
 	/**
 	 * 	Load Constructor
@@ -284,6 +301,7 @@ public class MProcess extends X_AD_Process implements ImmutablePOSupport
 	 *	@param trx transaction
 	 *	@return Process Instance
 	 */
+	@Deprecated
 	public MPInstance processIt (int Record_ID, Trx trx)
 	{
 		return processIt(Record_ID, trx, true);
@@ -295,6 +313,7 @@ public class MProcess extends X_AD_Process implements ImmutablePOSupport
 	 *	@param trx transaction
 	 *	@return Process Instance
 	 */
+	@Deprecated
 	public MPInstance processIt (int Record_ID, Trx trx, boolean managedTrx)
 	{
 		MPInstance pInstance = new MPInstance (getCtx(), this.getAD_Process_ID(), Record_ID);
@@ -340,7 +359,7 @@ public class MProcess extends X_AD_Process implements ImmutablePOSupport
 	{
 		if (pi.getAD_PInstance_ID() == 0)
 		{
-			MPInstance pInstance = new MPInstance (getCtx(), this.getAD_Process_ID(), pi.getRecord_ID());
+			MPInstance pInstance = new MPInstance (getCtx(), this.getAD_Process_ID(), pi.getTable_ID(), pi.getRecord_ID(), pi.getRecord_UU());
 			//	Lock
 			pInstance.setIsProcessing(true);
 			pInstance.saveEx();

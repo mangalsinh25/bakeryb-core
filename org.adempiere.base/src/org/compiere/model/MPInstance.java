@@ -30,11 +30,13 @@ import java.util.logging.Level;
 
 import org.adempiere.base.Core;
 import org.adempiere.base.event.EventManager;
+import org.compiere.print.MPrintFormat;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Language;
 import org.compiere.util.Msg;
+import org.compiere.util.Util;
 import org.idempiere.distributed.IMessageService;
 import org.idempiere.distributed.ITopic;
 import org.osgi.service.event.Event;
@@ -60,6 +62,18 @@ public class MPInstance extends X_AD_PInstance
 
 	private static CLogger		s_log = CLogger.getCLogger (MPInstance.class);
 
+    /**
+    * UUID based Constructor
+    * @param ctx  Context
+    * @param AD_PInstance_UU  UUID key
+    * @param trxName Transaction
+    */
+    public MPInstance(Properties ctx, String AD_PInstance_UU, String trxName) {
+        super(ctx, AD_PInstance_UU, trxName);
+		if (Util.isEmpty(AD_PInstance_UU))
+			setInitialDefaults();
+    }
+
 	/**
 	 * 	Standard Constructor
 	 *	@param ctx context
@@ -71,10 +85,15 @@ public class MPInstance extends X_AD_PInstance
 		super (ctx, AD_PInstance_ID, null);
 		//	New Process
 		if (AD_PInstance_ID == 0)
-		{
-			setIsProcessing (false);
-		}
+			setInitialDefaults();
 	}	//	MPInstance
+
+	/**
+	 * Set the initial defaults for a new record
+	 */
+	private void setInitialDefaults() {
+		setIsProcessing (false);
+	}
 
 	/**
 	 * 	Load Constructor
@@ -91,12 +110,27 @@ public class MPInstance extends X_AD_PInstance
 	 * 	Create Process Instance from Process and create parameters
 	 *	@param process process
 	 *	@param Record_ID Record
+	 *  @deprecated Please use {@link #MPInstance(MProcess, int, int, String)}
 	 */
 	public MPInstance (MProcess process, int Record_ID)
 	{
+		this(process, -1, Record_ID, null);
+	}
+
+	/**
+	 * 	Create Process Instance from Process and create parameters
+	 *	@param process process
+	 *  @param Table_ID
+	 *	@param Record_ID Record
+	 *  @param Record_UU
+	 */
+	public MPInstance (MProcess process, int Table_ID, int Record_ID, String Record_UU)
+	{
 		this (process.getCtx(), 0, null);
 		setAD_Process_ID (process.getAD_Process_ID());
+		setAD_Table_ID(Table_ID);
 		setRecord_ID (Record_ID);
+		setRecord_UU(Record_UU);
 		setAD_User_ID(Env.getAD_User_ID(process.getCtx()));
 		if (!save())		//	need to save for parameters
 			throw new IllegalArgumentException ("Cannot Save");
@@ -116,12 +150,26 @@ public class MPInstance extends X_AD_PInstance
 	 *	@param ctx context
 	 *	@param AD_Process_ID Process ID
 	 *	@param Record_ID record
+	 *  @deprecated Please use {@link #MPInstance(Properties, int, int, int, String)}
 	 */
 	public MPInstance (Properties ctx, int AD_Process_ID, int Record_ID)
 	{
+		this(ctx, AD_Process_ID, -1, Record_ID, null);
+	}
+
+	/**
+	 * 	New Constructor
+	 *	@param ctx context
+	 *	@param AD_Process_ID Process ID
+	 *	@param Record_ID record
+	 */
+	public MPInstance (Properties ctx, int AD_Process_ID, int Table_ID, int Record_ID, String Record_UU)
+	{
 		this(ctx, 0, null);
 		setAD_Process_ID (AD_Process_ID);
+		setAD_Table_ID(Table_ID);
 		setRecord_ID (Record_ID);
+		setRecord_UU(Record_UU);
 		setAD_User_ID(Env.getAD_User_ID(ctx));
 		setIsProcessing (false);
 	}	//	MPInstance
@@ -451,7 +499,7 @@ public class MPInstance extends X_AD_PInstance
 	public static void postOnChangedEvent(int AD_User_ID) {
 		Map<String, Integer> properties = new HashMap<String, Integer>();
 		properties.put("AD_User_ID", AD_User_ID);
-		Event event = new Event(ON_RUNNING_JOB_CHANGED_TOPIC, properties);
+		Event event = EventManager.newEvent(ON_RUNNING_JOB_CHANGED_TOPIC, properties, true);
 		EventManager.getInstance().postEvent(event);
 	}
 	
@@ -646,4 +694,19 @@ public class MPInstance extends X_AD_PInstance
 		
 		return true;
 	}	//	beforeSave
+	
+	/**
+	 * Set AD_PrintFormat_ID if empty, AD_Language_ID if empty and save the record.
+	 * @param pf
+	 */
+	public void updatePrintFormatAndLanguageIfEmpty(MPrintFormat format) {
+		if(getAD_PrintFormat_ID() <= 0 && format.getAD_PrintFormat_ID() > 0) {
+			setAD_PrintFormat_ID(format.getAD_PrintFormat_ID());
+			saveEx();
+		}
+		if(getAD_Language_ID() <= 0 && format.getLanguage() != null) {
+			setAD_Language_ID(MLanguage.get(Env.getCtx(), format.getLanguage()).getAD_Language_ID());
+			saveEx();
+		}
+	}
 }	//	MPInstance

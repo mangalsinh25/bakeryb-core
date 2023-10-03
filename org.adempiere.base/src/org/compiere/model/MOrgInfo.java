@@ -114,6 +114,16 @@ public class MOrgInfo extends X_AD_OrgInfo implements ImmutablePOSupport
 	private static ImmutableIntPOCache<Integer,MOrgInfo>	s_cache	= new ImmutableIntPOCache<Integer, MOrgInfo>(Table_Name, 50);
 
 	
+    /**
+    * UUID based Constructor
+    * @param ctx  Context
+    * @param AD_OrgInfo_UU  UUID key
+    * @param trxName Transaction
+    */
+    public MOrgInfo(Properties ctx, String AD_OrgInfo_UU, String trxName) {
+        super(ctx, AD_OrgInfo_UU, trxName);
+    }
+
 	/**************************************************************************
 	 * 	Load Constructor
 	 *	@param ctx context
@@ -175,6 +185,16 @@ public class MOrgInfo extends X_AD_OrgInfo implements ImmutablePOSupport
 
 		makeImmutable();
 		return this;
+	}
+	
+	@Override
+	protected boolean beforeSave(boolean newRecord) {
+		if(!newRecord && getParent_Org_ID()==get_ID()){
+			log.saveError("Error", "Parent_Org_ID=AD_Org_ID");
+			return false;
+		}
+		
+		return true;
 	}
 
 }
