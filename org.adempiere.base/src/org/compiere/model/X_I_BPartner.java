@@ -24,7 +24,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for I_BPartner
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="I_BPartner")
 public class X_I_BPartner extends PO implements I_I_BPartner, I_Persistent 
 {
@@ -32,7 +32,11 @@ public class X_I_BPartner extends PO implements I_I_BPartner, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_I_BPartner (Properties ctx, int I_BPartner_ID, String trxName)

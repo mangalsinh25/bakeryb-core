@@ -25,7 +25,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for HR_Employee
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="HR_Employee")
 public class X_HR_Employee extends PO implements I_HR_Employee, I_Persistent 
 {
@@ -33,7 +33,11 @@ public class X_HR_Employee extends PO implements I_HR_Employee, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_HR_Employee (Properties ctx, int HR_Employee_ID, String trxName)

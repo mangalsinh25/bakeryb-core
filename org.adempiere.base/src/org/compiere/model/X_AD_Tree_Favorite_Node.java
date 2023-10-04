@@ -22,7 +22,7 @@ import java.util.Properties;
 
 /** Generated Model for AD_Tree_Favorite_Node
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_Tree_Favorite_Node")
 public class X_AD_Tree_Favorite_Node extends PO implements I_AD_Tree_Favorite_Node, I_Persistent 
 {
@@ -30,7 +30,11 @@ public class X_AD_Tree_Favorite_Node extends PO implements I_AD_Tree_Favorite_No
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_Tree_Favorite_Node (Properties ctx, int AD_Tree_Favorite_Node_ID, String trxName)

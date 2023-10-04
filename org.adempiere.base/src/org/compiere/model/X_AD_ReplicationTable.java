@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_ReplicationTable
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_ReplicationTable")
 public class X_AD_ReplicationTable extends PO implements I_AD_ReplicationTable, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_AD_ReplicationTable extends PO implements I_AD_ReplicationTable, 
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_ReplicationTable (Properties ctx, int AD_ReplicationTable_ID, String trxName)

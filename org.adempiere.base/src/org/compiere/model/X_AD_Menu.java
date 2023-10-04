@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_Menu
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_Menu")
 public class X_AD_Menu extends PO implements I_AD_Menu, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_AD_Menu extends PO implements I_AD_Menu, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_Menu (Properties ctx, int AD_Menu_ID, String trxName)

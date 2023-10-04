@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_WF_Block
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_WF_Block")
 public class X_AD_WF_Block extends PO implements I_AD_WF_Block, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_AD_WF_Block extends PO implements I_AD_WF_Block, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_WF_Block (Properties ctx, int AD_WF_Block_ID, String trxName)

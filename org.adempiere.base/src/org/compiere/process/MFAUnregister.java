@@ -31,6 +31,10 @@ import java.sql.Timestamp;
 import java.util.logging.Level;
 
 import org.compiere.model.MMFARegistration;
+<<<<<<< HEAD
+=======
+import org.compiere.model.MProcessPara;
+>>>>>>> release-10
 import org.compiere.model.PO;
 
 /**
@@ -50,8 +54,7 @@ public class MFAUnregister extends SvrProcess {
 			switch (name) {
 			case "MFA_Registration_ID": p_MFA_Registration_ID = para.getParameterAsInt(); break;
 			default:
-				if (log.isLoggable(Level.INFO))
-					log.log(Level.INFO, "Custom Parameter: " + name + "=" + para.getInfo());
+				MProcessPara.validateUnknownParameter(getProcessInfo().getAD_Process_ID(), para);
 				break;
 			}
 		}

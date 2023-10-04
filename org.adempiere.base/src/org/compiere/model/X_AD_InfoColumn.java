@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_InfoColumn
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_InfoColumn")
 public class X_AD_InfoColumn extends PO implements I_AD_InfoColumn, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_AD_InfoColumn extends PO implements I_AD_InfoColumn, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220920L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_InfoColumn (Properties ctx, int AD_InfoColumn_ID, String trxName)
@@ -57,6 +61,7 @@ public class X_AD_InfoColumn extends PO implements I_AD_InfoColumn, I_Persistent
 // N
 			setIsQueryAfterChange (false);
 // N
+<<<<<<< HEAD
 			setIsQueryCriteria (false);
 			setIsReadOnly (true);
 // Y
@@ -91,7 +96,47 @@ public class X_AD_InfoColumn extends PO implements I_AD_InfoColumn, I_Persistent
 // N
 			setIsQueryAfterChange (false);
 // N
+=======
+>>>>>>> release-10
 			setIsQueryCriteria (false);
+			setIsRange (false);
+// N
+			setIsReadOnly (true);
+// Y
+			setName (null);
+			setSelectClause (null);
+			setSeqNo (0);
+// @SQL=SELECT NVL(MAX(SeqNo),0)+10 AS DefaultValue FROM AD_InfoColumn WHERE AD_InfoWindow_ID=@AD_InfoWindow_ID@
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_AD_InfoColumn (Properties ctx, int AD_InfoColumn_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, AD_InfoColumn_ID, trxName, virtualColumns);
+      /** if (AD_InfoColumn_ID == 0)
+        {
+			setAD_InfoColumn_ID (0);
+			setAD_InfoWindow_ID (0);
+			setAD_Reference_ID (0);
+			setColumnName (null);
+			setEntityType (null);
+// @SQL=SELECT CASE WHEN '@P|AdempiereSys:N@'='Y' THEN 'D' ELSE get_sysconfig('DEFAULT_ENTITYTYPE','U',0,0) END FROM Dual
+			setIsAutocomplete (false);
+// N
+			setIsCentrallyMaintained (true);
+// Y
+			setIsDisplayed (true);
+// Y
+			setIsIdentifier (false);
+// N
+			setIsMandatory (false);
+// N
+			setIsQueryAfterChange (false);
+// N
+			setIsQueryCriteria (false);
+			setIsRange (false);
+// N
 			setIsReadOnly (true);
 // Y
 			setName (null);
@@ -366,6 +411,22 @@ public class X_AD_InfoColumn extends PO implements I_AD_InfoColumn, I_Persistent
 		return (String)get_Value(COLUMNNAME_DefaultValue);
 	}
 
+	/** Set Default Logic 2.
+		@param DefaultValue2 Default value hierarchy, separated by ;
+	*/
+	public void setDefaultValue2 (String DefaultValue2)
+	{
+		set_Value (COLUMNNAME_DefaultValue2, DefaultValue2);
+	}
+
+	/** Get Default Logic 2.
+		@return Default value hierarchy, separated by ;
+	  */
+	public String getDefaultValue2()
+	{
+		return (String)get_Value(COLUMNNAME_DefaultValue2);
+	}
+
 	/** Set Description.
 		@param Description Optional short description of the record
 	*/
@@ -434,7 +495,7 @@ public class X_AD_InfoColumn extends PO implements I_AD_InfoColumn, I_Persistent
 	}
 
 	/** Set Input field validation.
-		@param InputFieldValidation Input field validaton query
+		@param InputFieldValidation Input field validation query
 	*/
 	public void setInputFieldValidation (String InputFieldValidation)
 	{
@@ -442,23 +503,23 @@ public class X_AD_InfoColumn extends PO implements I_AD_InfoColumn, I_Persistent
 	}
 
 	/** Get Input field validation.
-		@return Input field validaton query
+		@return Input field validation query
 	  */
 	public String getInputFieldValidation()
 	{
 		return (String)get_Value(COLUMNNAME_InputFieldValidation);
 	}
 
-	/** Set Autocomplete.
-		@param IsAutocomplete Automatic completion for textfields
+	/** Set Auto complete.
+		@param IsAutocomplete Automatic completion for text fields
 	*/
 	public void setIsAutocomplete (boolean IsAutocomplete)
 	{
 		set_Value (COLUMNNAME_IsAutocomplete, Boolean.valueOf(IsAutocomplete));
 	}
 
-	/** Get Autocomplete.
-		@return Automatic completion for textfields
+	/** Get Auto complete.
+		@return Automatic completion for text fields
 	  */
 	public boolean isAutocomplete()
 	{
@@ -633,6 +694,29 @@ public class X_AD_InfoColumn extends PO implements I_AD_InfoColumn, I_Persistent
 		return false;
 	}
 
+	/** Set Range.
+		@param IsRange The parameter is a range of values
+	*/
+	public void setIsRange (boolean IsRange)
+	{
+		set_Value (COLUMNNAME_IsRange, Boolean.valueOf(IsRange));
+	}
+
+	/** Get Range.
+		@return The parameter is a range of values
+	  */
+	public boolean isRange()
+	{
+		Object oo = get_Value(COLUMNNAME_IsRange);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set Read Only.
 		@param IsReadOnly Field is read only
 	*/
@@ -693,6 +777,21 @@ public class X_AD_InfoColumn extends PO implements I_AD_InfoColumn, I_Persistent
 	public String getPlaceholder()
 	{
 		return (String)get_Value(COLUMNNAME_Placeholder);
+	}
+
+	/** Set Placeholder2.
+		@param Placeholder2 Placeholder2
+	*/
+	public void setPlaceholder2 (String Placeholder2)
+	{
+		set_Value (COLUMNNAME_Placeholder2, Placeholder2);
+	}
+
+	/** Get Placeholder2.
+		@return Placeholder2	  */
+	public String getPlaceholder2()
+	{
+		return (String)get_Value(COLUMNNAME_Placeholder2);
 	}
 
 	/** Set Query Function.

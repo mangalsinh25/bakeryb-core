@@ -35,22 +35,14 @@ import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.List;
 
-import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MBPartner;
-import org.compiere.model.MClient;
-import org.compiere.model.MCost;
 import org.compiere.model.MCostElement;
-import org.compiere.model.MFactAcct;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
-import org.compiere.model.MInventory;
-import org.compiere.model.MInventoryLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
-import org.compiere.model.MPInstance;
-import org.compiere.model.MPInstancePara;
 import org.compiere.model.MPriceList;
 import org.compiere.model.MPriceListVersion;
 import org.compiere.model.MProcess;
@@ -61,7 +53,6 @@ import org.compiere.model.MProductPrice;
 import org.compiere.model.MProduction;
 import org.compiere.model.MProductionLine;
 import org.compiere.model.MStorageOnHand;
-import org.compiere.model.ProductCost;
 import org.compiere.model.Query;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocumentEngine;
@@ -74,6 +65,7 @@ import org.compiere.wf.MWorkflow;
 import org.eevolution.model.MPPProductBOM;
 import org.eevolution.model.MPPProductBOMLine;
 import org.idempiere.test.AbstractTestCase;
+import org.idempiere.test.DictionaryIDs;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -82,6 +74,7 @@ import org.junit.jupiter.api.Test;
  *
  */
 public class ProductionTest extends AbstractTestCase {
+<<<<<<< HEAD
 
 	private static final int BP_PATIO = 121;
 	private static final int DOCTYPE_PO = 126;
@@ -182,13 +175,15 @@ public class ProductionTest extends AbstractTestCase {
 		assertEquals(componentCost, endProductCost, "Cost not roll up correctly");
 	}
 
+=======
+>>>>>>> release-10
 	// creates an order and material receipt for qty 25 at special price of 2.60 each
 	private void createPOAndMRForProduct(int mulchId) {
 		MOrder order = new MOrder(Env.getCtx(), 0, getTrxName());
-		order.setBPartner(MBPartner.get(Env.getCtx(), BP_PATIO));
-		order.setC_DocTypeTarget_ID(DOCTYPE_PO);
+		order.setBPartner(MBPartner.get(Env.getCtx(), DictionaryIDs.C_BPartner.PATIO.id));
+		order.setC_DocTypeTarget_ID(DictionaryIDs.C_DocType.PURCHASE_ORDER.id);
 		order.setIsSOTrx(false);
-		order.setSalesRep_ID(USER_GARDENADMIN);
+		order.setSalesRep_ID(DictionaryIDs.AD_User.GARDEN_ADMIN.id);
 		order.setDocStatus(DocAction.STATUS_Drafted);
 		order.setDocAction(DocAction.ACTION_Complete);
 		Timestamp today = TimeUtil.getDay(System.currentTimeMillis());
@@ -205,11 +200,11 @@ public class ProductionTest extends AbstractTestCase {
 		line1.saveEx();
 		
 		ProcessInfo info = MWorkflow.runDocumentActionWorkflow(order, DocAction.ACTION_Complete);
-		assertFalse(info.isError());
+		assertFalse(info.isError(), info.getSummary());
 		order.load(getTrxName());
 		assertEquals(DocAction.STATUS_Completed, order.getDocStatus());		
 		
-		MInOut receipt1 = new MInOut(order, DOCTYPE_RECEIPT, order.getDateOrdered());
+		MInOut receipt1 = new MInOut(order, DictionaryIDs.C_DocType.MM_RECEIPT.id, order.getDateOrdered());
 		receipt1.setDocStatus(DocAction.STATUS_Drafted);
 		receipt1.setDocAction(DocAction.ACTION_Complete);
 		receipt1.saveEx();
@@ -220,7 +215,7 @@ public class ProductionTest extends AbstractTestCase {
 		receiptLine1.saveEx();
 
 		info = MWorkflow.runDocumentActionWorkflow(receipt1, DocAction.ACTION_Complete);
-		assertFalse(info.isError());
+		assertFalse(info.isError(), info.getSummary());
 		receipt1.load(getTrxName());
 		assertEquals(DocAction.STATUS_Completed, receipt1.getDocStatus());
 		if (!receipt1.isPosted()) {
@@ -228,6 +223,7 @@ public class ProductionTest extends AbstractTestCase {
 			assertNull(error, error);
 		}
 	}
+<<<<<<< HEAD
 	
 	@Test
 	public void testStandardCostingProduction() {
@@ -465,11 +461,12 @@ public class ProductionTest extends AbstractTestCase {
 		}
 	}
 	
+=======
+			
+>>>>>>> release-10
 	@Test
 	public void testAutoProduce() {
-		int mulchId = 137;
-		int joeBlock = 118;
-		MProduct mulch = MProduct.get(mulchId);
+		MProduct mulch = MProduct.get(DictionaryIDs.M_Product.MULCH.id);
 		
 		MProduct mulchX = new MProduct(Env.getCtx(), 0, null);
 		mulchX.setName("MulchX2");
@@ -484,7 +481,11 @@ public class ProductionTest extends AbstractTestCase {
 		mulchX.saveEx();
 		
 		try {
+<<<<<<< HEAD
 			createPOAndMRForProduct(mulchId);  // create some stock to avoid negative qty average cost exception
+=======
+			createPOAndMRForProduct(DictionaryIDs.M_Product.MULCH.id);  // create some stock to avoid negative qty average cost exception
+>>>>>>> release-10
 			
 			MPPProductBOM bom = new MPPProductBOM(Env.getCtx(), 0, getTrxName());
 			bom.setM_Product_ID(mulchX.get_ID());		
@@ -494,7 +495,7 @@ public class ProductionTest extends AbstractTestCase {
 			bom.saveEx();
 			
 			MPPProductBOMLine line = new MPPProductBOMLine(bom);
-			line.setM_Product_ID(mulchId);
+			line.setM_Product_ID(DictionaryIDs.M_Product.MULCH.id);
 			line.setQtyBOM(new BigDecimal("2"));
 			line.saveEx();
 	
@@ -503,8 +504,7 @@ public class ProductionTest extends AbstractTestCase {
 			mulchX.saveEx();
 			
 			MOrder order = new MOrder(Env.getCtx(), 0, getTrxName());
-			//Joe Block
-			order.setBPartner(MBPartner.get(Env.getCtx(), joeBlock));
+			order.setBPartner(MBPartner.get(Env.getCtx(), DictionaryIDs.C_BPartner.JOE_BLOCK.id));
 			order.setC_DocTypeTarget_ID(MOrder.DocSubTypeSO_Standard);
 			order.setDeliveryRule(MOrder.DELIVERYRULE_CompleteOrder);
 			order.setDocStatus(DocAction.STATUS_Drafted);
@@ -530,7 +530,7 @@ public class ProductionTest extends AbstractTestCase {
 			line1.saveEx();		
 			
 			ProcessInfo info = MWorkflow.runDocumentActionWorkflow(order, DocAction.ACTION_Complete);
-			assertFalse(info.isError());
+			assertFalse(info.isError(), info.getSummary());
 			order.load(getTrxName());		
 			assertEquals(DocAction.STATUS_Completed, order.getDocStatus());
 			line1.load(getTrxName());
@@ -547,7 +547,7 @@ public class ProductionTest extends AbstractTestCase {
 			shipmentLine.saveEx();
 			
 			info = MWorkflow.runDocumentActionWorkflow(shipment, DocAction.ACTION_Complete);
-			assertFalse(info.isError());
+			assertFalse(info.isError(), info.getSummary());
 			shipment.load(getTrxName());
 			assertEquals(DocAction.STATUS_Completed, shipment.getDocStatus());
 			
@@ -563,7 +563,7 @@ public class ProductionTest extends AbstractTestCase {
 			assertTrue(productionLines.length==2,"Number of production line is not 2 as expected ("+productionLines.length+")");
 			assertTrue(productionLines[0].getM_Product_ID()==shipmentLine.getM_Product_ID(), "Production Line Production <> Shipment Line Product");
 			assertTrue(productionLines[0].getMovementQty().equals(shipmentLine.getMovementQty()), "Production Line Qty <> Shipment Line Qty");
-			assertTrue(productionLines[1].getM_Product_ID()==mulchId,"Production Line 2 Product is not the expected component product");
+			assertTrue(productionLines[1].getM_Product_ID()==DictionaryIDs.M_Product.MULCH.id,"Production Line 2 Product is not the expected component product");
 			assertTrue(productionLines[1].getMovementQty().intValue()==-2,"Production Line 2 Qty is not the expected component qty");
 		} finally {
 			rollback();
@@ -594,12 +594,21 @@ public class ProductionTest extends AbstractTestCase {
 		//storageonhand api doesn't use trx to retrieve product 
 		MProduct component = new MProduct(Env.getCtx(), 0, null);
 		component.setName("testMultipleASI_Child");
+<<<<<<< HEAD
 		component.setM_AttributeSet_ID(FERTILIZER_LOT_ATTRIBUTESET_ID);
 		component.setIsStocked(true);
 		component.setProductType(MProduct.PRODUCTTYPE_Item);
 		component.setC_UOM_ID(UOM_EACH_ID);
 		component.setM_Product_Category_ID(category.get_ID());
 		component.setC_TaxCategory_ID(TAX_CATEGORY_STANDARD_ID);
+=======
+		component.setM_AttributeSet_ID(DictionaryIDs.M_AttributeSet.FERTILIZER_LOT.id);
+		component.setIsStocked(true);
+		component.setProductType(MProduct.PRODUCTTYPE_Item);
+		component.setC_UOM_ID(DictionaryIDs.C_UOM.EACH.id);
+		component.setM_Product_Category_ID(category.get_ID());
+		component.setC_TaxCategory_ID(DictionaryIDs.C_TaxCategory.STANDARD.id);
+>>>>>>> release-10
 		component.saveEx();
 		
 		try {
@@ -633,6 +642,7 @@ public class ProductionTest extends AbstractTestCase {
 			parent.saveEx();
 			
 			MAttributeSetInstance asi1 = new MAttributeSetInstance(Env.getCtx(), 0, getTrxName());
+<<<<<<< HEAD
 			asi1.setM_AttributeSet_ID(FERTILIZER_LOT_ATTRIBUTESET_ID);
 			asi1.setLot("Lot1");
 			asi1.saveEx();		
@@ -647,6 +657,22 @@ public class ProductionTest extends AbstractTestCase {
 			MProduction production = new MProduction(Env.getCtx(), 0, getTrxName());
 			production.setM_Product_ID(parent.get_ID());
 			production.setM_Locator_ID(HQ_LOCATOR_ID);
+=======
+			asi1.setM_AttributeSet_ID(DictionaryIDs.M_AttributeSet.FERTILIZER_LOT.id);
+			asi1.setLot("Lot1");
+			asi1.saveEx();		
+			MStorageOnHand.add(Env.getCtx(), DictionaryIDs.M_Locator.HQ.id, component.get_ID(), asi1.get_ID(), new BigDecimal("1"), today, getTrxName());
+			
+			MAttributeSetInstance asi2 = new MAttributeSetInstance(Env.getCtx(), 0, getTrxName());
+			asi2.setM_AttributeSet_ID(DictionaryIDs.M_AttributeSet.FERTILIZER_LOT.id);
+			asi2.setLot("Lot2");
+			asi2.saveEx();		
+			MStorageOnHand.add(Env.getCtx(), DictionaryIDs.M_Locator.HQ.id, component.get_ID(), asi2.get_ID(), new BigDecimal("1"), today, getTrxName());
+			
+			MProduction production = new MProduction(Env.getCtx(), 0, getTrxName());
+			production.setM_Product_ID(parent.get_ID());
+			production.setM_Locator_ID(DictionaryIDs.M_Locator.HQ.id);
+>>>>>>> release-10
 			production.setIsUseProductionPlan(false);
 			production.setMovementDate(getLoginDate());
 			production.setDocAction(DocAction.ACTION_Complete);
@@ -708,12 +734,21 @@ public class ProductionTest extends AbstractTestCase {
 		//storageonhand api doesn't use trx to retrieve product 
 		MProduct component = new MProduct(Env.getCtx(), 0, null);
 		component.setName("testMultipleDateMPolicy_Child");
+<<<<<<< HEAD
 		component.setM_AttributeSet_ID(FERTILIZER_LOT_ATTRIBUTESET_ID);
 		component.setIsStocked(true);
 		component.setProductType(MProduct.PRODUCTTYPE_Item);
 		component.setC_UOM_ID(UOM_EACH_ID);
 		component.setM_Product_Category_ID(category.get_ID());
 		component.setC_TaxCategory_ID(TAX_CATEGORY_STANDARD_ID);
+=======
+		component.setM_AttributeSet_ID(DictionaryIDs.M_AttributeSet.FERTILIZER_LOT.id);
+		component.setIsStocked(true);
+		component.setProductType(MProduct.PRODUCTTYPE_Item);
+		component.setC_UOM_ID(DictionaryIDs.C_UOM.EACH.id);
+		component.setM_Product_Category_ID(category.get_ID());
+		component.setC_TaxCategory_ID(DictionaryIDs.C_TaxCategory.STANDARD.id);
+>>>>>>> release-10
 		component.saveEx();
 		
 		try {
@@ -747,6 +782,7 @@ public class ProductionTest extends AbstractTestCase {
 			parent.saveEx();
 			
 			MAttributeSetInstance asi1 = new MAttributeSetInstance(Env.getCtx(), 0, getTrxName());
+<<<<<<< HEAD
 			asi1.setM_AttributeSet_ID(FERTILIZER_LOT_ATTRIBUTESET_ID);
 			asi1.setLot("Lot1");
 			asi1.saveEx();		
@@ -756,6 +792,17 @@ public class ProductionTest extends AbstractTestCase {
 			MProduction production = new MProduction(Env.getCtx(), 0, getTrxName());
 			production.setM_Product_ID(parent.get_ID());
 			production.setM_Locator_ID(HQ_LOCATOR_ID);
+=======
+			asi1.setM_AttributeSet_ID(DictionaryIDs.M_AttributeSet.FERTILIZER_LOT.id);
+			asi1.setLot("Lot1");
+			asi1.saveEx();		
+			MStorageOnHand.add(Env.getCtx(), DictionaryIDs.M_Locator.HQ.id, component.get_ID(), asi1.get_ID(), new BigDecimal("1"), TimeUtil.addDays(today, -1), getTrxName());			
+			MStorageOnHand.add(Env.getCtx(), DictionaryIDs.M_Locator.HQ.id, component.get_ID(), asi1.get_ID(), new BigDecimal("1"), today, getTrxName());
+			
+			MProduction production = new MProduction(Env.getCtx(), 0, getTrxName());
+			production.setM_Product_ID(parent.get_ID());
+			production.setM_Locator_ID(DictionaryIDs.M_Locator.HQ.id);
+>>>>>>> release-10
 			production.setIsUseProductionPlan(false);
 			production.setMovementDate(getLoginDate());
 			production.setDocAction(DocAction.ACTION_Complete);
@@ -817,12 +864,21 @@ public class ProductionTest extends AbstractTestCase {
 		//storageonhand api doesn't use trx to retrieve product 
 		MProduct component = new MProduct(Env.getCtx(), 0, null);
 		component.setName("testMultipleDateMPolicy_Child");
+<<<<<<< HEAD
 		component.setM_AttributeSet_ID(FERTILIZER_LOT_ATTRIBUTESET_ID);
 		component.setIsStocked(true);
 		component.setProductType(MProduct.PRODUCTTYPE_Item);
 		component.setC_UOM_ID(UOM_EACH_ID);
 		component.setM_Product_Category_ID(category.get_ID());
 		component.setC_TaxCategory_ID(TAX_CATEGORY_STANDARD_ID);
+=======
+		component.setM_AttributeSet_ID(DictionaryIDs.M_AttributeSet.FERTILIZER_LOT.id);
+		component.setIsStocked(true);
+		component.setProductType(MProduct.PRODUCTTYPE_Item);
+		component.setC_UOM_ID(DictionaryIDs.C_UOM.EACH.id);
+		component.setM_Product_Category_ID(category.get_ID());
+		component.setC_TaxCategory_ID(DictionaryIDs.C_TaxCategory.STANDARD.id);
+>>>>>>> release-10
 		component.saveEx();
 		
 		try {
@@ -856,6 +912,7 @@ public class ProductionTest extends AbstractTestCase {
 			parent.saveEx();
 			
 			MAttributeSetInstance asi1 = new MAttributeSetInstance(Env.getCtx(), 0, getTrxName());
+<<<<<<< HEAD
 			asi1.setM_AttributeSet_ID(FERTILIZER_LOT_ATTRIBUTESET_ID);
 			asi1.setLot("Lot1");
 			asi1.saveEx();		
@@ -870,6 +927,22 @@ public class ProductionTest extends AbstractTestCase {
 			MProduction production1 = new MProduction(Env.getCtx(), 0, getTrxName());
 			production1.setM_Product_ID(parent.get_ID());
 			production1.setM_Locator_ID(HQ_LOCATOR_ID);
+=======
+			asi1.setM_AttributeSet_ID(DictionaryIDs.M_AttributeSet.FERTILIZER_LOT.id);
+			asi1.setLot("Lot1");
+			asi1.saveEx();		
+			MStorageOnHand.add(Env.getCtx(), DictionaryIDs.M_Locator.HQ.id, component.get_ID(), asi1.get_ID(), new BigDecimal("2"), today, getTrxName());	
+			
+			MAttributeSetInstance asi2 = new MAttributeSetInstance(Env.getCtx(), 0, getTrxName());
+			asi2.setM_AttributeSet_ID(DictionaryIDs.M_AttributeSet.FERTILIZER_LOT.id);
+			asi2.setLot("Lot2");
+			asi2.saveEx();		
+			MStorageOnHand.add(Env.getCtx(), DictionaryIDs.M_Locator.HQ.id, component.get_ID(), asi2.get_ID(), new BigDecimal("2"), today, getTrxName());
+			
+			MProduction production1 = new MProduction(Env.getCtx(), 0, getTrxName());
+			production1.setM_Product_ID(parent.get_ID());
+			production1.setM_Locator_ID(DictionaryIDs.M_Locator.HQ.id);
+>>>>>>> release-10
 			production1.setIsUseProductionPlan(false);
 			production1.setMovementDate(getLoginDate());
 			production1.setDocAction(DocAction.ACTION_Complete);
@@ -896,7 +969,11 @@ public class ProductionTest extends AbstractTestCase {
 	
 			MProduction production2 = new MProduction(Env.getCtx(), 0, getTrxName());
 			production2.setM_Product_ID(parent.get_ID());
+<<<<<<< HEAD
 			production2.setM_Locator_ID(HQ_LOCATOR_ID);
+=======
+			production2.setM_Locator_ID(DictionaryIDs.M_Locator.HQ.id);
+>>>>>>> release-10
 			production2.setIsUseProductionPlan(false);
 			production2.setMovementDate(getLoginDate());
 			production2.setDocAction(DocAction.ACTION_Complete);

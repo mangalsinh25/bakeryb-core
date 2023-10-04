@@ -26,7 +26,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_BankStatement
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_BankStatement")
 public class X_C_BankStatement extends PO implements I_C_BankStatement, I_Persistent 
 {
@@ -34,7 +34,11 @@ public class X_C_BankStatement extends PO implements I_C_BankStatement, I_Persis
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20230609L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_BankStatement (Properties ctx, int C_BankStatement_ID, String trxName)
@@ -44,11 +48,43 @@ public class X_C_BankStatement extends PO implements I_C_BankStatement, I_Persis
         {
 			setC_BankAccount_ID (0);
 			setC_BankStatement_ID (0);
+			setC_DocType_ID (0);
 			setDateAcct (new Timestamp( System.currentTimeMillis() ));
 			setDocAction (null);
 // CO
 			setDocStatus (null);
 // DR
+			setDocumentNo (null);
+			setEndingBalance (Env.ZERO);
+			setIsApproved (false);
+// N
+			setIsManual (true);
+// Y
+			setName (null);
+// @#Date@
+			setPosted (false);
+// N
+			setProcessed (false);
+			setStatementDate (new Timestamp( System.currentTimeMillis() ));
+// @Date@
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_C_BankStatement (Properties ctx, int C_BankStatement_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, C_BankStatement_ID, trxName, virtualColumns);
+      /** if (C_BankStatement_ID == 0)
+        {
+			setC_BankAccount_ID (0);
+			setC_BankStatement_ID (0);
+			setC_DocType_ID (0);
+			setDateAcct (new Timestamp( System.currentTimeMillis() ));
+			setDocAction (null);
+// CO
+			setDocStatus (null);
+// DR
+			setDocumentNo (null);
 			setEndingBalance (Env.ZERO);
 			setIsApproved (false);
 // N
@@ -202,6 +238,34 @@ public class X_C_BankStatement extends PO implements I_C_BankStatement, I_Persis
 	public String getC_BankStatement_UU()
 	{
 		return (String)get_Value(COLUMNNAME_C_BankStatement_UU);
+	}
+
+	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException
+	{
+		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_ID)
+			.getPO(getC_DocType_ID(), get_TrxName());
+	}
+
+	/** Set Document Type.
+		@param C_DocType_ID Document type or rules
+	*/
+	public void setC_DocType_ID (int C_DocType_ID)
+	{
+		if (C_DocType_ID < 0)
+			set_Value (COLUMNNAME_C_DocType_ID, null);
+		else
+			set_Value (COLUMNNAME_C_DocType_ID, Integer.valueOf(C_DocType_ID));
+	}
+
+	/** Get Document Type.
+		@return Document type or rules
+	  */
+	public int getC_DocType_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocType_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Copy From.
@@ -371,6 +435,22 @@ public class X_C_BankStatement extends PO implements I_C_BankStatement, I_Persis
 	public String getDocStatus()
 	{
 		return (String)get_Value(COLUMNNAME_DocStatus);
+	}
+
+	/** Set Document No.
+		@param DocumentNo Document sequence number of the document
+	*/
+	public void setDocumentNo (String DocumentNo)
+	{
+		set_ValueNoCheck (COLUMNNAME_DocumentNo, DocumentNo);
+	}
+
+	/** Get Document No.
+		@return Document sequence number of the document
+	  */
+	public String getDocumentNo()
+	{
+		return (String)get_Value(COLUMNNAME_DocumentNo);
 	}
 
 	/** Set EFT Statement Date.

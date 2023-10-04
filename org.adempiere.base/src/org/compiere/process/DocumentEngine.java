@@ -36,6 +36,7 @@ import org.compiere.acct.Doc;
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAllocationHdr;
 import org.compiere.model.MBankStatement;
+import org.compiere.model.MBankTransfer;
 import org.compiere.model.MCash;
 import org.compiere.model.MClient;
 import org.compiere.model.MColumn;
@@ -378,10 +379,38 @@ public class DocumentEngine implements DocAction
 		}
 		if (ACTION_ReActivate.equals(m_action))
 			return reActivateIt();
-		if (ACTION_Reverse_Accrual.equals(m_action))
-			return reverseAccrualIt();
-		if (ACTION_Reverse_Correct.equals(m_action))
-			return reverseCorrectIt();
+		if (ACTION_Reverse_Accrual.equals(m_action) || ACTION_Reverse_Correct.equals(m_action))
+		{
+			boolean ok = false;
+			if (ACTION_Reverse_Accrual.equals(m_action))
+				ok = reverseAccrualIt();
+			else if (ACTION_Reverse_Correct.equals(m_action))
+				ok = reverseCorrectIt();
+			
+			if (m_document != null && ok)
+			{
+				if (MClient.isClientAccountingImmediate() && m_document instanceof IDocsPostProcess && m_document instanceof PO)
+				{
+					List<PO> docsPostProcess = ((IDocsPostProcess) m_document).getDocsPostProcess(); 
+					if (docsPostProcess.size() > 0) {
+						if (((PO) m_document).get_ValueAsBoolean("Posted")) {
+							for (PO docafter : docsPostProcess) {								
+								if (docafter.get_ValueAsBoolean("Posted"))
+									continue;
+								String ignoreError = DocumentEngine.postImmediate(docafter.getCtx(), docafter.getAD_Client_ID(), docafter.get_Table_ID(), docafter.get_ID(), true, docafter.get_TrxName());
+								if (!Util.isEmpty(ignoreError, true)) {
+									log.warning("Error posting " + docafter + ". Error="+ignoreError);
+								} else {
+									docafter.load(docafter.get_TrxName());
+								}
+							}
+						}
+					}				
+				}
+			}
+			
+			return ok;
+		}
 		if (ACTION_Close.equals(m_action))
 			return closeIt();
 		if (ACTION_Void.equals(m_action))
@@ -1226,6 +1255,16 @@ public class DocumentEngine implements DocAction
 			if(docStatus.equals(DocumentEngine.STATUS_Completed))
 			{
 				// IDEMPIERE-98 - Implement void for completed RMAs - Diego Ruiz - globalqss
+				options[index++] = DocumentEngine.ACTION_Void;
+			}
+		}
+		/********************
+		 *  Bank Transfer Process
+		 */
+		else if (AD_Table_ID == MBankTransfer.Table_ID)
+		{
+			if(docStatus.equals(DocumentEngine.STATUS_Completed))
+			{
 				options[index++] = DocumentEngine.ACTION_Void;
 			}
 		}

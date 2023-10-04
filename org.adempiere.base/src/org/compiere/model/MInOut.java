@@ -35,6 +35,7 @@ import org.adempiere.exceptions.NegativeInventoryDisallowedException;
 import org.adempiere.exceptions.PeriodClosedException;
 import org.adempiere.util.IReservationTracer;
 import org.adempiere.util.IReservationTracerFactory;
+import org.adempiere.util.ShippingUtil;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportEngine;
 import org.compiere.process.DocAction;
@@ -47,6 +48,11 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.TimeUtil;
+import org.compiere.util.Trx;
+import org.compiere.util.TrxEventListener;
+import org.compiere.util.Util;
+import org.compiere.wf.MWFActivity;
+import org.compiere.wf.MWorkflow;
 
 /**
  *  Shipment Model
@@ -1061,6 +1067,21 @@ public class MInOut extends X_M_InOut implements DocAction, IDocsPostProcess
             setC_DocType_ID(docType.getC_DocTypeShipment_ID());
         }
                 
+        if (newRecord && isSOTrx())
+        {
+        	if (MInOut.FREIGHTCOSTRULE_CustomerAccount.equals(getFreightCostRule()))
+    		{
+        		if (Util.isEmpty(getShipperAccount()))
+        		{
+        			String shipperAccount = ShippingUtil.getBPShipperAccount(getM_Shipper_ID(), getC_BPartner_ID(), getC_BPartner_Location_ID(), getAD_Org_ID(), get_TrxName());
+        			setShipperAccount(shipperAccount);
+        		}
+        		
+        		if (Util.isEmpty(getFreightCharges()))
+        			setFreightCharges(MInOut.FREIGHTCHARGES_Collect);
+    		}
+        }
+
 		return true;
 	}	//	beforeSave
 
@@ -1826,7 +1847,30 @@ public class MInOut extends X_M_InOut implements DocAction, IDocsPostProcess
 		//  Drop Shipments
 		MInOut dropShipment = createDropShipment();
 		if (dropShipment != null)
+		{
 			info.append(" - @DropShipment@: @M_InOut_ID@=").append(dropShipment.getDocumentNo());
+			ProcessInfo pi = MWFActivity.getCurrentWorkflowProcessInfo();
+			if (pi != null)
+			{
+				Trx.get(get_TrxName(), false).addTrxEventListener(new TrxEventListener() {					
+					@Override
+					public void afterRollback(Trx trx, boolean success) {
+						trx.removeTrxEventListener(this);
+					}
+					
+					@Override
+					public void afterCommit(Trx trx, boolean success) {
+						if (success)
+							pi.addLog(pi.getAD_PInstance_ID(), null, null, dropShipment.getDocumentInfo(), Table_ID, dropShipment.get_ID());
+						trx.removeTrxEventListener(this);
+					}
+					
+					@Override
+					public void afterClose(Trx trx) {
+					}
+				});
+			}
+		}
 		if (dropShipment != null)
 			addDocsPostProcess(dropShipment);
 		//	User Validation
@@ -1932,7 +1976,14 @@ public class MInOut extends X_M_InOut implements DocAction, IDocsPostProcess
 		dropShipment.setDropShip_Location_ID(0);
 		dropShipment.setDropShip_User_ID(0);
 		dropShipment.setMovementType(MOVEMENTTYPE_CustomerShipment);
-
+		if (!Util.isEmpty(getTrackingNo()) && getM_Shipper_ID() > 0 && 
+				DELIVERYVIARULE_Shipper.equals(getDeliveryViaRule()))
+		{
+			dropShipment.setTrackingNo(getTrackingNo());
+			dropShipment.setDeliveryViaRule(DELIVERYVIARULE_Shipper);
+			dropShipment.setM_Shipper_ID(getM_Shipper_ID());
+		}
+		
 		//	References (Should not be required
 		dropShipment.setSalesRep_ID(getSalesRep_ID());
 		dropShipment.saveEx(get_TrxName());
@@ -1951,13 +2002,11 @@ public class MInOut extends X_M_InOut implements DocAction, IDocsPostProcess
 
 		if (log.isLoggable(Level.FINE)) log.fine(dropShipment.toString());
 
-		dropShipment.setDocAction(DocAction.ACTION_Complete);
 		// do not post immediate dropshipment, should post after source shipment
 		dropShipment.set_Attribute(DocumentEngine.DOCUMENT_POST_IMMEDIATE_AFTER_COMPLETE, Boolean.FALSE);
-		// added AdempiereException by Zuhri
-		if (!dropShipment.processIt(DocAction.ACTION_Complete))
-			throw new AdempiereException(Msg.getMsg(getCtx(), "FailedProcessingDocument") + " - " + dropShipment.getProcessMsg());
-		// end added
+		ProcessInfo processInfo = MWorkflow.runDocumentActionWorkflow(dropShipment, DocAction.ACTION_Complete);
+		if (processInfo.isError())
+			throw new RuntimeException(Msg.getMsg(getCtx(), "FailedProcessingDocument") + ": " + dropShipment.toString() + " - " + dropShipment.getProcessMsg());
 		dropShipment.saveEx();
 
 		return dropShipment;
@@ -2891,6 +2940,10 @@ public class MInOut extends X_M_InOut implements DocAction, IDocsPostProcess
 			setC_Project_ID(order.getC_Project_ID());
 			setC_Campaign_ID(order.getC_Campaign_ID());
 			setC_Activity_ID(order.getC_Activity_ID());
+<<<<<<< HEAD
+=======
+			setSalesRep_ID (order.getSalesRep_ID());
+>>>>>>> release-10
 			setUser1_ID(order.getUser1_ID());
 			setUser2_ID(order.getUser2_ID());
 

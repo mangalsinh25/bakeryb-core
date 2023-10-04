@@ -25,7 +25,7 @@ import org.compiere.util.Env;
 
 /** Generated Model for A_Asset
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="A_Asset")
 public class X_A_Asset extends PO implements I_A_Asset, I_Persistent 
 {
@@ -33,7 +33,11 @@ public class X_A_Asset extends PO implements I_A_Asset, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20221118L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_A_Asset (Properties ctx, int A_Asset_ID, String trxName)
@@ -1153,16 +1157,16 @@ public class X_A_Asset extends PO implements I_A_Asset, I_Persistent
 		return (String)get_Value(COLUMNNAME_Name);
 	}
 
-	/** Set Next Maintenence.
-		@param NextMaintenenceDate Next Maintenence Date
+	/** Set Next Maintenance.
+		@param NextMaintenenceDate Next Maintenance Date
 	*/
 	public void setNextMaintenenceDate (Timestamp NextMaintenenceDate)
 	{
 		set_Value (COLUMNNAME_NextMaintenenceDate, NextMaintenenceDate);
 	}
 
-	/** Get Next Maintenence.
-		@return Next Maintenence Date
+	/** Get Next Maintenance.
+		@return Next Maintenance Date
 	  */
 	public Timestamp getNextMaintenenceDate()
 	{

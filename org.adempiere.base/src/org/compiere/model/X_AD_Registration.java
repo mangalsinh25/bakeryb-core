@@ -23,7 +23,7 @@ import java.util.Properties;
 
 /** Generated Model for AD_Registration
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_Registration")
 public class X_AD_Registration extends PO implements I_AD_Registration, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_AD_Registration extends PO implements I_AD_Registration, I_Persis
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_Registration (Properties ctx, int AD_Registration_ID, String trxName)
@@ -366,7 +370,7 @@ public class X_AD_Registration extends PO implements I_AD_Registration, I_Persis
 	}
 
 	/** Set Platform Info.
-		@param PlatformInfo Information about Server and Client Platform
+		@param PlatformInfo Information about Server and Tenant Platform
 	*/
 	public void setPlatformInfo (String PlatformInfo)
 	{
@@ -374,7 +378,7 @@ public class X_AD_Registration extends PO implements I_AD_Registration, I_Persis
 	}
 
 	/** Get Platform Info.
-		@return Information about Server and Client Platform
+		@return Information about Server and Tenant Platform
 	  */
 	public String getPlatformInfo()
 	{

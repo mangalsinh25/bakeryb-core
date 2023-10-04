@@ -183,15 +183,12 @@ public class WPAttributeDialog extends Window implements EventListener<Event>
 	private int						m_row = 0;
 	/** List of Editors				*/
 	private ArrayList<WEditor>		m_editors = new ArrayList<WEditor>();
-	/** Length of Instance value (40)	*/
-	//private static final int		INSTANCE_VALUE_LENGTH = 40;
 
 	private Checkbox	cbNewEdit = new Checkbox();
 	private Button		bNewRecord = new Button(Msg.getMsg(Env.getCtx(), "NewRecord"));
 	private Listbox		existingCombo = new Listbox();
 	private Button		bSelect = new Button(); 
 	//	Lot
-//	private VString fieldLotString = new VString ("Lot", false, false, true, 20, 20, null, null);
 	private Textbox fieldLotString = new Textbox();
 	private Listbox fieldLot = new Listbox();
 	private Button bLot = new Button(Msg.getMsg (Env.getCtx(), "New"));
@@ -310,13 +307,13 @@ public class WPAttributeDialog extends Window implements EventListener<Event>
 		//	Product has no Attribute Set
 		if (as == null)		
 		{
-			FDialog.error(m_WindowNo, this, "PAttributeNoAttributeSet");
+			Dialog.error(m_WindowNo, "PAttributeNoAttributeSet");
 			return false;
 		}
 		//	Product has no Instance Attributes
 		if (!m_productWindow && !as.isInstanceAttribute())
 		{
-			FDialog.error(m_WindowNo, this, "PAttributeNoInstanceAttribute");
+			Dialog.error(m_WindowNo, "PAttributeNoInstanceAttribute");
 			return false;
 		}
 
@@ -411,10 +408,7 @@ public class WPAttributeDialog extends Window implements EventListener<Event>
 			row.appendChild(fieldLotString);
 			ZKUpdateUtil.setHflex(fieldLotString, "1");
 			fieldLotString.setText (m_masi.getLot());
-			//	M_Lot_ID
-		//	int AD_Column_ID = 9771;	//	M_AttributeSetInstance.M_Lot_ID
-		//	fieldLot = new VLookup ("M_Lot_ID", false,false, true, 
-		//		MLookupFactory.get(Env.getCtx(), m_WindowNo, 0, AD_Column_ID, DisplayType.TableDir));
+
 			String sql = "SELECT M_Lot_ID, Name "
 				+ "FROM M_Lot l "
 				+ "WHERE EXISTS (SELECT M_Product_ID FROM M_Product p "
@@ -464,7 +458,6 @@ public class WPAttributeDialog extends Window implements EventListener<Event>
 				}
 			}
 			//	Popup 
-//			fieldLot.addMouseListener(new VPAttributeDialog_mouseAdapter(this));    //  popup
 			mZoom = new Menuitem(Msg.getMsg(Env.getCtx(), "Zoom"), ThemeManager.getThemeResource("images/Zoom16.png"));
 			if(ThemeManager.isUseFontIconForImage()) {
 				mZoom.setIconSclass("z-icon-Zoom");
@@ -521,7 +514,7 @@ public class WPAttributeDialog extends Window implements EventListener<Event>
 
 		if (m_row == 0)
 		{
-			FDialog.error(m_WindowNo, this, "PAttributeNoInfo");
+			Dialog.error(m_WindowNo, "PAttributeNoInfo");
 			return false;
 		}
 
@@ -546,7 +539,6 @@ public class WPAttributeDialog extends Window implements EventListener<Event>
 
 		//	Attrribute Set Instance Description
 		Label label = new Label (Msg.translate(Env.getCtx(), "Description"));
-//		label.setLabelFor(fieldDescription);
 		fieldDescription.setText(m_masi.getDescription());
 		fieldDescription.setReadonly(true);
 		Row row = new Row();
@@ -914,7 +906,7 @@ public class WPAttributeDialog extends Window implements EventListener<Event>
 		if (C_DocType_ID > 0) {
 			MDocType doctype = new MDocType (Env.getCtx(), C_DocType_ID, null);
 			String docbase = doctype.getDocBaseType();
-			if (docbase.equals(MDocType.DOCBASETYPE_MaterialReceipt))
+			if (docbase.equals(MDocType.DOCBASETYPE_MaterialReceipt) || MDocType.DOCSUBTYPEINV_CostAdjustment.equals(doctype.getDocSubTypeInv()))
 				M_Warehouse_ID = 0;
 		}
 		
@@ -1007,17 +999,6 @@ public class WPAttributeDialog extends Window implements EventListener<Event>
 		log.info(zoomQuery.toString());
 		//
 		//TODO: to port
-		/*
-		int AD_Window_ID = 257;		//	Lot
-		AWindow frame = new AWindow();
-		if (frame.initWindow(AD_Window_ID, zoomQuery))
-		{
-			this.setVisible(false);
-			this.setModal (false);	//	otherwise blocked
-			this.setVisible(true);
-			AEnv.addToWindowManager(frame);
-			AEnv.showScreen(frame, SwingConstants.EAST);
-		}*/
 	}	//	cmd_zoom
 
 	/**
@@ -1140,7 +1121,7 @@ public class WPAttributeDialog extends Window implements EventListener<Event>
 			//
 			if (mandatory.length() > 0)
 			{
-				FDialog.error(m_WindowNo, this, "FillMandatory", mandatory);
+				Dialog.error(m_WindowNo, "FillMandatory", mandatory);
 				return false;
 			}
 			//	Save Model

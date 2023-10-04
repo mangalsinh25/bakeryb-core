@@ -26,7 +26,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_Invoice
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_Invoice")
 public class X_C_Invoice extends PO implements I_C_Invoice, I_Persistent 
 {
@@ -34,7 +34,11 @@ public class X_C_Invoice extends PO implements I_C_Invoice, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220920L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_Invoice (Properties ctx, int C_Invoice_ID, String trxName)
@@ -833,7 +837,7 @@ public class X_C_Invoice extends PO implements I_C_Invoice, I_Persistent
 		return (Timestamp)get_Value(COLUMNNAME_DateOrdered);
 	}
 
-	/** Set Date printed.
+	/** Set Date Printed.
 		@param DatePrinted Date the document was printed.
 	*/
 	public void setDatePrinted (Timestamp DatePrinted)
@@ -841,7 +845,7 @@ public class X_C_Invoice extends PO implements I_C_Invoice, I_Persistent
 		set_Value (COLUMNNAME_DatePrinted, DatePrinted);
 	}
 
-	/** Get Date printed.
+	/** Get Date Printed.
 		@return Date the document was printed.
 	  */
 	public Timestamp getDatePrinted()
@@ -978,7 +982,11 @@ public class X_C_Invoice extends PO implements I_C_Invoice, I_Persistent
 	public static final String DOCBASETYPE_PurchaseRequisition = "POR";
 	/** Sales Order = SOO */
 	public static final String DOCBASETYPE_SalesOrder = "SOO";
+<<<<<<< HEAD
 	/** Set Document BaseType.
+=======
+	/** Set Document Base Type.
+>>>>>>> release-10
 		@param DocBaseType Logical type of document
 	*/
 	public void setDocBaseType (String DocBaseType)
@@ -986,7 +994,11 @@ public class X_C_Invoice extends PO implements I_C_Invoice, I_Persistent
 
 		throw new IllegalArgumentException ("DocBaseType is virtual column");	}
 
+<<<<<<< HEAD
 	/** Get Document BaseType.
+=======
+	/** Get Document Base Type.
+>>>>>>> release-10
 		@return Logical type of document
 	  */
 	public String getDocBaseType()
@@ -1184,16 +1196,16 @@ public class X_C_Invoice extends PO implements I_C_Invoice, I_Persistent
 		return false;
 	}
 
-	/** Set IsFixedAssetInvoice.
-		@param IsFixedAssetInvoice IsFixedAssetInvoice
+	/** Set Is Fixed Asset Invoice.
+		@param IsFixedAssetInvoice Is Fixed Asset Invoice
 	*/
 	public void setIsFixedAssetInvoice (boolean IsFixedAssetInvoice)
 	{
 		set_Value (COLUMNNAME_IsFixedAssetInvoice, Boolean.valueOf(IsFixedAssetInvoice));
 	}
 
-	/** Get IsFixedAssetInvoice.
-		@return IsFixedAssetInvoice	  */
+	/** Get Is Fixed Asset Invoice.
+		@return Is Fixed Asset Invoice	  */
 	public boolean isFixedAssetInvoice()
 	{
 		Object oo = get_Value(COLUMNNAME_IsFixedAssetInvoice);

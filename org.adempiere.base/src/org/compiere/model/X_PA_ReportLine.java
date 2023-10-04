@@ -33,7 +33,11 @@ public class X_PA_ReportLine extends PO implements I_PA_ReportLine, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20221011L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_PA_ReportLine (Properties ctx, int PA_ReportLine_ID, String trxName)
@@ -269,7 +273,11 @@ public class X_PA_ReportLine extends PO implements I_PA_ReportLine, I_Persistent
 	*/
 	public void setMultiplier (BigDecimal Multiplier)
 	{
+<<<<<<< HEAD
 		set_ValueNoCheck (COLUMNNAME_Multiplier, Multiplier);
+=======
+		set_Value (COLUMNNAME_Multiplier, Multiplier);
+>>>>>>> release-10
 	}
 
 	/** Get Multiplier.

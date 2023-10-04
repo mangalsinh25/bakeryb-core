@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_ViewComponent
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_ViewComponent")
 public class X_AD_ViewComponent extends PO implements I_AD_ViewComponent, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_AD_ViewComponent extends PO implements I_AD_ViewComponent, I_Pers
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_ViewComponent (Properties ctx, int AD_ViewComponent_ID, String trxName)
@@ -44,6 +48,27 @@ public class X_AD_ViewComponent extends PO implements I_AD_ViewComponent, I_Pers
 			setEntityType (null);
 // @SQL=SELECT CASE WHEN '@P|AdempiereSys:N@'='Y' THEN 'D' ELSE get_sysconfig('DEFAULT_ENTITYTYPE','U',0,0) END FROM Dual
 			setFromClause (null);
+			setIsDistinct (false);
+// N
+			setIsUnionAll (false);
+// N
+			setName (null);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_AD_ViewComponent (Properties ctx, int AD_ViewComponent_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, AD_ViewComponent_ID, trxName, virtualColumns);
+      /** if (AD_ViewComponent_ID == 0)
+        {
+			setAD_Table_ID (0);
+			setAD_ViewComponent_ID (0);
+			setEntityType (null);
+// @SQL=SELECT CASE WHEN '@P|AdempiereSys:N@'='Y' THEN 'D' ELSE get_sysconfig('DEFAULT_ENTITYTYPE','U',0,0) END FROM Dual
+			setFromClause (null);
+			setIsDistinct (false);
+// N
 			setIsUnionAll (false);
 // N
 			setName (null);
@@ -224,6 +249,29 @@ public class X_AD_ViewComponent extends PO implements I_AD_ViewComponent, I_Pers
 	public String getHelp()
 	{
 		return (String)get_Value(COLUMNNAME_Help);
+	}
+
+	/** Set Distinct.
+		@param IsDistinct Select Distinct
+	*/
+	public void setIsDistinct (boolean IsDistinct)
+	{
+		set_Value (COLUMNNAME_IsDistinct, Boolean.valueOf(IsDistinct));
+	}
+
+	/** Get Distinct.
+		@return Select Distinct
+	  */
+	public boolean isDistinct()
+	{
+		Object oo = get_Value(COLUMNNAME_IsDistinct);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Is UNION ALL.

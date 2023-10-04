@@ -23,7 +23,7 @@ import java.util.Properties;
 
 /** Generated Model for C_Recurring_Run
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_Recurring_Run")
 public class X_C_Recurring_Run extends PO implements I_C_Recurring_Run, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_C_Recurring_Run extends PO implements I_C_Recurring_Run, I_Persis
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_Recurring_Run (Properties ctx, int C_Recurring_Run_ID, String trxName)

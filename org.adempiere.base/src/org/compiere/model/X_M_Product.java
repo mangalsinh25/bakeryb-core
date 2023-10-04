@@ -26,7 +26,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for M_Product
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="M_Product")
 public class X_M_Product extends PO implements I_M_Product, I_Persistent 
 {
@@ -34,7 +34,11 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_M_Product (Properties ctx, int M_Product_ID, String trxName)
@@ -1376,7 +1380,7 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set UnitsPerPack.
+	/** Set Units Per Pack.
 		@param UnitsPerPack The Units Per Pack indicates the no of units of a product packed together.
 	*/
 	public void setUnitsPerPack (int UnitsPerPack)
@@ -1384,7 +1388,7 @@ public class X_M_Product extends PO implements I_M_Product, I_Persistent
 		set_Value (COLUMNNAME_UnitsPerPack, Integer.valueOf(UnitsPerPack));
 	}
 
-	/** Get UnitsPerPack.
+	/** Get Units Per Pack.
 		@return The Units Per Pack indicates the no of units of a product packed together.
 	  */
 	public int getUnitsPerPack()

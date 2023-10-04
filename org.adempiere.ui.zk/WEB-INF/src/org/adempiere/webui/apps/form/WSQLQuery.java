@@ -64,12 +64,22 @@ import org.zkoss.zul.South;
 /**
  * A Custom Form to process SQL queries.
  *
+<<<<<<< HEAD
  * The statement to be executed can be restricted using SysConfig
  */
 public class WSQLQuery extends ADForm implements EventListener<Event>
 {
 	/**
 	 * 
+=======
+ * The statement to be executed can be restricted using SysConfig.
+ */
+@org.idempiere.ui.zk.annotation.Form
+public class WSQLQuery extends ADForm implements EventListener<Event>
+{
+	/**
+	 * generated serial id
+>>>>>>> release-10
 	 */
 	private static final long serialVersionUID = -6641250848300700313L;
 
@@ -91,17 +101,29 @@ public class WSQLQuery extends ADForm implements EventListener<Event>
 	private WListbox listbox = new WListbox();
 
 	/**
+<<<<<<< HEAD
 	 * REGEX_REMOVE_COMMENTS
+=======
+	 * Remove comment
+>>>>>>> release-10
 	 */
 	private static final String REGEX_REMOVE_COMMENTS = "/\\*(?:.|[\\n\\r])*?\\*/";
 
 	/**
+<<<<<<< HEAD
 	 * REGEX_REMOVE_QUOTED_STRINGS
+=======
+	 * Remove quoted string
+>>>>>>> release-10
 	 */
 	private static final String REGEX_REMOVE_QUOTED_STRINGS = "'(?:.|[\\n\\r])*?'";
 
 	/**
+<<<<<<< HEAD
 	 * REGEX_REMOVE_LEADING_SPACES
+=======
+	 * Remove leading space
+>>>>>>> release-10
 	 */
 	private static final String REGEX_REMOVE_LEADING_SPACES = "^\\s+";
 
@@ -112,6 +134,12 @@ public class WSQLQuery extends ADForm implements EventListener<Event>
 		super();
 	}
 
+<<<<<<< HEAD
+=======
+	/**
+	 * Layout form
+	 */
+>>>>>>> release-10
 	@Override
 	protected void initForm() {
 		North north = new North();
@@ -327,6 +355,10 @@ public class WSQLQuery extends ADForm implements EventListener<Event>
      *  Process the events for this form
      *  @param event
      */
+<<<<<<< HEAD
+=======
+	@Override
+>>>>>>> release-10
 	public void onEvent(Event event) throws Exception {
 		if (event.getTarget() == m_btnSql)
 			m_txbResultField.setText(processStatement(m_txbSqlField.getText()));

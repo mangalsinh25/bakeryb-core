@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_Image
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_Image")
 public class X_AD_Image extends PO implements I_AD_Image, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_AD_Image extends PO implements I_AD_Image, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_Image (Properties ctx, int AD_Image_ID, String trxName)

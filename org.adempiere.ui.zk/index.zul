@@ -30,11 +30,16 @@ if (window.location.protocol == 'https:') {
   zk.load("org.idempiere.commons");
   zk.load("jquery.maskedinput");
   zk.load("photobooth");
+<<<<<<< HEAD
+=======
+  zk.load("dragdrop.attachment");
+>>>>>>> release-10
 
   zk.afterLoad(function() {
     zk._Erbx.push = function(msg) {
       if (console) console.log(msg);
     };
+<<<<<<< HEAD
 
     zk.$package('id.zk');
 
@@ -289,6 +294,8 @@ if (window.location.protocol == 'https:') {
 			jq(foot).addClass('z-word-nowrap');
 	  }
     });
+=======
+>>>>>>> release-10
   });
 
 } //window.location.protocol check

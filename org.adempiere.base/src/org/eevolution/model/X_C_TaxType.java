@@ -24,7 +24,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_TaxType
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_TaxType")
 public class X_C_TaxType extends PO implements I_C_TaxType, I_Persistent 
 {
@@ -32,7 +32,11 @@ public class X_C_TaxType extends PO implements I_C_TaxType, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_TaxType (Properties ctx, int C_TaxType_ID, String trxName)

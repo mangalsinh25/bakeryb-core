@@ -24,7 +24,7 @@ import org.compiere.util.Env;
 
 /** Generated Model for A_Asset_Product
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="A_Asset_Product")
 public class X_A_Asset_Product extends PO implements I_A_Asset_Product, I_Persistent 
 {
@@ -32,7 +32,11 @@ public class X_A_Asset_Product extends PO implements I_A_Asset_Product, I_Persis
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_A_Asset_Product (Properties ctx, int A_Asset_Product_ID, String trxName)

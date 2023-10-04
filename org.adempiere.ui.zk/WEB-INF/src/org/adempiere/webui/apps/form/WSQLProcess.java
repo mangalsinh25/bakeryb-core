@@ -63,7 +63,7 @@ import org.zkoss.zul.Center;
 public class WSQLProcess extends ADForm implements EventListener<Event>
 {
     /**
-	 * 
+	 * generated serial id
 	 */
 	private static final long serialVersionUID = -4661224754061326223L;
 
@@ -82,17 +82,29 @@ public class WSQLProcess extends ADForm implements EventListener<Event>
     private Textbox m_txbResultField = new Textbox();
 
     /**
+<<<<<<< HEAD
      * REGEX_REMOVE_COMMENTS
+=======
+     * Remove comment
+>>>>>>> release-10
      */
     private static final String REGEX_REMOVE_COMMENTS = "/\\*(?:.|[\\n\\r])*?\\*/";
 
     /**
+<<<<<<< HEAD
      * REGEX_REMOVE_QUOTED_STRINGS
+=======
+     * Remove quoted string
+>>>>>>> release-10
      */
     private static final String REGEX_REMOVE_QUOTED_STRINGS = "'(?:.|[\\n\\r])*?'";
 
     /**
+<<<<<<< HEAD
      * REGEX_REMOVE_LEADING_SPACES
+=======
+     * Remove leading space
+>>>>>>> release-10
      */
     private static final String REGEX_REMOVE_LEADING_SPACES = "^\\s+";
 
@@ -103,6 +115,9 @@ public class WSQLProcess extends ADForm implements EventListener<Event>
         super();
     }
 
+    /**
+     * Layout form
+     */
     @Override
     protected void initForm() {
         Row rwTop = new Row();
@@ -178,7 +193,11 @@ public class WSQLProcess extends ADForm implements EventListener<Event>
      *  Process a semicolon delimited list of SQL Statements.
      *
      *  @param sqlStatements    one or more statements separated by a semicolon (';')
+<<<<<<< HEAD
      *  @return a string summarizing the results
+=======
+     *  @return a string summarising the results
+>>>>>>> release-10
      */
     public static String processStatements (String sqlStatements) {
     	if (sqlStatements == null || sqlStatements.length() == 0)
@@ -199,7 +218,11 @@ public class WSQLProcess extends ADForm implements EventListener<Event>
      *  Process SQL Statements.
      *
      *  @param sqlStatement a single SQL statement
+<<<<<<< HEAD
      *  @return a string summarizing the results
+=======
+     *  @return a string summarising the results
+>>>>>>> release-10
      */
     public static String processStatement (String sqlStatement) {
     	if (sqlStatement == null)

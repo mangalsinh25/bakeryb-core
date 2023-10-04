@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for R_InterestArea
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="R_InterestArea")
 public class X_R_InterestArea extends PO implements I_R_InterestArea, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_R_InterestArea extends PO implements I_R_InterestArea, I_Persiste
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_R_InterestArea (Properties ctx, int R_InterestArea_ID, String trxName)

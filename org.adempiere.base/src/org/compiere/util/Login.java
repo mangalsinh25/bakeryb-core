@@ -51,6 +51,7 @@ import org.compiere.model.MUserPreference;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
+import org.compiere.model.SystemIDs;
 
 
 /**
@@ -83,6 +84,7 @@ public class Login
 	 *	@param isClient client session
 	 *	@return Context
 	 */
+	@Deprecated
 	public static Properties initTest (boolean isClient)
 	{
 	//	logger.entering("Env", "initTest");
@@ -92,7 +94,7 @@ public class Login
 		Properties ctx = Env.getCtx();
 		Login login = new Login(ctx);
 		KeyNamePair[] roles = login.getRoles(CConnection.get(),
-			"System", "System", true);
+			"SuperUser", "System", true);
 		//  load role
 		if (roles != null && roles.length > 0)
 		{
@@ -378,9 +380,9 @@ public class Login
 				if (!rs.next())		//	no record found
 					if (force)
 					{
-						Env.setContext(m_ctx, Env.AD_USER_NAME, "System");
-						Env.setContext(m_ctx, Env.AD_USER_ID, "0");
-						Env.setContext(m_ctx, "#AD_User_Description", "System Forced Login");
+						Env.setContext(m_ctx, Env.AD_USER_NAME, "SuperUser");
+						Env.setContext(m_ctx, Env.AD_USER_ID, SystemIDs.USER_SUPERUSER);
+						Env.setContext(m_ctx, "#AD_User_Description", "SuperUser Forced Login");
 						Env.setContext(m_ctx, Env.USER_LEVEL, "S  ");  	//	Format 'SCO'
 						Env.setContext(m_ctx, "#User_Client", "0");		//	Format c1, c2, ...
 						Env.setContext(m_ctx, "#User_Org", "0"); 		//	Format o1, o2, ...
@@ -418,7 +420,7 @@ public class Login
 					}
 					if (valid) { 
 						int AD_Role_ID = rs.getInt(2);
-						if (AD_Role_ID == 0)
+						if (AD_Role_ID == SystemIDs.ROLE_SYSTEM)
 							Env.setContext(m_ctx, "#SysAdmin", "Y");
 						String Name = rs.getString(3);
 						KeyNamePair p = new KeyNamePair(AD_Role_ID, Name);
@@ -562,7 +564,7 @@ public class Login
 				+" WHERE ra.AD_Role_ID=r.AD_Role_ID AND ra.IsActive='Y')) "
 				+" OR (r.IsUseUserOrgAccess='Y' AND o.AD_Org_ID IN (SELECT AD_Org_ID FROM AD_User_OrgAccess ua" 
 				+" WHERE ua.AD_User_ID=?"
-				+" AND ua.IsActive='Y')))" 
+				+" AND ua.IsActive='Y'))) " 
 				+ "ORDER BY o.Name";
 		//
 		PreparedStatement pstmt = null;
@@ -870,6 +872,7 @@ public class Login
 
 		//	Other Settings
 		Env.setContext(m_ctx, "#YYYY", "Y");
+		Env.setContext(m_ctx, Env.DEVELOPER_MODE, Util.isDeveloperMode() ? "Y" : "N");
 		Env.setContext(m_ctx, Env.STANDARD_PRECISION, 2);
 
 		//	AccountSchema Info (first)
@@ -1626,7 +1629,7 @@ public class Login
 	 */
 	public KeyNamePair[] getRoles(String app_user, KeyNamePair client, String roleTypes) {
 		if (client == null)
-			throw new IllegalArgumentException("Client missing");
+			throw new IllegalArgumentException("Tenant missing");
 
 		String whereRoleType = MRole.getWhereRoleType(roleTypes, "r");
 		ArrayList<KeyNamePair> rolesList = new ArrayList<KeyNamePair>();

@@ -25,7 +25,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_PrintPaper
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_PrintPaper")
 public class X_AD_PrintPaper extends PO implements I_AD_PrintPaper, I_Persistent 
 {
@@ -33,7 +33,11 @@ public class X_AD_PrintPaper extends PO implements I_AD_PrintPaper, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_PrintPaper (Properties ctx, int AD_PrintPaper_ID, String trxName)

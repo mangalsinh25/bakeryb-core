@@ -30,8 +30,13 @@ import java.util.Properties;
 import javax.servlet.http.HttpSession;
 
 import org.adempiere.util.Callback;
+<<<<<<< HEAD
 import org.adempiere.webui.IWebClient;
 import org.adempiere.webui.component.FWindow;
+=======
+import org.adempiere.webui.AdempiereWebUI;
+import org.adempiere.webui.IWebClient;
+>>>>>>> release-10
 import org.adempiere.webui.component.Window;
 import org.adempiere.webui.panel.ChangePasswordPanel;
 import org.adempiere.webui.panel.LoginPanel;
@@ -52,6 +57,10 @@ import org.compiere.util.Util;
 import org.zkoss.util.Locales;
 import org.zkoss.web.Attributes;
 import org.zkoss.zk.ui.Executions;
+<<<<<<< HEAD
+=======
+import org.zkoss.zk.ui.Page;
+>>>>>>> release-10
 import org.zkoss.zk.ui.Session;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -67,7 +76,7 @@ import org.zkoss.zk.ui.util.Clients;
  * @author <a href="mailto:sendy.yagambrum@posterita.org">Sendy Yagambrum</a>
  * @date    July 18, 2007
  */
-public class LoginWindow extends FWindow implements EventListener<Event>
+public class LoginWindow extends Window implements EventListener<Event>
 {
 	/**
 	 * 
@@ -188,7 +197,11 @@ public class LoginWindow extends FWindow implements EventListener<Event>
 		String msg = login.validateLogin(m_orgKNPair);
 		if (!Util.isEmpty(msg)) {
 			Env.getCtx().clear();
+<<<<<<< HEAD
 			FDialog.error(0, this, "Error", msg, new Callback<Integer>() {
+=======
+			Dialog.error(0, "Error", msg, new Callback<Integer>() {
+>>>>>>> release-10
 				@Override
 				public void onCallback(Integer result) {
 					Events.echoEvent(new Event(ON_DEFER_LOGOUT, component));
@@ -206,7 +219,11 @@ public class LoginWindow extends FWindow implements EventListener<Event>
 				Timestamp now = TimeUtil.getDay(null);
 
 				if (now.after(notifyAfter))
+<<<<<<< HEAD
 					FDialog.warn(0, null, "", Msg.getMsg(Env.getCtx(), "YourPasswordWillExpireInDays",
+=======
+					Dialog.warn(0, "", Msg.getMsg(Env.getCtx(), "YourPasswordWillExpireInDays",
+>>>>>>> release-10
 							new Object[] { TimeUtil.getDaysBetween(now, limit) }));
 			}
 		}
@@ -296,8 +313,14 @@ public class LoginWindow extends FWindow implements EventListener<Event>
 		else
 			loginName = user.getLDAPUser() != null ? user.getLDAPUser() : user.getName();
     	loginOk(loginName, true, login.getClients());
-    	getDesktop().getSession().setAttribute("Check_AD_User_ID", Env.getAD_User_ID(ctx));
+    	getDesktop().getSession().setAttribute(AdempiereWebUI.CHECK_AD_USER_ID_ATTR, Env.getAD_User_ID(ctx));
     	pnlRole.setChangeRole(true);
     	pnlRole.changeRole(ctx);
     }
+
+	@Override
+	public void onPageDetached(Page page) {
+		setWidgetListener("onOK", null);
+		super.onPageDetached(page);
+	}
 }

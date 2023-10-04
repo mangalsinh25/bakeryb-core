@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_SubAcct
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_SubAcct")
 public class X_C_SubAcct extends PO implements I_C_SubAcct, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_C_SubAcct extends PO implements I_C_SubAcct, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_SubAcct (Properties ctx, int C_SubAcct_ID, String trxName)

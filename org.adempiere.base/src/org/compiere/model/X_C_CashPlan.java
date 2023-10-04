@@ -26,7 +26,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_CashPlan
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_CashPlan")
 public class X_C_CashPlan extends PO implements I_C_CashPlan, I_Persistent 
 {
@@ -34,7 +34,11 @@ public class X_C_CashPlan extends PO implements I_C_CashPlan, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_CashPlan (Properties ctx, int C_CashPlan_ID, String trxName)
@@ -48,7 +52,25 @@ public class X_C_CashPlan extends PO implements I_C_CashPlan, I_Persistent
 			setDocumentNo (null);
 			setGrandTotal (Env.ZERO);
 			setIsApproved (false);
-// @IsApproved@
+// N
+			setIsSOTrx (false);
+			setProcessed (false);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_C_CashPlan (Properties ctx, int C_CashPlan_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, C_CashPlan_ID, trxName, virtualColumns);
+      /** if (C_CashPlan_ID == 0)
+        {
+			setC_CashPlan_ID (0);
+			setDateDoc (new Timestamp( System.currentTimeMillis() ));
+// @#Date@
+			setDocumentNo (null);
+			setGrandTotal (Env.ZERO);
+			setIsApproved (false);
+// N
 			setIsSOTrx (false);
 			setProcessed (false);
         } */

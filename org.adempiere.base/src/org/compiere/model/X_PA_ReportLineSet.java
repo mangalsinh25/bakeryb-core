@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for PA_ReportLineSet
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="PA_ReportLineSet")
 public class X_PA_ReportLineSet extends PO implements I_PA_ReportLineSet, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_PA_ReportLineSet extends PO implements I_PA_ReportLineSet, I_Pers
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_PA_ReportLineSet (Properties ctx, int PA_ReportLineSet_ID, String trxName)

@@ -26,7 +26,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for A_Asset_Change
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="A_Asset_Change")
 public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persistent 
 {
@@ -34,7 +34,11 @@ public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persiste
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20221118L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_A_Asset_Change (Properties ctx, int A_Asset_Change_ID, String trxName)
@@ -832,16 +836,16 @@ public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persiste
 		return bd;
 	}
 
-	/** Set AssetAccumDepreciationAmt.
-		@param AssetAccumDepreciationAmt AssetAccumDepreciationAmt
+	/** Set Asset Accum Depreciation Amt.
+		@param AssetAccumDepreciationAmt Asset Accum Depreciation Amt
 	*/
 	public void setAssetAccumDepreciationAmt (BigDecimal AssetAccumDepreciationAmt)
 	{
 		set_ValueNoCheck (COLUMNNAME_AssetAccumDepreciationAmt, AssetAccumDepreciationAmt);
 	}
 
-	/** Get AssetAccumDepreciationAmt.
-		@return AssetAccumDepreciationAmt	  */
+	/** Get Asset Accum Depreciation Amt.
+		@return Asset Accum Depreciation Amt	  */
 	public BigDecimal getAssetAccumDepreciationAmt()
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_AssetAccumDepreciationAmt);
@@ -850,16 +854,16 @@ public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persiste
 		return bd;
 	}
 
-	/** Set AssetBookValueAmt.
-		@param AssetBookValueAmt AssetBookValueAmt
+	/** Set Asset Book Value Amt.
+		@param AssetBookValueAmt Asset Book Value Amt
 	*/
 	public void setAssetBookValueAmt (BigDecimal AssetBookValueAmt)
 	{
 		set_ValueNoCheck (COLUMNNAME_AssetBookValueAmt, AssetBookValueAmt);
 	}
 
-	/** Get AssetBookValueAmt.
-		@return AssetBookValueAmt	  */
+	/** Get Asset Book Value Amt.
+		@return Asset Book Value Amt	  */
 	public BigDecimal getAssetBookValueAmt()
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_AssetBookValueAmt);
@@ -1038,16 +1042,16 @@ public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persiste
 		return ii.intValue();
 	}
 
-	/** Set ChangeAmt.
-		@param ChangeAmt ChangeAmt
+	/** Set Change Amt.
+		@param ChangeAmt Change Amt
 	*/
 	public void setChangeAmt (BigDecimal ChangeAmt)
 	{
 		set_ValueNoCheck (COLUMNNAME_ChangeAmt, ChangeAmt);
 	}
 
-	/** Get ChangeAmt.
-		@return ChangeAmt	  */
+	/** Get Change Amt.
+		@return Change Amt	  */
 	public BigDecimal getChangeAmt()
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_ChangeAmt);
@@ -1056,16 +1060,16 @@ public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persiste
 		return bd;
 	}
 
-	/** Set ChangeDate.
-		@param ChangeDate ChangeDate
+	/** Set Change Date.
+		@param ChangeDate Change Date
 	*/
 	public void setChangeDate (Timestamp ChangeDate)
 	{
 		set_ValueNoCheck (COLUMNNAME_ChangeDate, ChangeDate);
 	}
 
-	/** Get ChangeDate.
-		@return ChangeDate	  */
+	/** Get Change Date.
+		@return Change Date	  */
 	public Timestamp getChangeDate()
 	{
 		return (Timestamp)get_Value(COLUMNNAME_ChangeDate);
@@ -1101,8 +1105,8 @@ public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persiste
 	public static final String CHANGETYPE_Update = "UPD";
 	/** Usage = USE */
 	public static final String CHANGETYPE_Usage = "USE";
-	/** Set ChangeType.
-		@param ChangeType ChangeType
+	/** Set Change Type.
+		@param ChangeType Change Type
 	*/
 	public void setChangeType (String ChangeType)
 	{
@@ -1110,8 +1114,8 @@ public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persiste
 		set_ValueNoCheck (COLUMNNAME_ChangeType, ChangeType);
 	}
 
-	/** Get ChangeType.
-		@return ChangeType	  */
+	/** Get Change Type.
+		@return Change Type	  */
 	public String getChangeType()
 	{
 		return (String)get_Value(COLUMNNAME_ChangeType);
@@ -1351,7 +1355,7 @@ public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persiste
 	public static final String POSTINGTYPE_Reservation = "R";
 	/** Statistical = S */
 	public static final String POSTINGTYPE_Statistical = "S";
-	/** Set PostingType.
+	/** Set Posting Type.
 		@param PostingType The type of posted amount for the transaction
 	*/
 	public void setPostingType (String PostingType)
@@ -1360,7 +1364,7 @@ public class X_A_Asset_Change extends PO implements I_A_Asset_Change, I_Persiste
 		set_Value (COLUMNNAME_PostingType, PostingType);
 	}
 
-	/** Get PostingType.
+	/** Get Posting Type.
 		@return The type of posted amount for the transaction
 	  */
 	public String getPostingType()

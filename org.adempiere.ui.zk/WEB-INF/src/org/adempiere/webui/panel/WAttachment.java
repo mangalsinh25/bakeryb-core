@@ -47,7 +47,7 @@ import org.adempiere.webui.event.DialogEvents;
 import org.adempiere.webui.factory.ButtonFactory;
 import org.adempiere.webui.theme.ThemeManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.adempiere.webui.window.WEMailDialog;
 import org.adempiere.webui.window.WTextEditorDialog;
 import org.compiere.model.MAttachment;
@@ -78,6 +78,7 @@ import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Hlayout;
 import org.zkoss.zul.Iframe;
 import org.zkoss.zul.North;
+import org.zkoss.zul.Progressmeter;
 import org.zkoss.zul.South;
 import org.zkoss.zul.Vlayout;
 import org.zkoss.zul.impl.Utils;
@@ -143,6 +144,8 @@ public class WAttachment extends Window implements EventListener<Event>
 	private int maxPreviewSize;
 
 	private Component customPreviewComponent;
+	
+	private Progressmeter progress = new Progressmeter(0);
 
 	private static List<String> autoPreviewList;
 
@@ -232,6 +235,15 @@ public class WAttachment extends Window implements EventListener<Event>
 		{
 		}
 
+		String maxUploadSize = "";
+		int size = MSysConfig.getIntValue(MSysConfig.ZK_MAX_UPLOAD_SIZE, 0);
+		if (size > 0)
+			maxUploadSize = "" + size;
+
+		Clients.evalJavaScript("idempiere.dropToAttachFiles('" + this.getUuid() + "','" + mainPanel.getUuid() + "','"
+				+ this.getDesktop().getId() + "','" + progress.getUuid() + "','" + sizeLabel.getUuid() + "','"
+				+ maxUploadSize + "');");
+
 	} // WAttachment
 
 	/**
@@ -273,9 +285,11 @@ public class WAttachment extends Window implements EventListener<Event>
 		this.appendChild(mainPanel);
 		ZKUpdateUtil.setHeight(mainPanel, "100%");
 		ZKUpdateUtil.setWidth(mainPanel, "100%");
+		mainPanel.addEventListener(Events.ON_UPLOAD, this);
+
 
 		North northPanel = new North();
-		northPanel.setStyle("padding: 4px");
+		northPanel.setStyle("padding: 4px; background: #e8e8e8;");
 		northPanel.setCollapsible(false);
 		northPanel.setSplittable(false);
 
@@ -293,14 +307,18 @@ public class WAttachment extends Window implements EventListener<Event>
 		toolBar.appendChild(cbContent);
 		toolBar.appendChild(sizeLabel);
 
-		mainPanel.appendChild(northPanel);
+		progress.setClass("drop-progress-meter");
+		progress.setVisible(false);
+		
 		Vlayout div = new Vlayout();
 		div.appendChild(toolBar);
+		div.appendChild(progress);
 		text.setRows(3);
 		ZKUpdateUtil.setHflex(text, "1");
 		
 		div.appendChild(text);
 		northPanel.appendChild(div);
+		mainPanel.appendChild(northPanel);
 
 		bSave.setEnabled(false);
 		bSave.setSclass("img-btn");
@@ -343,8 +361,9 @@ public class WAttachment extends Window implements EventListener<Event>
 		bEmail.addEventListener(Events.ON_CLICK, this);
 
 		previewPanel.appendChild(preview);
-		ZKUpdateUtil.setVflex(preview, "1");
-		ZKUpdateUtil.setHflex(preview, "1");
+		previewPanel.setSclass("popup-content-background");
+		ZKUpdateUtil.setHeight(preview, "99%");
+		ZKUpdateUtil.setWidth(preview, "99%");
 		
 		Center centerPane = new Center();
 		centerPane.setSclass("dialog-content");
@@ -699,7 +718,7 @@ public class WAttachment extends Window implements EventListener<Event>
 	}
 
 	private void processUploadMedia(Media media) {
-		if (media != null && media.getByteData().length>0)
+		if (media != null && ((media.isBinary() && media.getByteData().length>0) || (!media.isBinary() && media.getStringData().length() > 0)))
 		{
 //				pdfViewer.setContent(media);
 			;
@@ -774,7 +793,7 @@ public class WAttachment extends Window implements EventListener<Event>
 	{
 		log.info("");
 
-		FDialog.ask(m_WindowNo, this, "AttachmentDelete?", new Callback<Boolean>() {
+		Dialog.ask(m_WindowNo, "AttachmentDelete?", new Callback<Boolean>() {
 			
 			@Override
 			public void onCallback(Boolean result) 
@@ -805,7 +824,7 @@ public class WAttachment extends Window implements EventListener<Event>
 		if (fileName == null)
 			return;
 
-		FDialog.ask(m_WindowNo, this, "AttachmentDeleteEntry?", new Callback<Boolean>() {
+		Dialog.ask(m_WindowNo, "AttachmentDeleteEntry?", new Callback<Boolean>() {
 
 			@Override
 			public void onCallback(Boolean result) 

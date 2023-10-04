@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -38,6 +39,14 @@ import java.util.Properties;
 
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAttributeSet;
+=======
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.Properties;
+
+import org.compiere.model.MAcctSchema;
+>>>>>>> release-10
 import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
@@ -48,8 +57,11 @@ import org.compiere.model.MInventory;
 import org.compiere.model.MInventoryLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+<<<<<<< HEAD
 import org.compiere.model.MPriceList;
 import org.compiere.model.MPriceListVersion;
+=======
+>>>>>>> release-10
 import org.compiere.model.MProduct;
 import org.compiere.model.MProductPrice;
 import org.compiere.model.MStorageOnHand;
@@ -62,6 +74,7 @@ import org.compiere.util.Env;
 import org.compiere.util.TimeUtil;
 import org.compiere.wf.MWorkflow;
 import org.idempiere.test.AbstractTestCase;
+import org.idempiere.test.DictionaryIDs;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -72,6 +85,7 @@ public class InventoryTest extends AbstractTestCase {
 	public InventoryTest() {
 	}
 
+<<<<<<< HEAD
 	private static final int PRODCAT_BUSHES = 107;
 	private static final int TAXCAT_STANDARD = 107;
 	private static final int UOM_EACH = 100;
@@ -88,6 +102,8 @@ public class InventoryTest extends AbstractTestCase {
 	private static final int CHEMICALS_CATEGORY_ID = 109;
 	private static final int PURCHASE_PRICE_LIST_ID = 102;
 
+=======
+>>>>>>> release-10
 	/**
 	 * https://idempiere.atlassian.net/browse/IDEMPIERE-4596
 	 */
@@ -97,24 +113,24 @@ public class InventoryTest extends AbstractTestCase {
 		String trxName = getTrxName();
 
 		MProduct product = new MProduct(ctx, 0, trxName);
-		product.setM_Product_Category_ID(PRODCAT_BUSHES);
+		product.setM_Product_Category_ID(DictionaryIDs.M_Product_Category.BUSH.id);
 		product.setName("Test 4596");
 		product.setValue("T4596");
 		product.setProductType(MProduct.PRODUCTTYPE_Item);
 		product.setIsStocked(true);
 		product.setIsSold(true);
 		product.setIsPurchased(true);
-		product.setC_UOM_ID(UOM_EACH);
-		product.setC_TaxCategory_ID(TAXCAT_STANDARD);
+		product.setC_UOM_ID(DictionaryIDs.C_UOM.EACH.id);
+		product.setC_TaxCategory_ID(DictionaryIDs.C_TaxCategory.STANDARD.id);
 		product.saveEx();
 
 		MInventory inventory = new MInventory(ctx, 0, trxName);
-		inventory.setM_Warehouse_ID(WAREHOUSE_HQ);
-		inventory.setC_DocType_ID(DOCTYPE_PHYSICAL_INV);
+		inventory.setM_Warehouse_ID(DictionaryIDs.M_Warehouse.HQ.id);
+		inventory.setC_DocType_ID(DictionaryIDs.C_DocType.MATERIAL_PHYSICAL_INVENTORY.id);
 		inventory.saveEx();
 
 		MInventoryLine iline = new MInventoryLine(inventory,
-				LOCATOR_HQ, 
+				DictionaryIDs.M_Locator.HQ.id, 
 				product.getM_Product_ID(),
 				0, // M_AttributeSetInstance_ID
 				Env.ZERO, // QtyBook
@@ -122,7 +138,7 @@ public class InventoryTest extends AbstractTestCase {
 		iline.saveEx();
 
 		ProcessInfo info = MWorkflow.runDocumentActionWorkflow(inventory, DocAction.ACTION_Complete);
-		assertFalse(info.isError());
+		assertFalse(info.isError(), info.getSummary());
 		inventory.load(trxName);
 		assertEquals(DocAction.STATUS_Completed, inventory.getDocStatus());
 	}
@@ -131,22 +147,37 @@ public class InventoryTest extends AbstractTestCase {
 	public void testCostAdjustmentLineBeforeSave() {
 		MClient client = MClient.get(Env.getCtx());
 		MAcctSchema as = client.getAcctSchema();
+<<<<<<< HEAD
 		MProduct product = new MProduct(Env.getCtx(), MULCH_PRODUCT_ID, getTrxName());
 		MCost cost = product.getCostingRecord(as, getAD_Org_ID(), 0, as.getCostingMethod());
 		if (cost == null || cost.getCurrentCostPrice().signum() == 0) {
 			createPOAndMRForProduct(MULCH_PRODUCT_ID);
+=======
+		MProduct product = new MProduct(Env.getCtx(), DictionaryIDs.M_Product.MULCH.id, getTrxName());
+		MCost cost = product.getCostingRecord(as, getAD_Org_ID(), 0, as.getCostingMethod());
+		if (cost == null || cost.getCurrentCostPrice().signum() == 0) {
+			createPOAndMRForProduct(DictionaryIDs.M_Product.MULCH.id);
+>>>>>>> release-10
 			cost = product.getCostingRecord(as, getAD_Org_ID(), 0, as.getCostingMethod());
 		}
 		assertNotNull(cost);
 		
 		MInventory inventory = new MInventory(Env.getCtx(), 0, getTrxName());
+<<<<<<< HEAD
 		inventory.setC_DocType_ID(DOCTYPE_COST_ADJUSTMENT);
+=======
+		inventory.setC_DocType_ID(DictionaryIDs.C_DocType.COST_ADJUSTMENT.id);
+>>>>>>> release-10
 		inventory.setCostingMethod(as.getCostingMethod());
 		inventory.saveEx();
 		
 		MInventoryLine line = new MInventoryLine(Env.getCtx(), 0, getTrxName());
 		line.setM_Inventory_ID(inventory.get_ID());
+<<<<<<< HEAD
 		line.setM_Product_ID(MULCH_PRODUCT_ID);
+=======
+		line.setM_Product_ID(DictionaryIDs.M_Product.MULCH.id);
+>>>>>>> release-10
 		line.setNewCostPrice(cost.getCurrentCostPrice().add(new BigDecimal("0.5")));
 		line.saveEx();
 		
@@ -160,10 +191,17 @@ public class InventoryTest extends AbstractTestCase {
 	
 	private void createPOAndMRForProduct(int productId, MAttributeSetInstance asi) {
 		MOrder order = new MOrder(Env.getCtx(), 0, getTrxName());
+<<<<<<< HEAD
 		order.setBPartner(MBPartner.get(Env.getCtx(), BP_PATIO));
 		order.setC_DocTypeTarget_ID(DOCTYPE_PO);
 		order.setIsSOTrx(false);
 		order.setSalesRep_ID(USER_GARDENADMIN);
+=======
+		order.setBPartner(MBPartner.get(Env.getCtx(), DictionaryIDs.C_BPartner.PATIO.id));
+		order.setC_DocTypeTarget_ID(DictionaryIDs.C_DocType.PURCHASE_ORDER.id);
+		order.setIsSOTrx(false);
+		order.setSalesRep_ID(DictionaryIDs.AD_User.GARDEN_ADMIN.id);
+>>>>>>> release-10
 		order.setDocStatus(DocAction.STATUS_Drafted);
 		order.setDocAction(DocAction.ACTION_Complete);
 		Timestamp today = TimeUtil.getDay(System.currentTimeMillis());
@@ -179,11 +217,19 @@ public class InventoryTest extends AbstractTestCase {
 		line1.saveEx();
 		
 		ProcessInfo info = MWorkflow.runDocumentActionWorkflow(order, DocAction.ACTION_Complete);
+<<<<<<< HEAD
 		assertFalse(info.isError());
 		order.load(getTrxName());
 		assertEquals(DocAction.STATUS_Completed, order.getDocStatus());		
 		
 		MInOut receipt1 = new MInOut(order, DOCTYPE_RECEIPT, order.getDateOrdered());
+=======
+		assertFalse(info.isError(), info.getSummary());
+		order.load(getTrxName());
+		assertEquals(DocAction.STATUS_Completed, order.getDocStatus());		
+		
+		MInOut receipt1 = new MInOut(order, DictionaryIDs.C_DocType.MM_RECEIPT.id, order.getDateOrdered());
+>>>>>>> release-10
 		receipt1.setDocStatus(DocAction.STATUS_Drafted);
 		receipt1.setDocAction(DocAction.ACTION_Complete);
 		receipt1.saveEx();
@@ -196,7 +242,11 @@ public class InventoryTest extends AbstractTestCase {
 		receiptLine1.saveEx();
 
 		info = MWorkflow.runDocumentActionWorkflow(receipt1, DocAction.ACTION_Complete);
+<<<<<<< HEAD
 		assertFalse(info.isError());
+=======
+		assertFalse(info.isError(), info.getSummary());
+>>>>>>> release-10
 		receipt1.load(getTrxName());
 		assertEquals(DocAction.STATUS_Completed, receipt1.getDocStatus());
 		if (!receipt1.isPosted()) {
@@ -204,6 +254,7 @@ public class InventoryTest extends AbstractTestCase {
 			assertNull(error, error);
 		}
 	}
+<<<<<<< HEAD
 	
 	@Test
 	public void testSkipProductWithSerial() {
@@ -394,4 +445,6 @@ public class InventoryTest extends AbstractTestCase {
 			}
 		}
 	}
+=======
+>>>>>>> release-10
 }

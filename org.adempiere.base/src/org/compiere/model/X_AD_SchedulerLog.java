@@ -22,7 +22,7 @@ import java.util.Properties;
 
 /** Generated Model for AD_SchedulerLog
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_SchedulerLog")
 public class X_AD_SchedulerLog extends PO implements I_AD_SchedulerLog, I_Persistent 
 {
@@ -30,7 +30,11 @@ public class X_AD_SchedulerLog extends PO implements I_AD_SchedulerLog, I_Persis
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_SchedulerLog (Properties ctx, int AD_SchedulerLog_ID, String trxName)

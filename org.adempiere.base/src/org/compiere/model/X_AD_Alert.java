@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_Alert
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_Alert")
 public class X_AD_Alert extends PO implements I_AD_Alert, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_AD_Alert extends PO implements I_AD_Alert, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_Alert (Properties ctx, int AD_Alert_ID, String trxName)
@@ -214,16 +218,16 @@ public class X_AD_Alert extends PO implements I_AD_Alert, I_Persistent
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
-	/** Set Enforce Client Security.
-		@param EnforceClientSecurity Send alerts to recipient only if the client security rules of the role allows
+	/** Set Enforce Tenant Security.
+		@param EnforceClientSecurity Send alerts to recipient only if the tenant security rules of the role allows
 	*/
 	public void setEnforceClientSecurity (boolean EnforceClientSecurity)
 	{
 		set_Value (COLUMNNAME_EnforceClientSecurity, Boolean.valueOf(EnforceClientSecurity));
 	}
 
-	/** Get Enforce Client Security.
-		@return Send alerts to recipient only if the client security rules of the role allows
+	/** Get Enforce Tenant Security.
+		@return Send alerts to recipient only if the tenant security rules of the role allows
 	  */
 	public boolean isEnforceClientSecurity()
 	{

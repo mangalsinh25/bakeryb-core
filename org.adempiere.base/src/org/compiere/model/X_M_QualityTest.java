@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for M_QualityTest
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="M_QualityTest")
 public class X_M_QualityTest extends PO implements I_M_QualityTest, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_M_QualityTest extends PO implements I_M_QualityTest, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_M_QualityTest (Properties ctx, int M_QualityTest_ID, String trxName)

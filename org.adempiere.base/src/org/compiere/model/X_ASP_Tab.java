@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for ASP_Tab
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="ASP_Tab")
 public class X_ASP_Tab extends PO implements I_ASP_Tab, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_ASP_Tab extends PO implements I_ASP_Tab, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_ASP_Tab (Properties ctx, int ASP_Tab_ID, String trxName)
@@ -113,16 +117,16 @@ public class X_ASP_Tab extends PO implements I_ASP_Tab, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set AllFields.
-		@param AllFields AllFields
+	/** Set All Fields.
+		@param AllFields All Fields
 	*/
 	public void setAllFields (boolean AllFields)
 	{
 		set_Value (COLUMNNAME_AllFields, Boolean.valueOf(AllFields));
 	}
 
-	/** Get AllFields.
-		@return AllFields	  */
+	/** Get All Fields.
+		@return All Fields	  */
 	public boolean isAllFields()
 	{
 		Object oo = get_Value(COLUMNNAME_AllFields);

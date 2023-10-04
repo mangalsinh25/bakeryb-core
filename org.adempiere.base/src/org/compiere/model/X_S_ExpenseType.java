@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for S_ExpenseType
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="S_ExpenseType")
 public class X_S_ExpenseType extends PO implements I_S_ExpenseType, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_S_ExpenseType extends PO implements I_S_ExpenseType, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_S_ExpenseType (Properties ctx, int S_ExpenseType_ID, String trxName)

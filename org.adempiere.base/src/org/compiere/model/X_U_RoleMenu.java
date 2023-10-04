@@ -22,7 +22,7 @@ import java.util.Properties;
 
 /** Generated Model for U_RoleMenu
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="U_RoleMenu")
 public class X_U_RoleMenu extends PO implements I_U_RoleMenu, I_Persistent 
 {
@@ -30,7 +30,11 @@ public class X_U_RoleMenu extends PO implements I_U_RoleMenu, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_U_RoleMenu (Properties ctx, int U_RoleMenu_ID, String trxName)

@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_Activity
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_Activity")
 public class X_C_Activity extends PO implements I_C_Activity, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_C_Activity extends PO implements I_C_Activity, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_Activity (Properties ctx, int C_Activity_ID, String trxName)

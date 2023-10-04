@@ -633,7 +633,7 @@ public class ZkJRViewer extends Window implements EventListener<Event>, ITabOnCl
 			try {
 				attachment = getPDF();
 			} catch (Exception e) {
-				FDialog.error(m_WindowNo, this, e.getLocalizedMessage(), m_title);
+				Dialog.error(m_WindowNo, e.getLocalizedMessage(), m_title);
 				return;
 			}
 		}
@@ -882,9 +882,9 @@ public class ZkJRViewer extends Window implements EventListener<Event>, ITabOnCl
 			}
 
 			if (success)
-				FDialog.info(m_WindowNo, this, "Archived");
+				Dialog.info(m_WindowNo, "Archived");
 			else
-				FDialog.error(m_WindowNo, this, "ArchiveError");
+				Dialog.error(m_WindowNo, "ArchiveError");
 		}
 		catch (IOException e)
 		{
@@ -914,9 +914,15 @@ public class ZkJRViewer extends Window implements EventListener<Event>, ITabOnCl
 		attachment.addEntry(fileName, data);
 		success = attachment.save();
 		if (success)
+<<<<<<< HEAD
 			FDialog.info(m_WindowNo, this, "Attached", fileName);
 		else
 			FDialog.error(m_WindowNo, this, "AttachError");
+=======
+			Dialog.info(m_WindowNo, "Attached", fileName);
+		else
+			Dialog.error(m_WindowNo, "AttachError");
+>>>>>>> release-10
 	} // cmd_archive
 
 	/** 

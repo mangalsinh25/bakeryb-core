@@ -38,6 +38,10 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MOrder;
+<<<<<<< HEAD
+=======
+import org.compiere.model.MProcessPara;
+>>>>>>> release-10
 import org.compiere.model.MProduct;
 import org.compiere.model.MRMA;
 import org.compiere.util.AdempiereUserError;
@@ -69,7 +73,11 @@ public class CreateFromInOut extends SvrProcess
 			else if (name.equals("M_InOut_ID"))
 				p_M_InOut_ID = para[i].getParameterAsInt();
 			else
+<<<<<<< HEAD
 				log.log(Level.SEVERE, "Unknown Parameter: " + name);
+=======
+				MProcessPara.validateUnknownParameter(getProcessInfo().getAD_Process_ID(), para[i]);
+>>>>>>> release-10
 		}
 	}
 

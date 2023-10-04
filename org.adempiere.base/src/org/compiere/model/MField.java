@@ -216,8 +216,13 @@ public class MField extends X_AD_Field implements ImmutablePOSupport
 				setAD_Val_Rule_ID(0);
 			if (getIsToolbarButton() != null)
 				setIsToolbarButton(null);
+<<<<<<< HEAD
 		}
 
+=======
+		}
+		
+>>>>>>> release-10
 		//validate logic expression
 		if (newRecord || is_ValueChanged(COLUMNNAME_ReadOnlyLogic)) {
 			if (isActive() && !Util.isEmpty(getReadOnlyLogic(), true) && !getReadOnlyLogic().startsWith("@SQL=")) {

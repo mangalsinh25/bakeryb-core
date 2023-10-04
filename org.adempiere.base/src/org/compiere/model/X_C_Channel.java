@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_Channel
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_Channel")
 public class X_C_Channel extends PO implements I_C_Channel, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_C_Channel extends PO implements I_C_Channel, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_Channel (Properties ctx, int C_Channel_ID, String trxName)

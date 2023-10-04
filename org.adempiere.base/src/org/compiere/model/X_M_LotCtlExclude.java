@@ -22,7 +22,7 @@ import java.util.Properties;
 
 /** Generated Model for M_LotCtlExclude
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="M_LotCtlExclude")
 public class X_M_LotCtlExclude extends PO implements I_M_LotCtlExclude, I_Persistent 
 {
@@ -30,7 +30,11 @@ public class X_M_LotCtlExclude extends PO implements I_M_LotCtlExclude, I_Persis
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_M_LotCtlExclude (Properties ctx, int M_LotCtlExclude_ID, String trxName)

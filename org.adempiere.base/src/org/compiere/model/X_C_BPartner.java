@@ -26,7 +26,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_BPartner
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_BPartner")
 public class X_C_BPartner extends PO implements I_C_BPartner, I_Persistent 
 {
@@ -34,7 +34,11 @@ public class X_C_BPartner extends PO implements I_C_BPartner, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_BPartner (Properties ctx, int C_BPartner_ID, String trxName)
@@ -634,6 +638,8 @@ public class X_C_BPartner extends PO implements I_C_BPartner, I_Persistent
 	public static final String FREIGHTCOSTRULE_FreightIncluded = "I";
 	/** Line = L */
 	public static final String FREIGHTCOSTRULE_Line = "L";
+	/** Customer Account = U */
+	public static final String FREIGHTCOSTRULE_CustomerAccount = "U";
 	/** Set Freight Cost Rule.
 		@param FreightCostRule Method for charging Freight
 	*/
@@ -1260,7 +1266,7 @@ public class X_C_BPartner extends PO implements I_C_BPartner, I_Persistent
 			.getPO(getPO_PriceList_ID(), get_TrxName());
 	}
 
-	/** Set Purchase Pricelist.
+	/** Set Purchase Price List.
 		@param PO_PriceList_ID Price List used by this Business Partner
 	*/
 	public void setPO_PriceList_ID (int PO_PriceList_ID)
@@ -1271,7 +1277,7 @@ public class X_C_BPartner extends PO implements I_C_BPartner, I_Persistent
 			set_Value (COLUMNNAME_PO_PriceList_ID, Integer.valueOf(PO_PriceList_ID));
 	}
 
-	/** Get Purchase Pricelist.
+	/** Get Purchase Price List.
 		@return Price List used by this Business Partner
 	  */
 	public int getPO_PriceList_ID()

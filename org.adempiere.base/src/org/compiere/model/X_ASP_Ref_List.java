@@ -22,7 +22,7 @@ import java.util.Properties;
 
 /** Generated Model for ASP_Ref_List
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="ASP_Ref_List")
 public class X_ASP_Ref_List extends PO implements I_ASP_Ref_List, I_Persistent 
 {
@@ -30,7 +30,11 @@ public class X_ASP_Ref_List extends PO implements I_ASP_Ref_List, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_ASP_Ref_List (Properties ctx, int ASP_Ref_List_ID, String trxName)

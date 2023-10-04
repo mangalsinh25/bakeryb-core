@@ -22,7 +22,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for C_Invoice
  *  @author iDempiere (generated) 
- *  @version Release 9
+ *  @version Release 10
  */
 public interface I_C_Invoice 
 {
@@ -44,8 +44,8 @@ public interface I_C_Invoice
     /** Column name AD_Client_ID */
     public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
 
-	/** Get Client.
-	  * Client/Tenant for this installation.
+	/** Get Tenant.
+	  * Tenant for this installation.
 	  */
 	public int getAD_Client_ID();
 
@@ -53,12 +53,12 @@ public interface I_C_Invoice
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
 
 	/** Set Organization.
-	  * Organizational entity within client
+	  * Organizational entity within tenant
 	  */
 	public void setAD_Org_ID (int AD_Org_ID);
 
 	/** Get Organization.
-	  * Organizational entity within client
+	  * Organizational entity within tenant
 	  */
 	public int getAD_Org_ID();
 
@@ -467,12 +467,12 @@ public interface I_C_Invoice
     /** Column name DatePrinted */
     public static final String COLUMNNAME_DatePrinted = "DatePrinted";
 
-	/** Set Date printed.
+	/** Set Date Printed.
 	  * Date the document was printed.
 	  */
 	public void setDatePrinted (Timestamp DatePrinted);
 
-	/** Get Date printed.
+	/** Get Date Printed.
 	  * Date the document was printed.
 	  */
 	public Timestamp getDatePrinted();
@@ -506,12 +506,20 @@ public interface I_C_Invoice
     /** Column name DocBaseType */
     public static final String COLUMNNAME_DocBaseType = "DocBaseType";
 
+<<<<<<< HEAD
 	/** Set Document BaseType.
+=======
+	/** Set Document Base Type.
+>>>>>>> release-10
 	  * Logical type of document
 	  */
 	public void setDocBaseType (String DocBaseType);
 
+<<<<<<< HEAD
 	/** Get Document BaseType.
+=======
+	/** Get Document Base Type.
+>>>>>>> release-10
 	  * Logical type of document
 	  */
 	public String getDocBaseType();
@@ -632,10 +640,10 @@ public interface I_C_Invoice
     /** Column name IsFixedAssetInvoice */
     public static final String COLUMNNAME_IsFixedAssetInvoice = "IsFixedAssetInvoice";
 
-	/** Set IsFixedAssetInvoice	  */
+	/** Set Is Fixed Asset Invoice	  */
 	public void setIsFixedAssetInvoice (boolean IsFixedAssetInvoice);
 
-	/** Get IsFixedAssetInvoice	  */
+	/** Get Is Fixed Asset Invoice	  */
 	public boolean isFixedAssetInvoice();
 
     /** Column name IsInDispute */

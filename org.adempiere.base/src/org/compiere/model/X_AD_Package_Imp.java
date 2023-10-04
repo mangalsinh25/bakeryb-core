@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for AD_Package_Imp
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="AD_Package_Imp")
 public class X_AD_Package_Imp extends PO implements I_AD_Package_Imp, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_AD_Package_Imp extends PO implements I_AD_Package_Imp, I_Persiste
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_AD_Package_Imp (Properties ctx, int AD_Package_Imp_ID, String trxName)
@@ -156,16 +160,16 @@ public class X_AD_Package_Imp extends PO implements I_AD_Package_Imp, I_Persiste
 		return (String)get_Value(COLUMNNAME_AD_Package_Imp_UU);
 	}
 
-	/** Set CreatedDate.
-		@param CreatedDate CreatedDate
+	/** Set Created Date.
+		@param CreatedDate Created Date
 	*/
 	public void setCreatedDate (String CreatedDate)
 	{
 		set_Value (COLUMNNAME_CreatedDate, CreatedDate);
 	}
 
-	/** Get CreatedDate.
-		@return CreatedDate	  */
+	/** Get Created Date.
+		@return Created Date	  */
 	public String getCreatedDate()
 	{
 		return (String)get_Value(COLUMNNAME_CreatedDate);
@@ -186,16 +190,16 @@ public class X_AD_Package_Imp extends PO implements I_AD_Package_Imp, I_Persiste
 		return (String)get_Value(COLUMNNAME_Creator);
 	}
 
-	/** Set CreatorContact.
-		@param CreatorContact CreatorContact
+	/** Set Creator Contact.
+		@param CreatorContact Creator Contact
 	*/
 	public void setCreatorContact (String CreatorContact)
 	{
 		set_Value (COLUMNNAME_CreatorContact, CreatorContact);
 	}
 
-	/** Get CreatorContact.
-		@return CreatorContact	  */
+	/** Get Creator Contact.
+		@return Creator Contact	  */
 	public String getCreatorContact()
 	{
 		return (String)get_Value(COLUMNNAME_CreatorContact);
@@ -362,16 +366,16 @@ public class X_AD_Package_Imp extends PO implements I_AD_Package_Imp, I_Persiste
 		return false;
 	}
 
-	/** Set UpdatedDate.
-		@param UpdatedDate UpdatedDate
+	/** Set Updated Date.
+		@param UpdatedDate Updated Date
 	*/
 	public void setUpdatedDate (String UpdatedDate)
 	{
 		set_Value (COLUMNNAME_UpdatedDate, UpdatedDate);
 	}
 
-	/** Get UpdatedDate.
-		@return UpdatedDate	  */
+	/** Get Updated Date.
+		@return Updated Date	  */
 	public String getUpdatedDate()
 	{
 		return (String)get_Value(COLUMNNAME_UpdatedDate);

@@ -88,6 +88,9 @@ public final class MRole extends X_AD_Role implements ImmutablePOSupport
 	 */
 	public static MRole getDefault (Properties ctx, boolean reload)
 	{
+		if (Util.isEmpty(Env.getContext(ctx, Env.AD_ROLE_ID)) || Util.isEmpty(Env.getContext(ctx, Env.AD_USER_ID)))
+			return null;
+		
 		int AD_Role_ID = Env.getContextAsInt(ctx, Env.AD_ROLE_ID);
 		int AD_User_ID = Env.getContextAsInt(ctx, Env.AD_USER_ID);
 
@@ -131,7 +134,7 @@ public final class MRole extends X_AD_Role implements ImmutablePOSupport
 		if (role == null || reload)
 		{
 			role = new MRole (ctx, AD_Role_ID, null);			
-			if (AD_Role_ID == 0)
+			if (AD_Role_ID == SystemIDs.ROLE_SYSTEM)
 			{
 				String trxName = null;
 				role.load(trxName);			//	special Handling
@@ -269,7 +272,7 @@ public final class MRole extends X_AD_Role implements ImmutablePOSupport
 	{
 		super (ctx, AD_Role_ID, trxName);
 		//	ID=0 == System Administrator
-		if (AD_Role_ID == 0)
+		if (AD_Role_ID == SystemIDs.ROLE_SYSTEM)
 		{
 			setIsCanExport (true);
 			setIsCanReport (true);
@@ -487,7 +490,7 @@ public final class MRole extends X_AD_Role implements ImmutablePOSupport
 			+ "(wa.AD_Role_ID=" + getAD_Role_ID()
 			+ " AND w.AD_Window_ID = wa.AD_Window_ID) "
 			+ "WHERE w.IsActive = 'Y' AND wa.AD_Window_ID IS NULL AND t.SeqNo=(SELECT MIN(SeqNo) FROM AD_Tab xt "	// only check first tab
-				+ "WHERE xt.AD_Window_ID=w.AD_Window_ID)"
+				+ "WHERE xt.AD_Window_ID=w.AD_Window_ID) "
 			+ "AND tt.AccessLevel IN ";
 		
 		String sqlProcess = "INSERT INTO AD_Process_Access "
@@ -951,7 +954,11 @@ public final class MRole extends X_AD_Role implements ImmutablePOSupport
 		MTable table = MTable.get(getCtx(), tableName);
 		if (table == null)
 			return false;
+<<<<<<< HEAD
 		return MTable.get(getCtx(), tableName).isView();
+=======
+		return table.isView();
+>>>>>>> release-10
 	}
 
 	private String getIdColumnName(String tableName)
@@ -960,7 +967,11 @@ public final class MRole extends X_AD_Role implements ImmutablePOSupport
 		MTable table = MTable.get(getCtx(), tableName);
 		if (table == null)
 			return null;
+<<<<<<< HEAD
 		if (MTable.get(getCtx(), tableName).columnExists(colkey.toString()))
+=======
+		if (table.getColumnIndex(colkey.toString()) >= 0)
+>>>>>>> release-10
 			return colkey.toString();
 		return null;
 	}
@@ -1216,7 +1227,7 @@ public final class MRole extends X_AD_Role implements ImmutablePOSupport
 	{
 		if (!isCanReport())						//	Role Level block
 		{
-			log.warning ("Role denied");
+			if (log.isLoggable(Level.FINE)) log.fine ("Role denied (" + MRole.getDefaultRole().getAD_Role_ID() + ") tableID=" + AD_Table_ID);
 			return false;
 		}
 		if (!isTableAccess(AD_Table_ID, true))	//	No R/O Access to Table
@@ -1260,7 +1271,7 @@ public final class MRole extends X_AD_Role implements ImmutablePOSupport
 	{
 		if (!isCanExport())						//	Role Level block
 		{
-			log.warning ("Role denied");
+			if (log.isLoggable(Level.FINE)) log.fine ("Role denied (" + MRole.getDefaultRole().getAD_Role_ID() + ") tableID=" + AD_Table_ID);
 			return false;
 		}
 		if (!isTableAccess(AD_Table_ID, true))	//	No R/O Access to Table

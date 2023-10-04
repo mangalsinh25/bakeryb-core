@@ -104,7 +104,11 @@ public class WLocationEditor extends WEditor implements EventListener<Event>, Pr
     	else
     		getComponent().setButtonImage(ThemeManager.getThemeResource("images/Location16.png"));
     	
+<<<<<<< HEAD
     	popupMenu = new WEditorPopupMenu(true, false, isShowPreference(), false, false, false, gridField.getLookup());
+=======
+    	popupMenu = new WEditorPopupMenu(true, false, isShowPreference(), false, false, false, gridField != null ? gridField.getLookup() : null);
+>>>>>>> release-10
     	popupMenu.addMenuListener(this);
     	addChangeLogMenu(popupMenu);
 		if (gridField != null)

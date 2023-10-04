@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_POS
  *  @author iDempiere (generated) 
- *  @version Release 9 - $Id$ */
+ *  @version Release 10 - $Id$ */
 @org.adempiere.base.Model(table="C_POS")
 public class X_C_POS extends PO implements I_C_POS, I_Persistent 
 {
@@ -31,7 +31,11 @@ public class X_C_POS extends PO implements I_C_POS, I_Persistent
 	/**
 	 *
 	 */
+<<<<<<< HEAD
 	private static final long serialVersionUID = 20220116L;
+=======
+	private static final long serialVersionUID = 20221224L;
+>>>>>>> release-10
 
     /** Standard Constructor */
     public X_C_POS (Properties ctx, int C_POS_ID, String trxName)
@@ -112,16 +116,16 @@ public class X_C_POS extends PO implements I_C_POS, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set CashDrawer.
-		@param CashDrawer CashDrawer
+	/** Set Cash Drawer.
+		@param CashDrawer Cash Drawer
 	*/
 	public void setCashDrawer (String CashDrawer)
 	{
 		set_Value (COLUMNNAME_CashDrawer, CashDrawer);
 	}
 
-	/** Get CashDrawer.
-		@return CashDrawer	  */
+	/** Get Cash Drawer.
+		@return Cash Drawer	  */
 	public String getCashDrawer()
 	{
 		return (String)get_Value(COLUMNNAME_CashDrawer);

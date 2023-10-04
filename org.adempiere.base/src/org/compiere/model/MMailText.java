@@ -18,15 +18,12 @@ package org.compiere.model;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.text.SimpleDateFormat;
 import java.util.Properties;
 import java.util.logging.Level;
 
 import org.compiere.util.CCache;
 import org.compiere.util.DB;
-import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
-import org.compiere.util.Msg;
 import org.compiere.util.Util;
 
 /**
@@ -84,14 +81,25 @@ public class MMailText extends X_R_MailText
 	
 	/**
 	 * 	Get parsed/translated Mail Text
-	 *	@param all concatinate all
+	 *	@param all concatenate all
 	 *	@return parsed/translated text
 	 */
 	public String getMailText(boolean all)
 	{
+		return getMailText(all, true);
+	}
+	
+	/**
+	 * 	Get parsed/translated Mail Text
+	 *	@param all concatenate all
+	 *  @param parsed
+	 *	@return parsed/translated text
+	 */
+	public String getMailText(boolean all, boolean parsed)
+	{
 		translate();
 		if (!all)
-			return parse(m_MailText);
+			return parsed ? parse(m_MailText) : m_MailText;
 		//
 		StringBuilder sb = new StringBuilder();
 		sb.append(m_MailText);
@@ -102,7 +110,7 @@ public class MMailText extends X_R_MailText
 		if (s != null && s.length() > 0)
 			sb.append("\n").append(s);
 		//
-		return parse(sb.toString());
+		return parsed ? parse(sb.toString()) : sb.toString();
 	}	//	getMailText
 
 	/**
@@ -141,8 +149,18 @@ public class MMailText extends X_R_MailText
 	 */
 	public String getMailHeader()
 	{
+		return getMailHeader(true);
+	}
+	
+	/**
+	 * 	Get parsed/translated Mail Header
+	 *  @param parsed
+	 *	@return parsed/translated text
+	 */
+	public String getMailHeader(boolean parsed)
+	{
 		translate();
-		return parse(m_MailHeader);
+		return parsed ? parse(m_MailHeader) : m_MailHeader;
 	}	//	getMailHeader
 	
 	/**************************************************************************
@@ -211,6 +229,7 @@ public class MMailText extends X_R_MailText
 	 */
 	protected String parseVariable (String variable, PO po)
 	{
+<<<<<<< HEAD
 		if (variable.contains("<") && variable.contains(">")) { // IDEMPIERE-3096
 			return Env.parseVariable("@"+variable+"@", po, get_TrxName(), true);
 		}
@@ -246,6 +265,9 @@ public class MMailText extends X_R_MailText
 		if (value == null)
 			return defaultValue;
 		return value.toString();
+=======
+		return Env.parseVariable("@"+variable+"@", po, get_TrxName(), true, true, true);
+>>>>>>> release-10
 	}	//	translate
 	
 	/**
